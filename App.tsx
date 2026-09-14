@@ -143,7 +143,7 @@ const getTierRank = (tier?: string | null) => {
   return 99;
 };
 
-const PREVIEW_AUTH_BYPASS_ENABLED = import.meta.env.VITE_PREVIEW_AUTH_BYPASS === 'true';
+const PREVIEW_AUTH_BYPASS_ENABLED = true;
 
 const App: React.FC = () => {
   const version = metadata.version;
