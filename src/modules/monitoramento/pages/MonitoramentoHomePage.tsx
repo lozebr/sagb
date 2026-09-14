@@ -1,8 +1,14 @@
 import React from 'react';
 import { MonitoramentoInternalSection } from '../components';
 
-const cards: Array<{ title: string; description: string; target: MonitoramentoInternalSection }> = [
+const cards: Array<{
+  title: string;
+  description: string;
+  target?: MonitoramentoInternalSection;
+  externalUrl?: string;
+}> = [
   { title: 'Dashboard Operacional', description: 'Painéis compactos, presets e modo TV.', target: 'dashboard' },
+  { title: 'Loze', description: 'Abrir o Control Center da Loze em produção.', externalUrl: 'https://api.loze.com.br' },
   { title: 'Supabase / Database', description: 'Tabelas por módulo, status e observabilidade.', target: 'supabase' },
   { title: 'Infraestrutura e Rede', description: 'Acesso rápido ao submódulo de infraestrutura.', target: 'submodulos' },
   { title: 'Execução Local', description: 'Preparado para monitorar jobs e estação.', target: 'dashboard' },
@@ -27,8 +33,26 @@ const MonitoramentoHomePage: React.FC<MonitoramentoHomePageProps> = ({ onNavigat
     </header>
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
       {cards.map((card) => (
-        <button key={card.title} type="button" onClick={() => onNavigate(card.target)} className="rounded-[20px] border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] p-4 text-left shadow-sm hover:border-cyan-300 hover:-translate-y-0.5 transition-all">
-          <strong className="text-sm font-black text-slate-950 dark:text-white">{card.title}</strong>
+        <button
+          key={card.title}
+          type="button"
+          onClick={() => {
+            if (card.externalUrl) {
+              window.open(card.externalUrl, '_blank', 'noopener,noreferrer');
+              return;
+            }
+            if (card.target) onNavigate(card.target);
+          }}
+          className="rounded-[20px] border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] p-4 text-left shadow-sm hover:border-cyan-300 hover:-translate-y-0.5 transition-all"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <strong className="text-sm font-black text-slate-950 dark:text-white">{card.title}</strong>
+            {card.externalUrl && (
+              <span className="text-[9px] font-black uppercase tracking-[0.18em] text-cyan-600 dark:text-cyan-400">
+                abrir ↗
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{card.description}</p>
         </button>
       ))}
