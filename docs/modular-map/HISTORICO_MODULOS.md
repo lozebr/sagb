@@ -28,6 +28,8 @@ Documento de rastreabilidade macro por modulo.
   - `components/Sidebar.tsx`
   - `data/netlifyLauncherRegistry.ts`
   - `docs/modular-map/HISTORICO_MODULOS.md`
+  - `.github/workflows/history-check.yml`
+- Correcao de reativacao: workflow de conformidade atualizado de Node 18 para Node 20 porque as dependencias atuais do SagB exigem Node 20+.
 - Fonte do inventario: Netlify team `adm-mceezrw`, snapshot de 2026-09-14.
 - Status: em andamento ate validacao do Deploy Preview.
 
