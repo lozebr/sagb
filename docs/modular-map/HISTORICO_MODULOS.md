@@ -13,6 +13,28 @@ Documento de rastreabilidade macro por modulo.
 
 ---
 
+### 2026-09-14 - Reativacao do SagB e launcher geral da Netlify
+
+- Modulo: 02-home-dashboard-e-hub / Plataforma geral
+- Mudanca:
+  - reativacao operacional do SagB a partir do repositorio oficial `lozebr/sagb`;
+  - inventario real da equipe Netlify consolidado em registry dedicado com 47 projetos;
+  - `HubView` passa a abrir por padrao na visao `Aplicativos & Links`, mantendo o mapa de ecossistema anterior preservado como visao secundaria;
+  - adicao de busca, filtros, cards, abertura em nova aba e copia de URL;
+  - item `ecosystem` do menu renomeado visualmente para `Aplicativos & Links`, sem alterar seu ID de navegacao.
+- Tipo: arquitetura / fluxo / ui / infra
+- Arquivos/tabelas afetados:
+  - `components/HubView.tsx`
+  - `components/Sidebar.tsx`
+  - `data/netlifyLauncherRegistry.ts`
+  - `docs/modular-map/HISTORICO_MODULOS.md`
+  - `.github/workflows/history-check.yml`
+- Correcao de reativacao: workflow de conformidade atualizado de Node 18 para Node 20 porque as dependencias atuais do SagB exigem Node 20+.
+- Correcao de Deploy Preview: configuracao Netlify `SECRETS_SCAN_OMIT_KEYS` ajustada apenas no contexto `deploy-preview` para ignorar as variaveis publicas `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`; producao nao alterada.
+- Acesso de homologacao: bypass de autenticacao ativado diretamente nesta branch de Deploy Preview para permitir navegacao sem Supabase; a `main` e a producao permanecem sem alteracao.
+- Fonte do inventario: Netlify team `adm-mceezrw`, snapshot de 2026-09-14.
+- Status: em andamento ate validacao do Deploy Preview.
+
 ## Entradas iniciais
 
 ### 2026-04-09 - Isolamento documental do Núcleo Conversacional

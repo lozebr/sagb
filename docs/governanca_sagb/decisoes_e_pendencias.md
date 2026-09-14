@@ -41,6 +41,10 @@ Registrar decisões e pendências de governança em formato auditável, conectan
 | PEND-005 | 2026-04-08 | GOV-CAM-001 / GOV-CAM-002 | Definir backup de execução técnica para continuidade operacional | MÉDIA | Pierre Zanulli | 2026-04-22 | ABERTA | definição organizacional | `docs/governanca_sagb/owners_e_accountability.md` |
 | PEND-006 | 2026-04-09 | GOV-MOD-010 | Consolidar componentes e serviços legados (ex: `SystemicVision`, `ChatMessage`) dentro de `src/modules/nucleo-conversacional` | MÉDIA | Cássio Mendes | A DEFINIR | ABERTA | Planejamento de refatoração do chat | `src/modules/nucleo-conversacional/module-doc.ts` |
 | PEND-007 | 2026-04-09 | GOV-MOD-011 | Extrair e fatiar o componente legado `CIDView.tsx` para a pasta `src/modules/cid/components` | MÉDIA | Cássio Mendes | A DEFINIR | ABERTA | Planejamento de refatoração do CID | `src/modules/cid/changelog.md` |
+| PEND-008 | 2026-09-14 | GOV-DEV-EXT-001 | Avaliar evolução do SagB Bridge já documentado para uma extensão oficial de VS Code da Loze/SagB, evitando criar uma segunda ponte concorrente | ALTA | Arquitetura Loze + SagB | A DEFINIR | AGUARDANDO APROVAÇÃO | Definir naming público, escopo e fronteira entre MCP, extensão e SagB Bridge | `docs/Estrutura_SagB/SagB_Bridge_Extensao_VSCode` + `docs/modular-map/modules/13-sagb-bridge.md` |
+| PEND-009 | 2026-09-14 | GOV-MON-LOZE-001 | Integrar a Loze à Central de Monitoramento do SagB: atalho já preparado em preview e, depois, status vivo de health/readiness/MCP/conexões | ALTA | Monitoramento SagB + Loze | A DEFINIR | AGUARDANDO APROVAÇÃO | Validar forma de consumo da API e contrato de observabilidade | `src/modules/monitoramento/*` + `https://api.loze.com.br` |
+| PEND-010 | 2026-09-14 | GOV-FLX-LOZE-001 | Avaliar convergência do FluxoB com a orquestração da Loze, incluindo hipótese de naming “Loze Fluxos”; objetivo é evitar dois motores de workflow concorrentes | ALTA | Arquitetura Loze + SagB | A DEFINIR | AGUARDANDO APROVAÇÃO | Definir qual camada executa workflows e qual camada atua como UI/control plane | `src/modules/fluxob/plano_modulo.md` + domínio Orchestration da Loze |
+
 
 ---
 

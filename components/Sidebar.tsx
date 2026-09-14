@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   // --------------------------------------------------------------------------
   const coreMenuItems: MenuItem[] = [
     { id: 'home', label: 'Início', source: 'core', visibility: 'always' },
-    { id: 'ecosystem', label: 'Ecossistema Master', source: 'core', visibility: 'always' },
+    { id: 'ecosystem', label: 'Aplicativos & Links', source: 'core', visibility: 'always' },
     { id: 'nucleo-conversacional', label: 'Conversas', source: 'core', visibility: 'always' },
     { id: 'programmers-room', label: 'Sala dos Programadores', source: 'core', visibility: 'hidden' },
     { id: 'missions', label: 'Missões', source: 'core', visibility: 'hidden' },
