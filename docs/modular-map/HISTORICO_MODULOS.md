@@ -31,6 +31,7 @@ Documento de rastreabilidade macro por modulo.
   - `.github/workflows/history-check.yml`
 - Correcao de reativacao: workflow de conformidade atualizado de Node 18 para Node 20 porque as dependencias atuais do SagB exigem Node 20+.
 - Correcao de Deploy Preview: configuracao Netlify `SECRETS_SCAN_OMIT_KEYS` ajustada apenas no contexto `deploy-preview` para ignorar as variaveis publicas `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`; producao nao alterada.
+- Acesso de homologacao: autenticacao pode ser ignorada apenas quando `VITE_PREVIEW_AUTH_BYPASS=true`; a configuracao foi destinada exclusivamente ao contexto `deploy-preview` da Netlify, sem alterar producao.
 - Fonte do inventario: Netlify team `adm-mceezrw`, snapshot de 2026-09-14.
 - Status: em andamento ate validacao do Deploy Preview.
 
