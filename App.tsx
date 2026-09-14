@@ -143,6 +143,8 @@ const getTierRank = (tier?: string | null) => {
   return 99;
 };
 
+const PREVIEW_AUTH_BYPASS_ENABLED = import.meta.env.VITE_PREVIEW_AUTH_BYPASS === 'true';
+
 const App: React.FC = () => {
   const version = metadata.version;
   const { theme, setTheme } = useTheme();
@@ -159,7 +161,7 @@ const App: React.FC = () => {
 
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(!PREVIEW_AUTH_BYPASS_ENABLED);
 
   // State for Business Units (now dynamic)
   const [businessUnits, setBusinessUnits] = useState<BusinessUnit[]>(INITIAL_BUSINESS_UNITS);
@@ -398,6 +400,11 @@ const App: React.FC = () => {
 
   // --- VERIFICAÇÃO DE LOGIN SUPABASE ---
   useEffect(() => {
+    if (PREVIEW_AUTH_BYPASS_ENABLED) {
+      setIsInitializing(false);
+      return;
+    }
+
     console.log('App: Iniciando verificação de autenticação...');
 
 // Helpers locais para migração Firebase -> Supabase
@@ -2069,7 +2076,7 @@ const asDate = (v: any): Date | undefined => {
     );
   }
 
-  if (!user) {
+  if (!user && !PREVIEW_AUTH_BYPASS_ENABLED) {
     return <Auth onAuthSuccess={() => { }} />;
   }
 
