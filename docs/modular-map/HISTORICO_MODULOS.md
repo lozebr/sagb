@@ -13,6 +13,24 @@ Documento de rastreabilidade macro por modulo.
 
 ---
 
+### 2026-09-14 - Reativacao do SagB e launcher geral da Netlify
+
+- Modulo: 02-home-dashboard-e-hub / Plataforma geral
+- Mudanca:
+  - reativacao operacional do SagB a partir do repositorio oficial `lozebr/sagb`;
+  - inventario real da equipe Netlify consolidado em registry dedicado com 47 projetos;
+  - `HubView` passa a abrir por padrao na visao `Aplicativos & Links`, mantendo o mapa de ecossistema anterior preservado como visao secundaria;
+  - adicao de busca, filtros, cards, abertura em nova aba e copia de URL;
+  - item `ecosystem` do menu renomeado visualmente para `Aplicativos & Links`, sem alterar seu ID de navegacao.
+- Tipo: arquitetura / fluxo / ui / infra
+- Arquivos/tabelas afetados:
+  - `components/HubView.tsx`
+  - `components/Sidebar.tsx`
+  - `data/netlifyLauncherRegistry.ts`
+  - `docs/modular-map/HISTORICO_MODULOS.md`
+- Fonte do inventario: Netlify team `adm-mceezrw`, snapshot de 2026-09-14.
+- Status: em andamento ate validacao do Deploy Preview.
+
 ## Entradas iniciais
 
 ### 2026-04-09 - Isolamento documental do Núcleo Conversacional
