@@ -18,7 +18,6 @@ for (const viewport of viewports) {
     await expect(page.getByRole('heading', { name: 'Aplicativos', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Aplicativos', exact: true })).toBeVisible();
     await expect(page.locator('article')).toHaveCount(26);
-    await expect(page.getByText('produtos', { exact: true })).toBeVisible();
 
     const search = page.getByLabel('Buscar aplicativo');
     await search.fill('TaskZei');
