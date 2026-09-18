@@ -10,7 +10,7 @@ import {
 import { getEligibleForPromotion, refreshEligibility } from '../services/nagiPromotionService';
 import { getIngestionDocuments } from '../services/nagiIngestionService';
 import { NagiIngestionDocument, NagiItem } from '../domain/types';
-import { PUBLISHED_APP_LINKS } from '../data/publishedLinks';
+import { DEMO_PRODUCTS } from '../data/demoProducts';
 import '../styles/nagi-tokens.css';
 
 /* ── Props ──────────────────────────────────────────── */
@@ -72,7 +72,7 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
     documentos: ingestionDocs.length,
     ideias: triageItems.length,
     catalogo: catalogItems.length,
-    links: PUBLISHED_APP_LINKS.length,
+    links: DEMO_PRODUCTS.length,
     governanca: 0,
   };
 
