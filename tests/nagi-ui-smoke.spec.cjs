@@ -16,6 +16,7 @@ for (const viewport of viewports) {
     await page.goto('http://127.0.0.1:4173/nagi/links', { waitUntil: 'networkidle' });
 
     await expect(page.getByRole('heading', { name: 'Aplicativos', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Aplicativos', exact: true })).toBeVisible();
     await expect(page.locator('article')).toHaveCount(26);
     await expect(page.getByText('26', { exact: true }).first()).toBeVisible();
 
