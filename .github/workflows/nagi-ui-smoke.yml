@@ -1,0 +1,48 @@
+name: NAGI UI Smoke
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/modules/nagi/**'
+      - 'tests/nagi-ui-smoke.spec.cjs'
+      - '.github/workflows/nagi-ui-smoke.yml'
+
+jobs:
+  chromium-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start built app
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sagb-vite-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/nagi/links > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/sagb-vite-preview.log
+          exit 1
+
+      - name: Smoke NAGI at desktop tablet and mobile
+        run: npx playwright test tests/nagi-ui-smoke.spec.cjs --reporter=line
