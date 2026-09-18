@@ -32,16 +32,35 @@ jobs:
           npm install --no-save --package-lock=false @playwright/test@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Start built app
+      - name: Start isolated NAGI smoke harness
         run: |
-          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sagb-vite-preview.log 2>&1 &
+          cat > smoke-nagi.html <<'EOF'
+          <!doctype html>
+          <html>
+            <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+            <body><div id="root"></div><script type="module" src="/smoke-nagi.tsx"></script></body>
+          </html>
+          EOF
+
+          cat > smoke-nagi.tsx <<'EOF'
+          import React from 'react';
+          import { createRoot } from 'react-dom/client';
+          import NAGIPage from './src/modules/nagi/pages/NAGIPage';
+
+          document.body.style.margin = '0';
+          createRoot(document.getElementById('root')!).render(
+            <NAGIPage onBack={() => {}} initialSection="links" />
+          );
+          EOF
+
+          npx vite --host 127.0.0.1 --port 4173 > /tmp/sagb-vite-smoke.log 2>&1 &
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/nagi/links > /dev/null; then
+            if curl -fsS http://127.0.0.1:4173/smoke-nagi.html > /dev/null; then
               exit 0
             fi
             sleep 1
           done
-          cat /tmp/sagb-vite-preview.log
+          cat /tmp/sagb-vite-smoke.log
           exit 1
 
       - name: Smoke NAGI at desktop tablet and mobile
