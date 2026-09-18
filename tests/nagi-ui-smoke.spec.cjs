@@ -34,7 +34,7 @@ for (const viewport of viewports) {
     await page.getByLabel('Filtrar por status').selectOption('not_verified');
     await expect(page.getByRole('heading', { name: 'CRM LOZE', exact: true })).toBeVisible();
 
-    const crmCard = page.getByRole('heading', { name: 'CRM LOZE', exact: true }).locator('..').locator('..');
+    const crmCard = page.locator('article').filter({ has: page.getByRole('heading', { name: 'CRM LOZE', exact: true }) });
     await expect(crmCard.getByRole('button', { name: 'Abrir' })).toBeDisabled();
 
     const overflow = await page.evaluate(() => ({
