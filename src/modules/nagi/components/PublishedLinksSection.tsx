@@ -1,214 +1,267 @@
 import React, { useMemo, useState } from 'react';
 import {
-  getPublishedLinksCompanies,
-  PublishedAppLink,
-  PUBLISHED_APP_LINKS,
-} from '../data/publishedLinks';
+  DEMO_PRODUCTS,
+  DemoProduct,
+  DemoProductStatus,
+  getDemoProductCompanies,
+} from '../data/demoProducts';
 import '../styles/nagi-tokens.css';
 
-const STATUS_LABELS: Record<PublishedAppLink['status'], string> = {
-  published: 'Publicado',
-  review: 'Revisar',
-  legacy: 'Legado',
-};
-
-const STATUS_STYLES: Record<PublishedAppLink['status'], { bg: string; color: string; border: string }> = {
-  published: { bg: 'var(--nagi-success-soft)', color: 'var(--nagi-success)', border: 'var(--nagi-success-line)' },
-  review: { bg: 'var(--nagi-warning-soft)', color: 'var(--nagi-warning)', border: 'var(--nagi-warning-line)' },
-  legacy: { bg: 'var(--nagi-neutral-soft)', color: 'var(--nagi-muted)', border: 'var(--nagi-line)' },
-};
-
-const formatDate = (value?: string) => {
-  if (!value) return 'Data não informada';
-  try {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
+const STATUS_META: Record<DemoProductStatus, { label: string; bg: string; color: string; border: string }> = {
+  validated: {
+    label: '🟢 Atualizado',
+    bg: 'var(--nagi-success-soft)',
+    color: 'var(--nagi-success)',
+    border: 'var(--nagi-success-line)',
+  },
+  review: {
+    label: '🟡 Revisar',
+    bg: 'var(--nagi-warning-soft)',
+    color: 'var(--nagi-warning)',
+    border: 'var(--nagi-warning-line)',
+  },
+  blocked: {
+    label: '🔴 Bloqueado',
+    bg: 'var(--nagi-danger-soft)',
+    color: 'var(--nagi-danger)',
+    border: 'var(--nagi-danger-line)',
+  },
+  not_verified: {
+    label: '⚪ Não verificado',
+    bg: 'var(--nagi-neutral-soft)',
+    color: 'var(--nagi-muted)',
+    border: 'var(--nagi-line)',
+  },
 };
 
 const PublishedLinksSection: React.FC = () => {
   const [query, setQuery] = useState('');
   const [company, setCompany] = useState('todas');
-  const [status, setStatus] = useState<'todos' | PublishedAppLink['status']>('todos');
+  const [status, setStatus] = useState<'todos' | DemoProductStatus>('todos');
 
-  const companies = useMemo(() => getPublishedLinksCompanies(), []);
+  const companies = useMemo(() => getDemoProductCompanies(), []);
 
-  const filteredLinks = useMemo(() => {
+  const products = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return PUBLISHED_APP_LINKS.filter((link) => {
-      const matchesCompany = company === 'todas' || link.company === company;
-      const matchesStatus = status === 'todos' || link.status === status;
+
+    return DEMO_PRODUCTS.filter((product) => {
+      const matchesCompany = company === 'todas' || product.company === company;
+      const matchesStatus = status === 'todos' || product.status === status;
       const haystack = [
-        link.company,
-        link.siteName,
-        link.title,
-        link.url,
-        link.netlifyRepo,
-        link.githubRepo,
-        link.notes,
-        ...(link.tags || []),
+        product.name,
+        product.company,
+        product.description,
+        product.version,
+        ...product.aliases,
       ].filter(Boolean).join(' ').toLowerCase();
-      const matchesQuery = !term || haystack.includes(term);
-      return matchesCompany && matchesStatus && matchesQuery;
-    }).sort((a, b) => a.company.localeCompare(b.company) || a.title.localeCompare(b.title));
+
+      return matchesCompany && matchesStatus && (!term || haystack.includes(term));
+    });
   }, [company, query, status]);
 
-  const groupedLinks = useMemo(() => {
-    return filteredLinks.reduce<Record<string, PublishedAppLink[]>>((acc, link) => {
-      if (!acc[link.company]) acc[link.company] = [];
-      acc[link.company].push(link);
-      return acc;
-    }, {});
-  }, [filteredLinks]);
-
-  const publishedCount = PUBLISHED_APP_LINKS.filter((link) => link.status === 'published').length;
-  const reviewCount = PUBLISHED_APP_LINKS.filter((link) => link.status === 'review').length;
+  const validatedCount = DEMO_PRODUCTS.filter((product) => product.status === 'validated').length;
+  const pendingCount = DEMO_PRODUCTS.filter((product) => product.status === 'not_verified').length;
 
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div
         style={{
-          padding: 22,
-          borderRadius: 'var(--nagi-radius-xl)',
-          background: 'linear-gradient(135deg, var(--nagi-brand-soft), rgba(20,168,166,0.06))',
-          border: '1px solid var(--nagi-line-soft)',
-          boxShadow: 'var(--nagi-shadow-sm)',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 14,
+          flexWrap: 'wrap',
+          paddingBottom: 2,
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{ maxWidth: 760 }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--nagi-brand)', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 8 }}>
-              Netlify publicado
-            </div>
-            <h2 style={{ margin: 0, fontSize: 30, lineHeight: 1.05, color: 'var(--nagi-text)', letterSpacing: '-0.04em' }}>
-              Links publicados do ecossistema
-            </h2>
-            <p style={{ margin: '10px 0 0', color: 'var(--nagi-muted)', fontSize: 'var(--nagi-body)', lineHeight: 1.6 }}>
-              Lista operacional dos apps publicados no Netlify, agrupada por empresa e preparada para sincronização automática quando novos sites forem publicados.
-            </p>
+        <div>
+          <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--nagi-brand)', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 4 }}>
+            Central de demonstração
           </div>
+          <h2 style={{ margin: 0, fontSize: 24, lineHeight: 1.05, color: 'var(--nagi-text)', letterSpacing: '-0.035em' }}>
+            Aplicativos
+          </h2>
+          <p style={{ margin: '6px 0 0', color: 'var(--nagi-muted)', fontSize: 11 }}>
+            Um produto por card. Preview de homologação é o alvo principal quando validado.
+          </p>
+        </div>
 
-          <div style={{ display: 'flex', gap: 10, alignItems: 'stretch', flexWrap: 'wrap' }}>
-            <MetricCard label="Links" value={PUBLISHED_APP_LINKS.length} />
-            <MetricCard label="OK" value={publishedCount} />
-            <MetricCard label="Revisar" value={reviewCount} />
-          </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 10, color: 'var(--nagi-muted)' }}>
+          <SummaryChip value={DEMO_PRODUCTS.length} label="produtos" />
+          <SummaryChip value={validatedCount} label="prontos" />
+          <SummaryChip value={pendingCount} label="validar" />
         </div>
       </div>
 
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(220px, 1fr) minmax(160px, 240px) minmax(140px, 190px)',
-          gap: 10,
+          gridTemplateColumns: 'minmax(220px, 1fr) repeat(2, minmax(140px, 190px))',
+          gap: 8,
         }}
       >
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Buscar por app, domínio, repo ou tag..."
+          placeholder="Buscar aplicativo..."
+          aria-label="Buscar aplicativo"
           style={controlStyle}
         />
-        <select value={company} onChange={(event) => setCompany(event.target.value)} style={controlStyle}>
-          <option value="todas">Todas as empresas</option>
+        <select value={company} onChange={(event) => setCompany(event.target.value)} aria-label="Filtrar por empresa" style={controlStyle}>
+          <option value="todas">Todas as ventures</option>
           {companies.map((name) => <option key={name} value={name}>{name}</option>)}
         </select>
-        <select value={status} onChange={(event) => setStatus(event.target.value as 'todos' | PublishedAppLink['status'])} style={controlStyle}>
+        <select
+          value={status}
+          onChange={(event) => setStatus(event.target.value as 'todos' | DemoProductStatus)}
+          aria-label="Filtrar por status"
+          style={controlStyle}
+        >
           <option value="todos">Todos os status</option>
-          <option value="published">Publicado</option>
+          <option value="validated">Atualizado</option>
           <option value="review">Revisar</option>
-          <option value="legacy">Legado</option>
+          <option value="blocked">Bloqueado</option>
+          <option value="not_verified">Não verificado</option>
         </select>
       </div>
 
-      {Object.keys(groupedLinks).length === 0 && (
-        <div style={{ padding: 28, borderRadius: 'var(--nagi-radius-lg)', border: '1px dashed var(--nagi-line)', color: 'var(--nagi-muted)', textAlign: 'center' }}>
-          Nenhum link encontrado com os filtros atuais.
+      {products.length === 0 ? (
+        <div style={{ padding: 26, borderRadius: 'var(--nagi-radius-lg)', border: '1px dashed var(--nagi-line)', color: 'var(--nagi-muted)', textAlign: 'center', fontSize: 12 }}>
+          Nenhum aplicativo encontrado.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+            gap: 10,
+            alignItems: 'stretch',
+          }}
+        >
+          {products.map((product) => <ProductCard key={product.productId} product={product} />)}
         </div>
       )}
-
-      {Object.entries(groupedLinks).map(([companyName, links]) => (
-        <div key={companyName} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h3 style={{ margin: 0, color: 'var(--nagi-text)', fontSize: 18, letterSpacing: '-0.03em' }}>{companyName}</h3>
-            <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--nagi-muted)', backgroundColor: 'var(--nagi-neutral-soft)', borderRadius: 999, padding: '4px 9px' }}>
-              {links.length} link(s)
-            </span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
-            {links.map((link) => <LinkCard key={link.id} link={link} />)}
-          </div>
-        </div>
-      ))}
     </section>
   );
 };
 
-const MetricCard: React.FC<{ label: string; value: number }> = ({ label, value }) => (
-  <div style={{ minWidth: 92, padding: '13px 14px', borderRadius: 'var(--nagi-radius-lg)', backgroundColor: 'var(--nagi-surface)', border: '1px solid var(--nagi-line-soft)' }}>
-    <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--nagi-text)', letterSpacing: '-0.05em' }}>{value}</div>
-    <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--nagi-muted)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{label}</div>
-  </div>
+const SummaryChip: React.FC<{ value: number; label: string }> = ({ value, label }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5,
+      minHeight: 28,
+      padding: '0 9px',
+      borderRadius: 999,
+      backgroundColor: 'var(--nagi-surface)',
+      border: '1px solid var(--nagi-line-soft)',
+      whiteSpace: 'nowrap',
+    }}
+  >
+    <strong style={{ color: 'var(--nagi-text)' }}>{value}</strong>
+    {label}
+  </span>
 );
 
-const LinkCard: React.FC<{ link: PublishedAppLink }> = ({ link }) => {
-  const statusStyle = STATUS_STYLES[link.status];
+const ProductCard: React.FC<{ product: DemoProduct }> = ({ product }) => {
+  const statusMeta = STATUS_META[product.status];
+  const canOpen = Boolean(product.demoUrl);
 
   return (
     <article
       style={{
-        padding: 16,
+        minHeight: 158,
+        padding: 14,
         borderRadius: 'var(--nagi-radius-lg)',
         backgroundColor: 'var(--nagi-surface)',
         border: '1px solid var(--nagi-line-soft)',
         boxShadow: 'var(--nagi-shadow-sm)',
         display: 'flex',
         flexDirection: 'column',
-        gap: 12,
-        minHeight: 190,
+        gap: 9,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-        <div>
-          <h4 style={{ margin: 0, color: 'var(--nagi-text)', fontSize: 16, lineHeight: 1.2, letterSpacing: '-0.03em' }}>{link.title}</h4>
-          <p style={{ margin: '5px 0 0', color: 'var(--nagi-muted)', fontSize: 11 }}>{link.siteName}</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ minWidth: 0 }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              marginBottom: 6,
+              padding: '3px 7px',
+              borderRadius: 999,
+              backgroundColor: 'var(--nagi-neutral-soft)',
+              color: 'var(--nagi-muted)',
+              fontSize: 8,
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+            }}
+          >
+            {product.company}
+          </span>
+          <h3 style={{ margin: 0, color: 'var(--nagi-text)', fontSize: 15, lineHeight: 1.15, letterSpacing: '-0.025em' }}>
+            {product.name}
+          </h3>
+          {product.description && (
+            <p style={{ margin: '5px 0 0', color: 'var(--nagi-muted)', fontSize: 10, lineHeight: 1.35 }}>
+              {product.description}
+            </p>
+          )}
         </div>
-        <span style={{ whiteSpace: 'nowrap', fontSize: 9, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '5px 8px', borderRadius: 999, backgroundColor: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}` }}>
-          {STATUS_LABELS[link.status]}
+
+        <span
+          style={{
+            flex: '0 0 auto',
+            fontSize: 8,
+            fontWeight: 900,
+            whiteSpace: 'nowrap',
+            padding: '4px 6px',
+            borderRadius: 999,
+            backgroundColor: statusMeta.bg,
+            color: statusMeta.color,
+            border: `1px solid ${statusMeta.border}`,
+          }}
+        >
+          {statusMeta.label}
         </span>
       </div>
 
-      <a href={link.url} target="_blank" rel="noreferrer" style={{ color: 'var(--nagi-brand)', fontSize: 12, fontWeight: 700, wordBreak: 'break-all', textDecoration: 'none' }}>
-        {link.url}
-      </a>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, color: 'var(--nagi-muted)', fontSize: 10 }}>
-        <span>Publicado: {formatDate(link.publishedAt)}</span>
-        {link.githubRepo && <span>GitHub: {link.githubRepo}</span>}
-        {link.netlifyRepo && <span>Netlify repo: {link.netlifyRepo}</span>}
-      </div>
-
-      {link.notes && (
-        <div style={{ padding: '8px 10px', borderRadius: 'var(--nagi-radius-md)', backgroundColor: 'var(--nagi-warning-soft)', color: 'var(--nagi-warning)', border: '1px solid var(--nagi-warning-line)', fontSize: 10, lineHeight: 1.4 }}>
-          {link.notes}
+      {product.version && (
+        <div style={{ fontSize: 9, color: 'var(--nagi-muted)' }}>
+          Versão {product.version}
         </div>
       )}
 
-      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-          {(link.tags || []).map((tag) => (
-            <span key={tag} style={{ fontSize: 9, color: 'var(--nagi-muted)', backgroundColor: 'var(--nagi-neutral-soft)', borderRadius: 999, padding: '3px 7px' }}>{tag}</span>
-          ))}
-        </div>
-        <a href={link.url} target="_blank" rel="noreferrer" style={{ height: 30, display: 'inline-flex', alignItems: 'center', padding: '0 12px', borderRadius: 'var(--nagi-radius-md)', backgroundColor: 'var(--nagi-brand)', color: '#fff', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', textDecoration: 'none' }}>
-          Abrir
-        </a>
+      <div style={{ marginTop: 'auto' }}>
+        {canOpen ? (
+          <a
+            href={product.demoUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Abrir demonstração de ${product.name}`}
+            style={primaryActionStyle}
+          >
+            Abrir
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            title="Deploy Preview/homologação ainda não verificado"
+            style={{
+              ...primaryActionStyle,
+              width: '100%',
+              border: '1px solid var(--nagi-line)',
+              backgroundColor: 'var(--nagi-neutral-soft)',
+              color: 'var(--nagi-muted)',
+              cursor: 'not-allowed',
+              opacity: 0.72,
+            }}
+          >
+            Abrir
+          </button>
+        )}
       </div>
     </article>
   );
@@ -216,14 +269,30 @@ const LinkCard: React.FC<{ link: PublishedAppLink }> = ({ link }) => {
 
 const controlStyle: React.CSSProperties = {
   width: '100%',
-  height: 42,
+  height: 38,
   borderRadius: 'var(--nagi-radius-md)',
   border: '1px solid var(--nagi-line)',
   backgroundColor: 'var(--nagi-surface)',
   color: 'var(--nagi-text)',
-  padding: '0 12px',
-  fontSize: 12,
+  padding: '0 11px',
+  fontSize: 11,
   outline: 'none',
+};
+
+const primaryActionStyle: React.CSSProperties = {
+  minHeight: 34,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0 12px',
+  borderRadius: 'var(--nagi-radius-md)',
+  backgroundColor: 'var(--nagi-brand)',
+  color: '#fff',
+  fontSize: 10,
+  fontWeight: 900,
+  textTransform: 'uppercase',
+  letterSpacing: '0.08em',
+  textDecoration: 'none',
 };
 
 export default PublishedLinksSection;
