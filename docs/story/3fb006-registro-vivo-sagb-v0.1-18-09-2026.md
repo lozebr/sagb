@@ -49,3 +49,28 @@ Revisar a área do NAGI que reúne apps/links, eliminar duplicidades e transform
 
 ### Estado
 🟠 P0 ESPECIFICADA — AGUARDANDO IMPLEMENTAÇÃO.
+## 18-09-2026 — P0 de decisão arquitetural: remodelar x reconstruir
+
+### Pedido
+Definir se o SAG B deve ser reconstruído do zero ou submetido a remodelação/limpeza profunda.
+
+### Evidências iniciais verificadas
+- registry central com 30 módulos;
+- Supabase, funções Netlify e integrações materializadas;
+- histórico de módulos e entregas maduras;
+- `App.tsx` monolítico com responsabilidades acumuladas;
+- coexistência de arquitetura modular e legado;
+- estruturas hardcoded ainda presentes;
+- branches e documentação antigas coexistindo com frentes atuais.
+
+### Interpretação
+A hipótese inicial favorece remodelação profunda/strangler, mas a decisão permanece pendente de auditoria comparativa.
+
+### Execução
+- criada tarefa P0 de decisão arquitetural em `docs/tasks/3fb006-p0-decisao-arquitetural-sagb-remodelar-vs-reconstruir-v0.1-18-09-2026.md`;
+- nenhuma limpeza destrutiva iniciada;
+- nenhuma mudança funcional executada;
+- `main` e produção permanecem intocadas.
+
+### Próximo gate
+Executar auditoria read-only e classificar cada camada em PRESERVAR / EXTRAIR / REFATORAR / SUBSTITUIR / REMOVER / INVESTIGAR antes de decidir.
