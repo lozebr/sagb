@@ -170,6 +170,7 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
           return (
             <button
               key={item.id}
+              aria-label={item.label}
               onClick={() => onNavigate(item.id)}
               style={{
                 display: 'flex',
@@ -251,6 +252,7 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
       {/* ── Footer: Voltar ao SagB ────────────── */}
       <div className="nagi-sidebar-footer" style={{ padding: '0 10px 16px' }}>
         <button
+          aria-label="Voltar ao SagB"
           onClick={onBack}
           style={{
             display: 'flex',
