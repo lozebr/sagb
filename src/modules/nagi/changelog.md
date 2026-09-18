@@ -4,6 +4,29 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 
 ---
 
+## [v3.1.0-central-aplicativos] - 2026-09-18
+
+### Adicionado
+- Registro canônico de demonstração em `data/demoProducts.ts`, com identidade por `productId` e histórico dos links antigos preservado.
+- Status de demonstração separado do status histórico de publicação: validado, revisar, bloqueado e não verificado.
+- Deploy Preview oficial do TaskZei como alvo demonstrável validado.
+
+### Alterado
+- `Links publicados` passou a ser **Central de Aplicativos**, em grade única, sem blocos por empresa.
+- Regra visual alterada de `1 URL = 1 card` para `1 produto = 1 card`.
+- Busca passa a considerar nome, venture, descrição e aliases; filtros permanecem discretos.
+- Cards foram compactados para uso em 1366×768, com ação principal `ABRIR` e sem URL/GitHub/Netlify expostos na superfície principal.
+- Alvos sem preview/homologação comprovados ficam `⚪ NÃO VERIFICADO` e com ação principal bloqueada.
+
+### Auditoria do dataset
+- 32 registros históricos analisados.
+- 26 produtos canônicos após consolidação.
+- 6 cards duplicados removidos da interface sem apagar histórico.
+- Grupos consolidados: EDA 360, QG 3forB, Site 3forB, TaskZei e CRM LOZE/CRM Ziplia.
+- NEXO classificado como referência legada do produto oficial LIVZE.
+
+---
+
 ## [v1.0.0-formalizacao-inicial] - 2026-04-11
 
 ### Adicionado
