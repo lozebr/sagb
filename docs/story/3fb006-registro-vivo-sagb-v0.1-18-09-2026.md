@@ -74,3 +74,69 @@ A hipótese inicial favorece remodelação profunda/strangler, mas a decisão pe
 
 ### Próximo gate
 Executar auditoria read-only e classificar cada camada em PRESERVAR / EXTRAIR / REFATORAR / SUBSTITUIR / REMOVER / INVESTIGAR antes de decidir.
+
+## 18-09-2026 — Fechamento P0 NAGI / Central de Aplicativos
+
+### Pedido executado
+Transformar `Links publicados` em Central de Aplicativos para reuniões, aplicando `1 produto = 1 card`, removendo duplicidade visual sem apagar histórico e priorizando Deploy Preview/homologação validado.
+
+### Diagnóstico e auditoria
+- 32 registros históricos analisados em `src/modules/nagi/data/publishedLinks.ts`;
+- 26 produtos canônicos após consolidação;
+- 6 cards duplicados removidos da interface;
+- grupos consolidados: EDA 360, QG 3forB, Site 3forB, TaskZei e CRM LOZE/CRM Ziplia;
+- NEXO tratado como referência legada do produto oficial LIVZE;
+- histórico bruto preservado como metadado;
+- alvos sem preview/homologação comprovados permanecem `⚪ NÃO VERIFICADO` e sem abertura silenciosa em produção.
+
+### Implementação
+Arquivos principais:
+- `src/modules/nagi/data/demoProducts.ts`;
+- `src/modules/nagi/components/PublishedLinksSection.tsx`;
+- `src/modules/nagi/components/NagiShell.tsx`;
+- `src/modules/nagi/components/NagiSidebar.tsx`;
+- `src/modules/nagi/components/NAGIView.tsx`;
+- `src/modules/nagi/styles/nagi-tokens.css`;
+- `tests/nagi-demo-registry.test.mjs`;
+- `tests/nagi-ui-smoke.spec.cjs`;
+- `.github/workflows/nagi-ui-smoke.yml`;
+- `.github/workflows/netlify-deploy.yml`;
+- `.github/workflows/history-check.yml`.
+
+### Correções encontradas durante QA
+- workflow de History Compliance usava Node 18 incompatível com dependências atuais; corrigido para Node 20;
+- badge lateral ainda contava links brutos; corrigido para produtos canônicos;
+- sidebar ainda exibia `Links publicados`; corrigida para `Aplicativos`;
+- layout mobile/tablet tinha sidebar fixa de 220px; compactada para 64px em viewport estreito;
+- grade protegida contra overflow horizontal;
+- smoke inicial esbarrou na autenticação do SagB; foi criado harness isolado de QA sem enfraquecer ou contornar o auth de produção.
+
+### Validação
+Commit funcional validado: `b9a57be7ce194b58202ce7a3b353085603c3bf53`.
+
+- `npm test`: aprovado no CI;
+- suíte registrada: 15 testes, 15 aprovados, 0 falhas na rodada de validação da P0;
+- build Vite: aprovado;
+- History Compliance: aprovado;
+- Chromium real: aprovado em 1366×768, 768×1024 e 390×844;
+- busca por TaskZei: validada;
+- status/filtro `não verificado`: validado;
+- alvo do TaskZei: Deploy Preview oficial documentado;
+- ausência de overflow horizontal: validada no smoke;
+- workflow de produção: `skipped`.
+
+### Deploy Preview
+PR draft de homologação: `#6`.
+Deploy Preview: `https://deploy-preview-6--sagbapp.netlify.app`.
+Último deploy validado associado ao commit funcional: `b9a57be7ce194b58202ce7a3b353085603c3bf53`.
+
+### Estado
+🟢 PRONTO PARA HOMOLOGAÇÃO.
+
+### Pendências
+- homologação humana da experiência no Deploy Preview;
+- validar e cadastrar previews/homologações confiáveis dos demais produtos ainda marcados `⚪ NÃO VERIFICADO`;
+- nenhuma promoção para `main` foi autorizada nem executada.
+
+### Próximo gate
+`HOMOLOGAÇÃO DO USUÁRIO → APROVAÇÃO → eventual merge em main somente com autorização explícita`.
