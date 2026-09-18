@@ -95,9 +95,9 @@ const PublishedLinksSection: React.FC = () => {
 
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(220px, 1fr) repeat(2, minmax(140px, 190px))',
+          display: 'flex',
           gap: 8,
+          flexWrap: 'wrap',
         }}
       >
         <input
@@ -105,9 +105,9 @@ const PublishedLinksSection: React.FC = () => {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Buscar aplicativo..."
           aria-label="Buscar aplicativo"
-          style={controlStyle}
+          style={{ ...controlStyle, flex: '2 1 240px' }}
         />
-        <select value={company} onChange={(event) => setCompany(event.target.value)} aria-label="Filtrar por empresa" style={controlStyle}>
+        <select value={company} onChange={(event) => setCompany(event.target.value)} aria-label="Filtrar por empresa" style={{ ...controlStyle, flex: '1 1 150px' }}>
           <option value="todas">Todas as ventures</option>
           {companies.map((name) => <option key={name} value={name}>{name}</option>)}
         </select>
@@ -115,7 +115,7 @@ const PublishedLinksSection: React.FC = () => {
           value={status}
           onChange={(event) => setStatus(event.target.value as 'todos' | DemoProductStatus)}
           aria-label="Filtrar por status"
-          style={controlStyle}
+          style={{ ...controlStyle, flex: '1 1 150px' }}
         >
           <option value="todos">Todos os status</option>
           <option value="validated">Atualizado</option>
@@ -268,7 +268,7 @@ const ProductCard: React.FC<{ product: DemoProduct }> = ({ product }) => {
 };
 
 const controlStyle: React.CSSProperties = {
-  width: '100%',
+  minWidth: 0,
   height: 38,
   borderRadius: 'var(--nagi-radius-md)',
   border: '1px solid var(--nagi-line)',
@@ -277,6 +277,7 @@ const controlStyle: React.CSSProperties = {
   padding: '0 11px',
   fontSize: 11,
   outline: 'none',
+  boxSizing: 'border-box',
 };
 
 const primaryActionStyle: React.CSSProperties = {
