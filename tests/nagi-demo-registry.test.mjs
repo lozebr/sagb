@@ -14,6 +14,10 @@ const componentSource = readFileSync(
   new URL('../src/modules/nagi/components/PublishedLinksSection.tsx', import.meta.url),
   'utf8',
 );
+const shellSource = readFileSync(
+  new URL('../src/modules/nagi/components/NagiShell.tsx', import.meta.url),
+  'utf8',
+);
 
 const legacyIds = [...publishedSource.matchAll(/\{\s*id:\s*'([^']+)'/g)].map((match) => match[1]);
 
@@ -55,6 +59,8 @@ test('NAGI launcher renders canonical products instead of raw published links', 
   assert.match(componentSource, /products\.map\(\(product\) => <ProductCard key=\{product\.productId\}/);
   assert.doesNotMatch(componentSource, /groupedLinks/);
   assert.doesNotMatch(componentSource, /getPublishedLinksByCompany/);
+  assert.match(shellSource, /links:\s*DEMO_PRODUCTS\.length/);
+  assert.doesNotMatch(shellSource, /PUBLISHED_APP_LINKS\.length/);
 });
 
 test('Demo links are explicit and unverified products do not silently use production', () => {
