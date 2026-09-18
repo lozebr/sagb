@@ -104,7 +104,7 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
         }}
         className="custom-scrollbar"
       >
-        <div style={{ maxWidth: 1500, margin: '0 auto', padding: activeSection === 'dashboard' ? 0 : '20px 24px 48px' }}>
+        <div className="nagi-content-inner" style={{ maxWidth: 1500, margin: '0 auto', padding: activeSection === 'dashboard' ? 0 : '20px 24px 48px' }}>
           <NAGIView
             section={activeSection}
             catalogItems={catalogItems}
