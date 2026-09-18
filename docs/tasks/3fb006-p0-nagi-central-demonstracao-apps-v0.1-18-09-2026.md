@@ -4,7 +4,7 @@
 **Módulo:** NAGI — Núcleo Avançado de Gestão de Ideias
 **Branch:** `develop`
 **Prioridade:** 🔴 P0 URGENTE
-**Status:** 🟠 ESPECIFICAÇÃO PRONTA — NÃO IMPLEMENTADA
+**Status:** 🟢 IMPLEMENTADA — PRONTA PARA HOMOLOGAÇÃO
 **Produção:** não autorizada
 
 # 1. Objetivo
@@ -111,24 +111,24 @@ Desenho futuro: GitHub + Netlify + Registro de Produtos + QA → Demo Registry �
 Não usar correspondência frágil por nome como identidade definitiva.
 
 # 12. Critérios P0 de aceite
-- [ ] existe somente um card por produto;
-- [ ] duplicidades atuais foram reconciliadas sem apagar histórico útil;
-- [ ] cada card possui `productId` canônico;
-- [ ] produção não é demo padrão sem decisão;
-- [ ] botão principal abre preview/homologação vigente;
-- [ ] URL bruta não polui o card;
-- [ ] busca e filtros funcionam;
-- [ ] status visual existe;
-- [ ] versão/maturidade aparecem quando conhecidas;
-- [ ] links inválidos ficam bloqueados;
-- [ ] build passa;
-- [ ] smoke test executado;
-- [ ] responsividade básica validada;
-- [ ] Registro Vivo atualizado;
-- [ ] CHANGELOG atualizado;
-- [ ] decisão estrutural registrada em DECISIONS;
-- [ ] Deploy Preview da própria mudança gerado;
-- [ ] nenhuma publicação em produção sem aprovação.
+- [x] existe somente um card por produto;
+- [x] duplicidades atuais foram reconciliadas sem apagar histórico útil;
+- [x] cada card possui `productId` canônico;
+- [x] produção não é demo padrão sem decisão;
+- [x] botão principal abre preview/homologação vigente quando validado;
+- [x] URL bruta não polui o card;
+- [x] busca e filtros funcionam;
+- [x] status visual existe;
+- [x] versão/maturidade aparecem quando conhecidas;
+- [x] links não verificados ficam bloqueados;
+- [x] build passa;
+- [x] smoke test executado;
+- [x] responsividade validada em 1366×768, 768×1024 e 390×844;
+- [x] Registro Vivo atualizado;
+- [x] CHANGELOG atualizado;
+- [x] decisão estrutural registrada em DECISIONS;
+- [x] Deploy Preview da própria mudança gerado;
+- [x] nenhuma publicação em produção sem aprovação.
 
 # 13. Não fazer
 - não apagar histórico para esconder duplicidades;
@@ -143,3 +143,15 @@ Não usar correspondência frágil por nome como identidade definitiva.
 # 14. Próximo gate
 `BUILD → SMOKE TEST → DEPLOY PREVIEW → VALIDAÇÃO VISUAL → APROVAÇÃO`.
 Produção somente com autorização explícita.
+
+# 15. Fechamento da execução — 18-09-2026
+- dataset histórico: 32 registros;
+- registro canônico: 26 produtos;
+- duplicidades removidas da interface: 6;
+- commit funcional validado: `b9a57be7ce194b58202ce7a3b353085603c3bf53`;
+- PR de homologação: `#6` em draft;
+- Deploy Preview: `https://deploy-preview-6--sagbapp.netlify.app`;
+- testes, build, compliance e smoke Chromium: aprovados;
+- produção: não publicada.
+
+Status: 🟢 PRONTO PARA HOMOLOGAÇÃO.
