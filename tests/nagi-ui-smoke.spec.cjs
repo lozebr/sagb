@@ -13,7 +13,7 @@ for (const viewport of viewports) {
     });
     const page = await context.newPage();
 
-    await page.goto('http://127.0.0.1:4173/nagi/links', { waitUntil: 'networkidle' });
+    await page.goto('http://127.0.0.1:4173/smoke-nagi.html', { waitUntil: 'networkidle' });
 
     await expect(page.getByRole('heading', { name: 'Aplicativos', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Aplicativos', exact: true })).toBeVisible();
