@@ -161,3 +161,42 @@ O catálogo canônico contém 20 módulos. `entity-registry-core` está implemen
 
 ### Regra
 Gap detectado na auditoria vira pendência explícita. Adoção/acoplamento de módulo exige maturidade do módulo, compatibilidade do produto e gate aplicável.
+## 19-09-2026 — APROVADO: auditoria profunda do SagB em 12 dimensões
+
+### Aprovação
+O usuário aprovou explicitamente a incorporação das 12 dimensões à P0 arquitetural do SagB.
+
+### Dimensões aprovadas
+1. Produto e escopo;
+2. Jornadas e funcionalidades;
+3. Arquitetura e código;
+4. Módulos reutilizáveis LOZE;
+5. Dados e persistência;
+6. Auth, segurança e privacidade/LGPD;
+7. Integrações e contratos;
+8. UX, UI, acessibilidade e responsividade;
+9. QA, testes e regressão;
+10. Infra, ambientes, deploy e observabilidade;
+11. Performance, escalabilidade, dependências e custo;
+12. Governança, versionamento e operação.
+
+### Regras adicionais aprovadas
+- achado acionável deve virar evidência + risco + ação + prioridade P0–P3 + ClickUp;
+- paridade funcional é obrigatória se reconstrução ou strangler forem considerados;
+- gaps de módulos devem ser cruzados contra o catálogo canônico dos 20 módulos LOZE;
+- não iniciar limpeza/refatoração durante a auditoria;
+- decisão final remodelar x strangler x reconstruir continua pendente.
+
+### Execução
+- P0 arquitetural atualizada para v0.2 com escopo aprovado em 12 dimensões;
+- grafia corrente corrigida para `SagB` no documento ativo;
+- tarefa ClickUp `868m72u4e` atualizada com escopo, matriz de módulos e paridade funcional;
+- nenhuma mudança funcional executada;
+- `main` e produção permanecem intocadas.
+
+### Evidência
+- commit do documento P0: `94f9fdd9f9a5aabb09ed6e6869b7d6e340e13a39`.
+
+### Estado
+🟢 APROVADO — ESCOPO DE AUDITORIA EM 12 DIMENSÕES.
+🟡 AGUARDANDO EXECUÇÃO DA AUDITORIA E DECISÃO ARQUITETURAL.
