@@ -126,3 +126,41 @@ Após o relatório:
 `AUDITORIA → PROPOSTA → APROVAÇÃO → EXECUÇÃO`
 
 Não iniciar limpeza profunda ou reconstrução antes do gate.
+# 11. Camada obrigatória — Auditoria de Módulos Reutilizáveis LOZE
+
+Fonte canônica:
+`lozebr/loze-adm/develop/docs/standards/3fb006-catalogo-mestre-modulos-reutilizaveis-loze-v1-17-09-2026.md`
+
+A auditoria do SagB deve cruzar o produto contra os 20 módulos reutilizáveis canônicos e registrar, para cada um:
+- necessidade no SagB;
+- implementação local equivalente existente;
+- aderência ou divergência da implementação local;
+- maturidade do módulo canônico;
+- possibilidade de consumo/acoplamento;
+- dependências e bloqueios;
+- prioridade de integração;
+- ação recomendada.
+
+Estados permitidos por módulo no produto:
+
+- `NÃO APLICÁVEL`
+- `NECESSÁRIO / AUSENTE`
+- `EXISTE LOCALMENTE`
+- `PRONTO PARA ACOPLAR`
+- `ACOPLADO`
+- `PARCIAL`
+- `BLOQUEADO`
+- `SUBSTITUIR LEGADO`
+
+Regra: identificar um gap não autoriza integração automática. Adoção de módulo deve respeitar a maturidade do módulo, gate arquitetural, compatibilidade do produto e segurança.
+
+Exemplo crítico: autenticação, usuários, memberships, roles e permissions devem ser confrontados com `identity-access-core`; a auditoria deve evitar recomendar uma nova solução isolada se o módulo transversal for o caminho aprovado.
+
+# 12. Saída adicional obrigatória
+
+O relatório final deve incluir uma matriz:
+
+| Módulo LOZE | Precisa? | Existe localmente? | Estado canônico | Estado no SagB | Gap | Ação | Prioridade |
+|---|---|---|---|---|---|---|---|
+
+Essa matriz passa a compor a decisão de remodelar x strangler x reconstruir.
