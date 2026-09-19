@@ -140,3 +140,24 @@ Deploy Preview: `https://deploy-preview-6--sagbapp.netlify.app`.
 
 ### Próximo gate
 `HOMOLOGAÇÃO DO USUÁRIO → APROVAÇÃO → eventual merge em main somente com autorização explícita`.
+## 19-09-2026 — Auditoria de módulos incorporada à P0 arquitetural
+
+### Pedido
+Incluir na auditoria profunda do SagB a verificação dos módulos reutilizáveis LOZE, para identificar capacidades presentes, ausentes, duplicadas ou que deverão ser acopladas posteriormente.
+
+### Fonte canônica consultada
+- `lozebr/loze-adm/develop/docs/standards/3fb006-catalogo-mestre-modulos-reutilizaveis-loze-v1-17-09-2026.md`;
+- `lozebr/loze-adm/develop/docs/tasks/3fb006-fila-fabrica-modulos-reutilizaveis-loze-v1-17-09-2026.md`;
+- ClickUp `🧩 Catálogo Mestre — Módulos Reutilizáveis LOZE`.
+
+### Descoberta
+O catálogo canônico contém 20 módulos. `entity-registry-core` está implementado com primeiro consumo homologado; `identity-access-core`, `audit-timeline-core` e `files-attachments-core` formam o próximo lote de fundação, com prioridade P0.
+
+### Execução
+- P0 de decisão arquitetural do SagB atualizada para exigir matriz de módulos/gaps;
+- tarefa ClickUp `868m72u4e` atualizada com a mesma exigência;
+- nenhum módulo foi acoplado automaticamente;
+- nenhuma mudança funcional foi realizada.
+
+### Regra
+Gap detectado na auditoria vira pendência explícita. Adoção/acoplamento de módulo exige maturidade do módulo, compatibilidade do produto e gate aplicável.
