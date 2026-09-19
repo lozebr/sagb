@@ -10,7 +10,7 @@ import {
 import { getEligibleForPromotion, refreshEligibility } from '../services/nagiPromotionService';
 import { getIngestionDocuments } from '../services/nagiIngestionService';
 import { NagiIngestionDocument, NagiItem } from '../domain/types';
-import { PUBLISHED_APP_LINKS } from '../data/publishedLinks';
+import { DEMO_PRODUCTS } from '../data/demoProducts';
 import '../styles/nagi-tokens.css';
 
 /* ── Props ──────────────────────────────────────────── */
@@ -72,7 +72,7 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
     documentos: ingestionDocs.length,
     ideias: triageItems.length,
     catalogo: catalogItems.length,
-    links: PUBLISHED_APP_LINKS.length,
+    links: DEMO_PRODUCTS.length,
     governanca: 0,
   };
 
@@ -104,7 +104,7 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
         }}
         className="custom-scrollbar"
       >
-        <div style={{ maxWidth: 1500, margin: '0 auto', padding: activeSection === 'dashboard' ? 0 : '20px 24px 48px' }}>
+        <div className="nagi-content-inner" style={{ maxWidth: 1500, margin: '0 auto', padding: activeSection === 'dashboard' ? 0 : '20px 24px 48px' }}>
           <NAGIView
             section={activeSection}
             catalogItems={catalogItems}

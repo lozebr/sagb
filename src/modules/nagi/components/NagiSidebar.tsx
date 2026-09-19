@@ -1,5 +1,4 @@
 import React from 'react';
-import { PUBLISHED_APP_LINKS } from '../data/publishedLinks';
 import '../styles/nagi-tokens.css';
 
 /* ── Tipos ──────────────────────────────────────────── */
@@ -92,12 +91,13 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
     { id: 'documentos', label: 'Documentos', icon: <DocumentIcon />, badge: badgeCounts.documentos },
     { id: 'ideias', label: 'Ideias em análise', icon: <FlaskIcon />, badge: badgeCounts.ideias },
     { id: 'catalogo', label: 'Catálogo', icon: <BookIcon />, badge: badgeCounts.catalogo },
-    { id: 'links', label: 'Links publicados', icon: <LinkIcon />, badge: badgeCounts.links || PUBLISHED_APP_LINKS.length },
+    { id: 'links', label: 'Aplicativos', icon: <LinkIcon />, badge: badgeCounts.links },
     { id: 'governanca', label: 'Governança', icon: <ShieldIcon />, badge: badgeCounts.governanca },
   ];
 
   return (
     <aside
+      className="nagi-sidebar"
       style={{
         width: 220,
         minWidth: 220,
@@ -130,7 +130,7 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
             </linearGradient>
           </defs>
         </svg>
-        <div>
+        <div className="nagi-sidebar-copy">
           <div
             style={{
               fontSize: 15,
@@ -170,6 +170,7 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
           return (
             <button
               key={item.id}
+              aria-label={item.label}
               onClick={() => onNavigate(item.id)}
               style={{
                 display: 'flex',
@@ -212,9 +213,10 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
               >
                 {item.icon}
               </span>
-              <span style={{ flex: 1 }}>{item.label}</span>
+              <span className="nagi-sidebar-label" style={{ flex: 1 }}>{item.label}</span>
               {item.badge !== undefined && (
                 <span
+                  className="nagi-sidebar-badge"
                   style={{
                     minWidth: 20,
                     height: 20,
@@ -248,8 +250,9 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
       />
 
       {/* ── Footer: Voltar ao SagB ────────────── */}
-      <div style={{ padding: '0 10px 16px' }}>
+      <div className="nagi-sidebar-footer" style={{ padding: '0 10px 16px' }}>
         <button
+          aria-label="Voltar ao SagB"
           onClick={onBack}
           style={{
             display: 'flex',
@@ -281,7 +284,7 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
           <span style={{ display: 'flex', alignItems: 'center', opacity: 0.7 }}>
             <ArrowLeftIcon />
           </span>
-          Voltar ao SagB
+          <span className="nagi-sidebar-label">Voltar ao SagB</span>
         </button>
       </div>
     </aside>

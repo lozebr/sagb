@@ -75,7 +75,9 @@ export const moduleDoc = {
     'src/modules/nagi/services/nagiPromotionService.ts (regra de promoção triagem → catálogo)',
     'src/modules/nagi/services/nagiNicBridge.ts (recepção de saídas do NIC)',
     'src/modules/nagi/services/nagiHandoffService.ts (tracking de handoff para especialistas)',
-    'src/modules/nagi/components/NAGIView.tsx (hub orquestrador com abas: Documentos, Triagem e Catálogo)',
+    'src/modules/nagi/components/NAGIView.tsx (hub orquestrador com abas: Documentos, Triagem, Catálogo e Central de Aplicativos)',
+    'src/modules/nagi/components/PublishedLinksSection.tsx (launcher compacto: busca, filtros e um card por produto)',
+    'src/modules/nagi/data/demoProducts.ts (registro canônico de demonstração, deduplicado por productId e com histórico preservado)',
     'src/modules/nagi/components/IngestionSection.tsx (entrada, lote, revisão, vínculo, salvamento e histórico)',
     'src/modules/nagi/components/CatalogSection.tsx (catálogo governado — Alice UI)',
     'src/modules/nagi/components/TriageSection.tsx (triagem com pipeline visual — Alice UI)',
@@ -97,6 +99,7 @@ export const moduleDoc = {
     '8. Executar ações em lote: selecionar documentos e mandar rapidamente para Catálogo ou Triagem.',
     '9. Visualizar histórico da ingestão: recebido, revisado, salvo ou descartado.',
     '10. Continuar usando Catálogo, Triagem, score, governança, promoção e handoff existentes.',
+    '11. Abrir a Central de Aplicativos para localizar um produto único e usar apenas preview/homologação explicitamente validado como ação principal.',
   ],
 
   pendenciasPrincipais: [

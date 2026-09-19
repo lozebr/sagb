@@ -151,3 +151,49 @@ body[data-mode="dark"] {
   --nagi-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
   --nagi-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
 }
+
+
+/* ── Responsividade operacional NAGI ────────────────── */
+
+@media (max-width: 720px) {
+  .nagi-sidebar {
+    width: 64px !important;
+    min-width: 64px !important;
+  }
+
+  .nagi-sidebar > div:first-of-type {
+    justify-content: center !important;
+    padding: 16px 8px 12px !important;
+  }
+
+  .nagi-sidebar-copy,
+  .nagi-sidebar-label,
+  .nagi-sidebar-badge {
+    display: none !important;
+  }
+
+  .nagi-sidebar nav {
+    padding: 4px 8px !important;
+  }
+
+  .nagi-sidebar nav button,
+  .nagi-sidebar-footer button {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .nagi-sidebar nav button > span:first-child {
+    width: 20px !important;
+    flex: 0 0 20px !important;
+  }
+
+  .nagi-sidebar-footer {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .nagi-content-inner {
+    padding: 14px 12px 36px !important;
+  }
+}
