@@ -152,23 +152,282 @@ export const compareSchemaInventory = (item: SchemaInventory): {
   return { status: missing.length || unexpected.length ? 'divergente' : 'conforme', missing, unexpected };
 };
 
-export type SagbModuleCustody = 'interno' | 'coexistente' | 'legado_em_avaliacao';
+export type SagbModuleCustody = 'interno' | 'coexistente' | 'legado_em_avaliacao' | 'a_classificar';
+
 export interface SagbModuleBoundary {
+  id: string;
   name: string;
+  registered: boolean;
   custody: SagbModuleCustody;
   dataBoundary: string;
   note: string;
 }
 
-/** Status de domínio baseado na documentação SagB; NÃO é instrução de migração/exclusão. */
+/** Snapshot documental de 30 entradas no moduleRegistry + 3 diretórios fora do registry.
+ * A classificação não ordena exclusão nem prova ownership físico no Supabase. */
 export const sagbModuleBoundaries: readonly SagbModuleBoundary[] = [
-  { name: 'Central de Padrões', custody: 'interno', dataBoundary: 'Banco operacional SagB', note: 'central_padroes_documents é fonte canônica declarada; preservar seus dados e migrations.' },
-  { name: 'NAGI', custody: 'interno', dataBoundary: 'Persistência local parcial; destino futuro a decidir', note: 'Não criar novo schema ou migrar localStorage sem contrato e validação.' },
-  { name: 'NIDE / Metodologias / Mentorias / Missões', custody: 'interno', dataBoundary: 'Domínios do SagB com legados preservados', note: 'A consolidação é de navegação/código; tabelas legadas não podem ser excluídas sem paridade.' },
-  { name: 'CID / Núcleo de Agentes / Núcleo Conversacional', custody: 'interno', dataBoundary: 'Banco operacional SagB', note: 'Domínios internos devem ter ownership e RLS auditados antes de futura separação lógica.' },
-  { name: 'TaskZei', custody: 'coexistente', dataBoundary: 'Módulo SagB + produto separado', note: 'Confirmar contratos e fonte de verdade; não replicar dados entre projetos por suposição.' },
-  { name: 'Studio', custody: 'coexistente', dataBoundary: 'Módulo SagB + possível produto separado', note: 'O schema studio da incubadora é apenas referência; ownership e migração exigem evidência do produto.' },
-  { name: 'CRM Ziplia', custody: 'legado_em_avaliacao', dataBoundary: 'Migração legada documentada; CRM LOZE tem owner próprio', note: 'Não confundir o antigo módulo SagB com schema crm da incubadora; não eliminar sem prova.' },
-  { name: 'Quadro de Elite', custody: 'legado_em_avaliacao', dataBoundary: 'Núcleo de Agentes e cópias históricas', note: 'Candidato ao arquivamento somente após teste de paridade e homologação.' },
-  { name: 'Monitoramento', custody: 'interno', dataBoundary: 'Leitura de metadados, sem ownership dos bancos monitorados', note: 'Nenhuma conexão administrativa ou chave externa no browser.' }
+  {
+    "id": "api_sagb",
+    "name": "API SagB",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Funções/integrações SagB",
+    "note": "Contratos API e auditoria existentes; não transferir ownership."
+  },
+  {
+    "id": "hub-integracao",
+    "name": "Hub de Integração",
+    "registered": true,
+    "custody": "coexistente",
+    "dataBoundary": "Adaptadores SagB ↔ Hub externo",
+    "note": "Não confundir módulo cliente com o serviço LOZE Hub; credenciais exigem proteção server-side."
+  },
+  {
+    "id": "agentes_comerciais",
+    "name": "Agentes Comerciais",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Domínio SagB não inventariado por schema",
+    "note": "Conservar até mapear tabelas, permissões e integrações."
+  },
+  {
+    "id": "cadastro-empresas",
+    "name": "Cadastro de Empresas",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "Validar autoria e RLS das tabelas de empresas."
+  },
+  {
+    "id": "nucleo-conversacional",
+    "name": "Núcleo Conversacional",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "Preservar sessões, mensagens e memórias existentes."
+  },
+  {
+    "id": "nucleo_de_agentes",
+    "name": "Núcleo de Agentes",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "Preservar agentes, configurações e DNA."
+  },
+  {
+    "id": "central_padroes",
+    "name": "Central de Padrões",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "central_padroes_documents é fonte canônica declarada; preservar dados/migrations."
+  },
+  {
+    "id": "monitoramento",
+    "name": "Monitoramento",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Observa metadados; não possui schemas externos",
+    "note": "Apenas consultas autorizadas, snapshots e governança."
+  },
+  {
+    "id": "nagi",
+    "name": "NAGI",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "LocalStorage parcial; destino a homologar",
+    "note": "Não migrar dados nem criar schema sem gate específico."
+  },
+  {
+    "id": "nic",
+    "name": "NIC",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Persistência/fallback parcial; destino a homologar",
+    "note": "Separação lógica apenas após contrato de dados."
+  },
+  {
+    "id": "sala-dev",
+    "name": "Sala Dev",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "Verificar consumidores das tabelas dev antes de qualquer extração."
+  },
+  {
+    "id": "mentorias",
+    "name": "Mentorias",
+    "registered": true,
+    "custody": "legado_em_avaliacao",
+    "dataBoundary": "Domínio em NIDE; legado preservado",
+    "note": "Rotas originais e dados dependem de paridade com NIDE."
+  },
+  {
+    "id": "simulador-mentorias",
+    "name": "Simulador de Mentorias",
+    "registered": true,
+    "custody": "a_classificar",
+    "dataBoundary": "Pendente de inventário",
+    "note": "Não criar schema nem apagar domínio sem confirmar consumidores."
+  },
+  {
+    "id": "metodologias",
+    "name": "Metodologias",
+    "registered": true,
+    "custody": "legado_em_avaliacao",
+    "dataBoundary": "Domínio em NIDE; legado preservado",
+    "note": "Duplicidades de código comprovadas; dados não podem ser eliminados por isso."
+  },
+  {
+    "id": "missoes",
+    "name": "Missões",
+    "registered": true,
+    "custody": "legado_em_avaliacao",
+    "dataBoundary": "Domínio em NIDE; legado preservado",
+    "note": "NIDE incorpora Missões; preservar tabelas e contratos."
+  },
+  {
+    "id": "rai",
+    "name": "RAI",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "Conservar capturas/configurações e auditar chamadas externas."
+  },
+  {
+    "id": "karaoke",
+    "name": "Karaokê",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Não inventariado por schema",
+    "note": "Preservar módulo até identificação de dependências."
+  },
+  {
+    "id": "studio",
+    "name": "Studio",
+    "registered": true,
+    "custody": "coexistente",
+    "dataBoundary": "Módulo SagB e possível produto externo",
+    "note": "O schema studio das incubadoras é referência, não confirmação de migração."
+  },
+  {
+    "id": "cid",
+    "name": "CID",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB + Storage",
+    "note": "Preservar assets, jobs, chunks e outputs."
+  },
+  {
+    "id": "taskzei",
+    "name": "TaskZei",
+    "registered": true,
+    "custody": "coexistente",
+    "dataBoundary": "Módulo SagB e produto independente",
+    "note": "Fontes de verdade e contratos precisam conciliação antes de separar."
+  },
+  {
+    "id": "crm_ziplia",
+    "name": "CRM Ziplia",
+    "registered": true,
+    "custody": "legado_em_avaliacao",
+    "dataBoundary": "Módulo histórico; CRM LOZE com ownership próprio",
+    "note": "O schema crm externo não autoriza replicar/remover tabelas legadas."
+  },
+  {
+    "id": "configuracoes-ambiente",
+    "name": "Configurações de Ambiente",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Configurações do SagB",
+    "note": "Checar se algum valor sensível está exposto antes de separar."
+  },
+  {
+    "id": "gestao_financeira",
+    "name": "Gestão Financeira",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional SagB",
+    "note": "Preservar transações, conciliações e integrações."
+  },
+  {
+    "id": "telas_avancadas",
+    "name": "Telas Avançadas",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Persistência SagB a verificar",
+    "note": "Sem migração sem matriz de consumidores."
+  },
+  {
+    "id": "videos-ia",
+    "name": "Vídeos IA",
+    "registered": true,
+    "custody": "a_classificar",
+    "dataBoundary": "POC/contrato a investigar",
+    "note": "Preservar até prova de ausência de consumidores."
+  },
+  {
+    "id": "foco_total",
+    "name": "Foco Total",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Banco operacional/estado a verificar",
+    "note": "Módulo do SagB, sem necessidade provada de projeto dedicado."
+  },
+  {
+    "id": "sagb_bridge",
+    "name": "SagB Bridge",
+    "registered": true,
+    "custody": "a_classificar",
+    "dataBoundary": "Integração e tabelas compartilhadas a auditar",
+    "note": "Não confundir compartilhamento de tabelas com ownership."
+  },
+  {
+    "id": "mcp_sagb",
+    "name": "MCP SagB",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Integração SagB",
+    "note": "Auditar autorização e acesso a dados antes de ampliar escopo."
+  },
+  {
+    "id": "fluxob",
+    "name": "FluxoB",
+    "registered": true,
+    "custody": "a_classificar",
+    "dataBoundary": "Pré-alfa/contrato a investigar",
+    "note": "Nenhuma limpeza sem inventário e paridade."
+  },
+  {
+    "id": "nide",
+    "name": "NIDE",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "NIDE / Metodologias / Mentorias / Missões",
+    "note": "Domínio agregador oficial no runtime; preserva fallbacks até homologação."
+  },
+  {
+    "id": ".centro_de_estudos",
+    "name": "Centro de Estudos (oculto)",
+    "registered": false,
+    "custody": "legado_em_avaliacao",
+    "dataBoundary": "Fora do moduleRegistry",
+    "note": "Candidato a arquivo após prova de não referência."
+  },
+  {
+    "id": "_orquestracao-principal",
+    "name": "Orquestração Principal (legado)",
+    "registered": false,
+    "custody": "a_classificar",
+    "dataBoundary": "Fora do moduleRegistry",
+    "note": "Investigar consumers antes de agir."
+  },
+  {
+    "id": "quadro_de_elite",
+    "name": "Quadro de Elite (legado)",
+    "registered": false,
+    "custody": "legado_em_avaliacao",
+    "dataBoundary": "Fora do moduleRegistry",
+    "note": "Duplicação com Núcleo de Agentes; somente arquivar após paridade."
+  }
 ];
