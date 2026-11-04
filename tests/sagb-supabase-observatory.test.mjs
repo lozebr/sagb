@@ -59,3 +59,16 @@ test('O mapa modular usa catálogo declarado em vez de simular import de todos o
   assert.doesNotMatch(tableService, /await import\('\.\.\/module-doc'\)/);
   assert.match(registry, /NIDE \/ Metodologias \/ Mentorias \/ Missões/);
 });
+
+test('Inventário cobre os 30 módulos do registry e os três legados sem apagar nada', () => {
+  const modulesFile = read('src/core/modules/moduleRegistry.ts');
+  const registryCount = (modulesFile.match(/manifest: [a-zA-Z_]+/g) || []).length;
+  const match = registry.match(/sagbModuleBoundaries: readonly SagbModuleBoundary\[\] = (\[[\s\S]*\]);/);
+  assert.ok(match, 'Matriz modular não encontrada');
+  const modules = JSON.parse(match[1]);
+  assert.equal(registryCount, 30);
+  assert.equal(modules.filter((mod) => mod.registered).length, registryCount);
+  assert.equal(modules.filter((mod) => !mod.registered).length, 3);
+  assert.equal(new Set(modules.map((mod) => mod.id)).size, modules.length);
+  assert.match(page, /mod\.registered \? 'Sim' : 'Não'/);
+});
