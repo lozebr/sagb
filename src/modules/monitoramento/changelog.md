@@ -59,3 +59,16 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 - Dashboard Operacional passou a usar estrutura equivalente a app/main/head/controls/grid/card/visual/alerts/tv-mode/light-theme da referência.
 - Cards foram refeitos para seguir card-head, num, status, metric-row, visual, side-mini, alert-list e Detalhes discreto.
 - Densidades panels-4, panels-8, panels-12 e panels-16 foram traduzidas para CSS do módulo.
+
+## 2026-11-04 — P0 Database Observatory / Padrão Supabase LOZE
+
+- Lidos os três padrões aprovados do QG, Matriz Mestre e Registros Vivos.
+- Confirmados por consultas Supabase somente leitura os dois projetos incubadores. `loze-products-incubator`: schema `crm` com 33 tabelas (33 com RLS ativada), 30 migrations aplicadas e bucket privado `authorial-audio`; exemplos `nexi/radscan/studio` não apareceram como schemas físicos. `loze-client-apps-incubator`: schema `noivalia` com 51 tabelas (51 com RLS ativada), 22 migrations e buckets `email-assets` (público) e `noivalia-media` (privado).
+- Novo registro `supabaseEcosystemRegistry.ts`: fonte datada, status real/referência/não verificado, schema, bucket, Auth, RLS, migrations e comparação esperado × real (indeterminada sem manifesto).
+- `MonitoramentoSupabasePage`: cartões de projetos, separação operacional/monitorado, tabela de módulos, status de evidência e inventário histórico preservado.
+- `supabaseTablesService`: retirada a afirmação de importar todos os module-docs; agora compila somente declarações do inventário local existente.
+- `supabaseObservabilityCatalog`: contagem HEAD restrita a sessão SagB; um HTTP 404 não é prova de tabela removida.
+- Criado manifesto local do banco operacional SagB com project ref/schema não verificados, sem redirecionar a conexão.
+- Testes de regressão: `tests/sagb-supabase-observatory.test.mjs`.
+- **Sem alterações em Supabase remoto, migrações, usuários, schemas, secrets, `main` ou produção.**
+- Pendente: manifesto e permissões dos owners externos, revalidação do banco operacional, homologação autenticada de Preview e testes de isolamento RLS.
