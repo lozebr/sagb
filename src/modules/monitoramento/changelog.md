@@ -72,3 +72,5 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 - Testes de regressão: `tests/sagb-supabase-observatory.test.mjs`.
 - **Sem alterações em Supabase remoto, migrações, usuários, schemas, secrets, `main` ou produção.**
 - Pendente: manifesto e permissões dos owners externos, revalidação do banco operacional, homologação autenticada de Preview e testes de isolamento RLS.
+
+- Complemento 04/11: a matriz de fronteiras agora cobre todas as 30 entradas do `moduleRegistry` e 3 diretórios legados fora do registro, com situação e proteção por módulo; não houve exclusões.
