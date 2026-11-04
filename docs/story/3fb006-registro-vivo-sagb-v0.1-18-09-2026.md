@@ -565,3 +565,11 @@ Próximo gate: CI/Deploy Preview → homologação humana do Observatory → con
 - Página do Observatory exibe coluna `Registry`; teste confere quantitativos, unicidade e compatibilidade com registry fonte.
 - Commits complementares: `09233d4a`, `1782a920`, `9bcefcb9`.
 - Gate de futura reorganização: ownership e consumidores → teste de paridade → migration aditiva/rollback → homologação → aprovação QG.
+
+### Gate CI do inventário completo (commit `9bcefcb9`)
+- 🟢 `npm test` no job Deploy Preview (testes de catálogo, 30 módulos + 3 legados e checagem TypeScript isolada).
+- 🟢 Build Vite/Supabase stack.
+- 🟢 History Compliance.
+- 🟢 Chromium NAGI UI Smoke.
+- 🟢 Deploy Preview na Netlify pelo workflow PR; etapa de produção `skipped`.
+- 🟡 Homologação E2E autenticada específica do Observatory ainda não disponível. Não confundir green CI com prova de acesso ao banco operacional.
