@@ -182,3 +182,20 @@ Documento de rastreabilidade macro por modulo.
   - `netlify/functions/ai.mjs`
   - tabela `agent_memories`
 - Status: concluido
+
+### 2026-11-03 — Correção de diagnóstico Supabase Auth no Deploy Preview NAGI
+- Módulo: SagB Auth / Infra Netlify / NAGI (rota protegida).
+- Mudança:
+  - diferencia configuração ausente, chave API inválida e erro de rede no login;
+  - apresenta mensagem compreensível sem remover autenticação ou publicar sessão no console;
+  - remove URL e chave Supabase fixas em `[build.environment]` do Netlify TOML, respeitando configuração de contexto do site;
+  - adiciona regressão automatizada e registra o diagnóstico no Registro Vivo;
+  - bloqueio restante: configuração autorizada de `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` para `deploy-preview`, depois validar login real com usuário do SagB.
+- Tipo: infra / correção / segurança.
+- Arquivos afetados:
+  - `services/supabase.ts`
+  - `components/Auth.tsx`
+  - `netlify.toml`
+  - `tests/sagb-auth-preview.test.mjs`
+  - `docs/story/3fb006-registro-vivo-sagb-v0.1-18-09-2026.md`
+- Status: correção de código concluída em `develop`; autenticação end-to-end pendente de configuração do ambiente.
