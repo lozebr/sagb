@@ -550,3 +550,11 @@ Nenhuma publicação em produção.
 Commits de código/documentação gerados nesta missão: `a6954bed`, `217ee2a6`, `1ffa8a55`, `5fe48dfe`, `85278df3`, `e5b40f32`, `1f60f955`, `3ae87827`, `b7d944ac`.
 PR existente de homologação: `https://github.com/lozebr/sagb/pull/6` (draft; não mergear sem autorização).
 Próximo gate: CI/Deploy Preview → homologação humana do Observatory → confirmação do Supabase operacional SagB → handoff aos owners/Platform.
+
+### Complemento de homologação técnica P0 — 04/11/2026
+- Novo teste TypeScript: `tests/sagb-supabase-typecheck.test.mjs` (typecheck isolado do registry novo e parser TSX do Observatory). Commit `59aa627473f05fda129f7e61e0872e6c90668751`.
+- No commit `59aa6274`, GitHub Actions: `Enforce History Compliance` 🟢; `Build (Supabase stack)` 🟢; `Deploy to Netlify (backup via Actions)` 🟢 (etapa Test + build + Deploy Preview verde, etapa produção skipped); `NAGI UI Smoke` 🟢.
+- Netlify `sagbapp`: Deploy Preview do branch `develop` em estado `ready` na checagem (PR #6).
+- Limitações de QA: smoke Chromium existente cobre NAGI isolado, **não a navegação real autenticada no Observatory**; build Vite/TSX e teste de tipo isolado NÃO equivalem ao typecheck global do repositório (gate global ainda não existe). Login do SagB continua bloqueado enquanto seu projeto Supabase operacional não for confirmado/configurado no Preview.
+- Nenhuma alteração realizada no banco operacional ou nas duas incubadoras; os snapshots exibidos representam **04/11/2026**, não telemetria live.
+- Status técnico: `IMPLEMENTADO NA DEVELOP — PRONTO PARA HOMOLOGAÇÃO TÉCNICA PARCIAL`; status de negócio: `AJUSTAR — AGUARDANDO PERMISSÕES, MANIFESTOS E LOGIN REAL`.
