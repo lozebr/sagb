@@ -359,3 +359,94 @@ A recomendação não é decisão oficial até aprovação explícita.
 
 ### Próximo gate
 `AUDITORIA CONCLUÍDA → RECOMENDAÇÃO STRANGLER → APROVAÇÃO DO USUÁRIO → Onda 0`.
+
+
+### Complemento de fechamento — escopo aprovado em 12 dimensões
+
+Após releitura da P0 v0.2 vigente, foram incorporados os gates adicionais aprovados:
+
+- matriz dos 20 módulos reutilizáveis LOZE no formato canônico;
+- matriz explícita de paridade funcional;
+- auditoria resumida das 12 dimensões;
+- matriz de segurança/LGPD;
+- auditoria de UX/acessibilidade/responsividade com limitações registradas;
+- performance/dependências/custo;
+- branches/versionamento/governança;
+- plano de rollback;
+- backlog derivado P0–P3.
+
+### Evidências adicionais
+Build CI do mesmo baseline:
+- 3.392 módulos transformados;
+- `index` JS: 5.285,02 kB minificado / 1.275,57 kB gzip;
+- `vendor`: 3.408,86 kB / 941,33 kB gzip;
+- alerta de circular chunk `vendor → react-vendor → vendor`;
+- `services/supabase.ts` é importado estática e dinamicamente, impedindo chunking efetivo;
+- `npm ci`: 602 packages;
+- 37 vulnerabilidades: 2 low, 8 moderate, 22 high e **5 critical**.
+
+Governança:
+- `package.json` versão 1.1.0;
+- README versão 1.6.4;
+- Monitoramento cita plataforma 1.8.1;
+- 9 branches observadas;
+- listagem de branches retornou `protected:false`;
+- rulesets retornaram vazios;
+- PWA/service worker não encontrado na árvore.
+
+Persistência:
+- `supabase/run_all_migrations.sql` não representa claramente todo o conjunto posterior de 72 migrations; bootstrap/restore reproduzível virou P1.
+
+### Backlog formal da auditoria
+P0:
+- segredos no browser/credential manager;
+- autenticação de Functions service-role;
+- AI proxy auth/rate limit;
+- webhook Meta HMAC;
+- Titan credentials;
+- 5 vulnerabilidades npm críticas;
+- baseline QA/typecheck/lint;
+- gate identity-access-core.
+
+P1:
+- AppShell/RouteResolver/AuthBoundary;
+- decomposição do shim Supabase;
+- RLS completo;
+- SSRF RAI;
+- code splitting;
+- bootstrap/restore;
+- audit/files/feature flags;
+- proteção de branch e fonte única de versão.
+
+P2:
+- consolidação NIDE;
+- NAGI/NIC persistência;
+- connector-core;
+- ai-runtime-adapter-core;
+- accessibility suite.
+
+P3:
+- arquivamento de legados comprovados;
+- limpeza de branches/docs;
+- decisão sobre POCs/pre-alpha.
+
+### Registro ClickUp
+Tarefa mestre existente: `868m72u4e`.
+Comentário de fechamento da auditoria criado: `90110285657139`.
+
+### Documentos/commits finais
+- relatório completo, complemento 12 dimensões: `5fdb7d8438649f95cbc69e89d4a1df1728ab3268`;
+- tarefa P0 atualizada para “AUDITORIA CONCLUÍDA — RECOMENDAÇÃO AGUARDANDO APROVAÇÃO”: `1a5b774a80512ca693adae7311c060c1cf0b20fb`.
+
+### Estado final da missão
+🟢 **AUDITORIA CONCLUÍDA**  
+🟡 **RECOMENDAÇÃO STRANGLER — AGUARDANDO APROVAÇÃO**
+
+Nenhum código funcional foi alterado.
+Nenhuma refatoração foi iniciada.
+Nenhuma migration foi aplicada.
+Nenhum merge em `main`.
+Nenhuma publicação em produção.
+
+### Próximo gate
+`APROVAÇÃO DA ESTRATÉGIA → somente então ONDA 0`.
