@@ -91,6 +91,7 @@ const pickErrorMessage = (data: any, fallback: string) => {
 
 const resolveAuthErrorCode = (path: string, status: number, data: any) => {
   const msg = String(pickErrorMessage(data, '')).toLowerCase();
+  if (msg.includes('invalid api key') || msg.includes('apikey') || msg.includes('api key')) return 'auth/configuration-not-found';
   if (path.includes('/token') && (status === 400 || status === 401)) return 'auth/invalid-credentials';
   if (path.includes('/signup')) {
     if (msg.includes('already') || msg.includes('registered')) return 'auth/email-already-in-use';
@@ -121,13 +122,13 @@ const supabaseAuthFetch = async (path: string, body?: any, accessToken?: string)
   let res: Response;
   try {
     res = await fetch(`${supabaseUrl}/auth/v1${path}`, {
-    method: body ? 'POST' : 'GET',
-    headers: {
-      apikey: supabaseAnonKey,
-      Authorization: accessToken ? `Bearer ${accessToken}` : `Bearer ${supabaseAnonKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
+      method: body ? 'POST' : 'GET',
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: accessToken ? `Bearer ${accessToken}` : `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: body ? JSON.stringify(body) : undefined
     });
   } catch {
     throw createShimError({
