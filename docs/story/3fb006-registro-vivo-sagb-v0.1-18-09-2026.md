@@ -492,5 +492,5 @@ Nenhuma publicação em produção.
 - 🟢 Build Supabase stack: sucesso.
 - 🟢 Enforce History Compliance: sucesso após atualizar `docs/modular-map/HISTORICO_MODULOS.md`.
 - 🟢 Deploy Preview via GitHub Actions: sucesso; etapa de deploy produção foi ignorada (`skipped`).
-- 🟡 NAGI UI Smoke da revisão final: ainda em processamento na última conferência. O mesmo smoke havia passado no commit anterior `37e2fe3`.
+- 🟢 NAGI UI Smoke (desktop 1366×768, tablet 768×1024 e mobile 390×844): sucesso no commit `cb997630`.
 - 🔴 A validação de login real continua bloqueada até identificar o projeto Auth do SagB e configurar o contexto `deploy-preview`; build e deploy verdes não comprovam autenticação.
