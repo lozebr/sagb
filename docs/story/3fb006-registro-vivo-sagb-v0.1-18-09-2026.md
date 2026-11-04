@@ -494,3 +494,59 @@ Nenhuma publicação em produção.
 - 🟢 Deploy Preview via GitHub Actions: sucesso; etapa de deploy produção foi ignorada (`skipped`).
 - 🟢 NAGI UI Smoke (desktop 1366×768, tablet 768×1024 e mobile 390×844): sucesso no commit `cb997630`.
 - 🔴 A validação de login real continua bloqueada até identificar o projeto Auth do SagB e configurar o contexto `deploy-preview`; build e deploy verdes não comprovam autenticação.
+
+## 04-11-2026 — Missão P0 QG — Adequar SagB ao padrão oficial Supabase LOZE
+
+### Solicitação e interpretação
+- Missão explícita do QG: auditar e implementar na `develop` reconhecimento das duas incubadoras e respectiva observabilidade, preservando banco operacional SagB e autonomia dos módulos.
+- A aprovação do **Padrão Supabase LOZE de 17/09/2026** e da **Governança Sequencial QG → Platform → Produto** já existe. Não se criou uma decisão nova para alterar essa fundação.
+- Independência de módulo de software NÃO significa banco ou projeto Supabase dedicado por módulo; separação lógica de tabelas/schema exige ownership, consumers, RLS, migrations e gate específico. Módulos de produtos externos não podem apropriar-se do banco do produto.
+- Mudanças do SagB autorizadas; alterações do Supabase compartilhado, migrations, Auth global, secrets e produção não autorizadas.
+
+### Fontes lidas
+- `lozebr/loze-adm/develop/docs/standards/3fb006-padrao-supabase-loze-v1-17-09-2026.md` — APROVADO;
+- `lozebr/loze-adm/develop/docs/standards/3fb006-padrao-governanca-sequencial-supabase-qg-platform-produtos-v1-17-09-2026.md` — APROVADO;
+- `lozebr/loze-adm/develop/docs/standards/3fb006-padrao-auth-email-redirect-smtp-loze-v1-17-09-2026.md` — APROVADO;
+- `lozebr/loze-adm/develop/docs/story/3fb006-registro-vivo-acompanhamento-tarefas-agentes-v0.1-18-09-2026.md`;
+- `lozebr/loze-adm/develop/docs/story/3fb006-matriz-mestre-padroes-decisoes-loze-v0.1-19-09-2026.md`;
+- Registro Vivo existente do SagB, auditoria arquitetural, `services/supabase.ts`, `netlify.toml`, `supabase/config.toml`, migrations, Central de Padrões, Monitoramento e módulos com domínio de dados;
+- consultas Supabase SQL **somente leitura** nos dois projetos incubadores acessíveis via connector.
+
+### ANTES — desvios encontrados
+1. `MonitoramentoSupabasePage` mostrava apenas lista de tabelas inferidas por módulo SagB e contagens HEAD restritas ao projeto configurado no browser; não mostrava as duas incubadoras nem a distinção operacional/monitorado.
+2. `supabaseTablesService` dizia carregar todos os `module-docs`, mas importava somente o de Monitoramento.
+3. `supabaseObservabilityCatalog` tentava contagem mesmo sem sessão, usando a anon key como fallback; HTTP 404 era interpretado como ausência física.
+4. Manifesto operacional local do SagB e ownership separado do inventário externo não estavam explicitados no Observatory.
+5. A identidade real do projeto remoto operacional SagB segue não verificada pelas conexões disponíveis; `services/supabase.ts` usa UMA conexão operacional e não deve ser reapontada por hipótese.
+
+### Evidência factual dos projetos (04/11/2026)
+- `loze-products-incubator` (`txyuwaffzgsjndqsralg`): `crm` com 33 tabelas / 33 relrowsecurity=true; `public` com 8/8 RLS; `private` com 6/6 RLS; schema `loze_platform` com 0 tabelas; 30 migrations no histórico; bucket `authorial-audio` privado.
+- `loze-client-apps-incubator` (`rzouauxrsfyzvpmqqwso`): `noivalia` com 51 tabelas / 51 relrowsecurity=true; `public` com 0 tabelas; 22 migrations; buckets `noivalia-media` privado e `email-assets` público.
+- Schemas `nexi`, `radscan`, `studio` NÃO foram encontrados na incubadora de produtos nesta leitura. São exemplos do padrão, não objetos a criar por conta própria.
+- A verificação de relrowsecurity indica apenas o flag RLS, **não** prova grants, políticas corretas, isolamento entre usuários, Storage seguro ou Auth membership.
+- Não foram lidos dados pessoais nem registros de tabelas; apenas metadados.
+- Migrations dos incubadores são contagens do projeto inteiro, não reconciliadas com manifests/migrations individuais. O último acesso read-only não gera sincronização automática futura.
+
+### DEPOIS — execução no próprio SagB, branch develop
+- `src/modules/monitoramento/services/supabaseEcosystemRegistry.ts` (novo): registro tipado dos três contextos (SagB operacional não verificado, produtos LOZE monitorados, apps clientes monitorados), schemas reais e referências, ownership pendente, RLS, Storage, Auth, migrations, data/fonte e comparação esperada×real (sem falso positivo quando manifesto não existe).
+- `src/modules/monitoramento/pages/MonitoramentoSupabasePage.tsx`: apresenta classes de projetos, status e dados observados; deixa claro snapshot × live; mostra limites de módulo interno/coexistente/legado e preserva listagem antiga do SagB.
+- `src/modules/monitoramento/services/supabaseTablesService.ts`: substituída simulação de import dos módulos por mapa declarado do próprio catálogo local, identificado como inferência.
+- `src/modules/monitoramento/services/supabaseObservabilityCatalog.ts`: contagem HEAD só com sessão autenticada do SagB e 404 classificado como pendente, não exclusão comprovada.
+- `src/modules/monitoramento/services/index.ts` exporta contrato novo.
+- `supabase/manifest-sagb-operacional.md`: manifesto local do produto, evidenciando projeto/schema operacional remoto ainda não verificados; formato local sem criar novo padrão transversal.
+- `tests/sagb-supabase-observatory.test.mjs`: regressões de classes de projeto, números reais, exemplos não presumidos, ausência de chaves privilegiadas, detecção do estado sem manifesto e preservação de fronteiras.
+- `src/modules/monitoramento/changelog.md` e `docs/modular-map/HISTORICO_MODULOS.md` atualizados.
+- Nenhum schema, projeto, bucket, RLS, migration, Auth, SMTP, segredo, usuário ou dado foi modificado. Nenhum repo externo modificado. Nenhum merge/publicação em `main`.
+
+### Decisões versus pendências
+- 🟢 APROVADO no QG: 2 incubadoras, isolamento por produto, RLS/migrations/Storage, Auth compartilhado por projeto, sagB observador sem ownership de produtos, governança sequencial.
+- 🟡 AGUARDANDO APROVAÇÃO: eventual extração física de módulo interno do SagB para outro schema/projeto e consolidação/arquivamento de módulos legados; avaliação de paridade obrigatória.
+- 🔴 BLOQUEIO: identificar o projeto operacional do SagB e validar login no Preview. Não substituir por incubadora.
+- 🟡 BLOQUEIO EXTERNO: owners de CRM/NEXI/RadScan/Noivalía e Platform fornecerem manifests reais, migrations por produto e fonte segura read-only para atualização contínua do Observatory.
+- 🟡 TESTES/QA: validar CI (testes, build, smoke), Deploy Preview atualizado, typecheck quando disponível e homologação autenticada.
+- Estado da missão: `AJUSTAR — IMPLEMENTAÇÃO SEGURA APLICADA, HOMOLOGAÇÃO/INTEGRAÇÃO CONTÍNUA PENDENTES`.
+
+### Evidência Git
+Commits de código/documentação gerados nesta missão: `a6954bed`, `217ee2a6`, `1ffa8a55`, `5fe48dfe`, `85278df3`, `e5b40f32`, `1f60f955`, `3ae87827`, `b7d944ac`.
+PR existente de homologação: `https://github.com/lozebr/sagb/pull/6` (draft; não mergear sem autorização).
+Próximo gate: CI/Deploy Preview → homologação humana do Observatory → confirmação do Supabase operacional SagB → handoff aos owners/Platform.
