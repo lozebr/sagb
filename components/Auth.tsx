@@ -80,7 +80,6 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
       else if (code === 'auth/invalid-email') setError('E-mail inválido.');
       else if (code === 'auth/email-already-in-use') setError('Este e-mail já está em uso.');
       else if (code === 'auth/weak-password') setError('A senha deve ter pelo menos 6 caracteres.');
-      else if (code === 'auth/configuration-not-found') setError('Configuração do Supabase indisponível neste ambiente. Contate o administrador.');
       else if (code === 'auth/http-400') setError('Erro de conexão com o servidor de autenticação. Verifique as credenciais.');
       else if (code === 'auth/http-401') setError('Credenciais inválidas ou expiradas.');
       else if (code === 'auth/http-403') setError('Acesso negado ao servidor de autenticação.');
