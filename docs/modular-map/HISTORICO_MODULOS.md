@@ -199,3 +199,10 @@ Documento de rastreabilidade macro por modulo.
   - `tests/sagb-auth-preview.test.mjs`
   - `docs/story/3fb006-registro-vivo-sagb-v0.1-18-09-2026.md`
 - Status: correção de código concluída em `develop`; autenticação end-to-end pendente de configuração do ambiente.
+
+### 2026-11-04 — P0 Reconciliação Observatory × Padrão Supabase LOZE
+- Módulo: Monitoramento / Database Observatory; fronteiras do banco operacional SagB e incubadoras.
+- Mudança: registro observacional datado de dois projetos Supabase LOZE e schemas reais; classificação explícita de exemplos normativos, owner/manifesto pendentes; inventário de módulos internos/coexistentes/legados; separação entre HEAD no banco SagB e snapshots externos somente leitura; correção de serviço que simulava leitura integral de module-docs.
+- Tipo: arquitetura / infra / dados (metadados somente leitura) / UI / segurança.
+- Arquivos: `src/modules/monitoramento/services/supabaseEcosystemRegistry.ts`, `src/modules/monitoramento/services/supabaseTablesService.ts`, `src/modules/monitoramento/services/supabaseObservabilityCatalog.ts`, `src/modules/monitoramento/services/index.ts`, `src/modules/monitoramento/pages/MonitoramentoSupabasePage.tsx`, `tests/sagb-supabase-observatory.test.mjs`, `supabase/manifest-sagb-operacional.md`, `src/modules/monitoramento/changelog.md`, Registro Vivo SagB.
+- Status: implementação segura em develop, sem alterações de Supabase remoto ou main. Homologação de Auth e live cross-project pendentes.
