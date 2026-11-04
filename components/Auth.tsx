@@ -30,23 +30,17 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
     setLoading(true);
 
     try {
-      console.log('Tentando autenticação com:', { email, isLogin });
-      
       if (isLogin) {
-        console.log('Chamando signInWithEmailAndPassword...');
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        console.log('Login bem-sucedido:', result);
+        await signInWithEmailAndPassword(auth, email, password);
       } else {
         if (!name || !role) {
           setError('Nome e Cargo são obrigatórios para novos usuários.');
           setLoading(false);
           return;
         }
-        console.log('Criando novo usuário...');
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         const userId = (user as any)?.id || (user as any)?.uid;
-        console.log('Usuário criado:', { userId, email: user.email });
 
         // CRIAR PERFIL NO BANCO DE DADOS
         const rawUserProfile = {
@@ -69,27 +63,29 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
           throw { code: 'auth/invalid-user', message: 'Usuário criado sem ID válido.' };
         }
 
-        console.log('Criando perfil no banco de dados:', payload);
         await setDoc(doc(db, "users", userId), payload);
-        console.log('Perfil criado com sucesso');
       }
       onAuthSuccess();
     } catch (err: any) {
-      console.error('Erro na autenticação:', err);
-      console.error('Detalhes do erro:', err.code, err.message, err.status);
-      
-      if (err.code === 'auth/user-not-found') setError('Usuário não encontrado.');
-      else if (err.code === 'auth/wrong-password') setError('Senha incorreta.');
-      else if (err.code === 'auth/invalid-credentials') setError('E-mail ou senha inválidos.');
-      else if (err.code === 'auth/invalid-email') setError('E-mail inválido.');
-      else if (err.code === 'auth/email-already-in-use') setError('Este e-mail já está em uso.');
-      else if (err.code === 'auth/weak-password') setError('A senha deve ter pelo menos 6 caracteres.');
-      else if (err.code === 'auth/configuration-not-found') setError('Configuração não encontrada. Verifique se a Identity Toolkit API está ativa no Google Cloud para este projeto.');
-      else if (err.code === 'auth/http-400') setError('Erro de conexão com o servidor de autenticação. Verifique as credenciais.');
-      else if (err.code === 'auth/http-401') setError('Credenciais inválidas ou expiradas.');
-      else if (err.code === 'auth/http-403') setError('Acesso negado ao servidor de autenticação.');
-      else if (err.code === 'auth/http-500') setError('Erro interno do servidor de autenticação.');
-      else setError(`Erro ao autenticar (${err.code || 'desconhecido'}). Verifique sua conexão e se o login por e-mail está ativo no Supabase.`);
+      const code = typeof err?.code === 'string' ? err.code : 'auth/unknown';
+      console.error('Falha na autenticação do SagB:', { code, status: err?.status ?? null });
+
+      if (code === 'auth/network-request-failed') {
+        setError('Não foi possível acessar o Supabase neste ambiente. A configuração ou a conexão do Deploy Preview precisa ser verificada.');
+      } else if (code === 'auth/configuration-not-found') {
+        setError('Supabase não configurado para este ambiente. Solicite a revisão das variáveis de autenticação do Deploy Preview.');
+      } else if (code === 'auth/user-not-found') setError('Usuário não encontrado.');
+      else if (code === 'auth/wrong-password') setError('Senha incorreta.');
+      else if (code === 'auth/invalid-credentials') setError('E-mail ou senha inválidos.');
+      else if (code === 'auth/invalid-email') setError('E-mail inválido.');
+      else if (code === 'auth/email-already-in-use') setError('Este e-mail já está em uso.');
+      else if (code === 'auth/weak-password') setError('A senha deve ter pelo menos 6 caracteres.');
+      else if (code === 'auth/configuration-not-found') setError('Configuração do Supabase indisponível neste ambiente. Contate o administrador.');
+      else if (code === 'auth/http-400') setError('Erro de conexão com o servidor de autenticação. Verifique as credenciais.');
+      else if (code === 'auth/http-401') setError('Credenciais inválidas ou expiradas.');
+      else if (code === 'auth/http-403') setError('Acesso negado ao servidor de autenticação.');
+      else if (code === 'auth/http-500') setError('Erro interno do servidor de autenticação.');
+      else setError('Não foi possível autenticar. Verifique seus dados e tente novamente. Se o problema persistir, contate o administrador.');
     } finally {
       setLoading(false);
     }
