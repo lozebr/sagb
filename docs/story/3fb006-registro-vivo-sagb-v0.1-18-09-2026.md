@@ -486,3 +486,11 @@ Nenhuma publicação em produção.
 - 🟡 Após configurar: homologar autenticação real com usuário autorizado e acesso a `/nagi/links`; checar redirects/allow-list quando aplicável.
 - 🟡 Pendências anteriores preservadas: validação humana NAGI, previews dos demais apps e aprovação formal da estratégia arquitetural.
 - Estado da presente demanda: `AJUSTAR` / acesso bloqueado por configuração externa ainda não validada.
+
+### Verificação de CI (commit `cb997630`)
+- 🟢 `npm test`: sucesso no workflow de deploy do PR (inclui `tests/sagb-auth-preview.test.mjs`).
+- 🟢 Build Supabase stack: sucesso.
+- 🟢 Enforce History Compliance: sucesso após atualizar `docs/modular-map/HISTORICO_MODULOS.md`.
+- 🟢 Deploy Preview via GitHub Actions: sucesso; etapa de deploy produção foi ignorada (`skipped`).
+- 🟡 NAGI UI Smoke da revisão final: ainda em processamento na última conferência. O mesmo smoke havia passado no commit anterior `37e2fe3`.
+- 🔴 A validação de login real continua bloqueada até identificar o projeto Auth do SagB e configurar o contexto `deploy-preview`; build e deploy verdes não comprovam autenticação.
