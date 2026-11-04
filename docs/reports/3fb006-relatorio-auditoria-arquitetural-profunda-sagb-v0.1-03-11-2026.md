@@ -672,3 +672,454 @@ desativar implementações locais somente após paridade
 6. `connector-core` — convergir Hub de Integrações sem reescrever o domínio.
 
 **Regra:** nenhum acoplamento foi executado nesta auditoria. Adoção depende da maturidade/homologação de cada módulo LOZE e de gate próprio.
+
+
+---
+
+# 16. Matriz canônica dos 20 módulos reutilizáveis LOZE
+
+| Módulo LOZE | Precisa? | Existe localmente? | Estado canônico | Estado no SagB | Gap | Ação | Prioridade |
+|---|---|---|---|---|---|---|---|
+| `entity-registry-core` | Sim | Sim, fragmentado | 🟢 Implementado / piloto homologado | PARCIAL | agents, ventures, empresas e membros vivem em estruturas próprias | Avaliar consumo por contrato sem migrar dados destrutivamente | P1 |
+| `identity-access-core` | Sim | Parcial | 🔴 P0 — próximo candidato | NECESSÁRIO / AUSENTE | Auth existe, mas memberships/roles/permissions/autorização uniforme não | Adotar quando arquitetura/gate do módulo estiver pronta | **P0** |
+| `audit-timeline-core` | Sim | Parcial | 🔴 P0 | PARCIAL | múltiplas auditorias isoladas | Unificar eventos gradualmente mantendo logs existentes | **P0** |
+| `files-attachments-core` | Sim | Parcial | 🔴 P0 | PARCIAL | CID, chat, TaskZei, Studio e CP usam modelos/buckets distintos | Criar adapter e migrar metadados por domínio | **P0** |
+| `notification-center-core` | Sim | Parcial | 🟠 P1 | PARCIAL | TaskZei tem notificações, mas não centro transversal | Preservar TaskZei e extrair contrato comum depois | P1 |
+| `settings-preferences-core` | Sim | Parcial | 🟠 P1 | SUBSTITUIR LEGADO | toggles/ordem/preferências em localStorage | Migrar configuração por workspace/usuário | P1 |
+| `approval-workflow-core` | Sim | Parcial | 🟠 P1 | PARCIAL | approvals concentrados na Central de Padrões | Reusar regras existentes como piloto de contrato | P1 |
+| `comments-collaboration-core` | Sim | Parcial | 🟠 P1 | PARCIAL | comentários existem em TaskZei, não transversalmente | Adotar quando houver segundo consumidor | P2 |
+| `tags-classification-core` | Sim | Parcial | 🟠 P1 | PARCIAL | taxonomias separadas em CID/NAGI/outros | Mapear taxonomias antes de unificar | P2 |
+| `search-filter-views-core` | Sim | Parcial | 🟠 P1 | PARCIAL | busca/filtros repetidos por módulo | Extrair após shell/contratos estabilizados | P2 |
+| `import-export-core` | Sim | Parcial | 🟠 P1 | PARCIAL | importação/exportação pontual e sem contrato único | Consolidar adapters sem remover fluxos atuais | P2 |
+| `events-webhooks-core` | Sim | Sim, fragmentado | 🟡 P2 | PARCIAL | webhooks/events espalhados, idempotência/retries não uniformes | Convergir via API SAG B | P1 |
+| `connector-core` | Sim | Sim, Hub local | 🟡 P2 | PARCIAL | Hub tem conectores, mas segurança de credenciais é inadequada | Preservar domínio; substituir credential plane e aderir ao contrato | **P0/P1** |
+| `scheduling-core` | Sim | Sim, TaskZei | 🟡 P2 | PARCIAL | scheduling está acoplado à Agenda Inteligente | Extrair somente quando houver segundo consumidor | P2 |
+| `documents-templates-core` | Sim | Parcial | 🟡 P2 | PARCIAL | docs existem em TaskZei/CP, templates/versionamento não são transversais | Manter domínios e avaliar adapter comum | P2 |
+| `rules-engine-core` | Sim | Não de forma transversal | 🟡 P2 | NECESSÁRIO / AUSENTE | regras aparecem em código e módulos específicos | Não construir localmente; aguardar desenho canônico | P2 |
+| `billing-subscription-core` | Não comprovado | Não | 🟡 P2 | NÃO APLICÁVEL | Gestão Financeira não implica assinaturas/entitlements | Não acoplar sem caso de uso real | P3 |
+| `metrics-usage-core` | Sim | Parcial | 🟡 P2 | PARCIAL | Monitoramento cobre saúde/custo, não quotas/usage contract | Evoluir Monitoramento como consumidor, não duplicar engine | P2 |
+| `feature-flags-core` | Sim | Sim, localStorage | 🟡 P2 | SUBSTITUIR LEGADO | flags/toggles não são governados por ambiente/conta | Migrar `moduleActivation` por adapter | P1 |
+| `ai-runtime-adapter-core` | Sim | Sim, parcial | 🟡 P2 | PARCIAL | providerProxy/ai.mjs existem, porém secrets e auth precisam hardening | Convergir sem reescrever providers já funcionais | **P0/P1** |
+
+**Conclusão:** a fábrica LOZE oferece um caminho de substituição incremental de capacidades transversais. O SAG B deve consumir módulos maduros por adapters; não duplicá-los nem aguardar todos para evoluir riscos P0.
+
+---
+
+# 17. Auditoria nas 12 dimensões aprovadas
+
+| Dimensão | Estado | Evidência | Conclusão |
+|---|---|---|---|
+| 1. Produto e escopo | 🟠 | README define SAG B como ecossistema central; 33 diretórios de módulo; módulos com maturidades muito distintas | Escopo amplo demais está coexistindo com POCs; preservar núcleo e governar entrada/saída de módulos |
+| 2. Jornadas e funcionalidades | 🟠 | fluxos materiais documentados/implementados em Auth, Conversacional, CID, TaskZei, NAGI, CP, Hub, Studio | Paridade deve ser garantida por jornada antes de substituir legado |
+| 3. Arquitetura e código | 🔴 dívida alta | App 2.131 linhas; Supabase shim 2.986; componentes >90–180 KB; duplicidades | Strangler no shell/serviços é necessário |
+| 4. Módulos LOZE | 🟠 | 20 módulos canônicos cruzados | IAM/audit/files são gaps fundacionais; connectors/AI/flags já têm equivalentes locais parciais |
+| 5. Dados e persistência | 🟠 | 72 migrations; múltiplos schemas/tabelas; localStorage em domínios | Dados devem ser preservados; fontes temporárias precisam migração controlada |
+| 6. Auth, segurança e LGPD | 🔴 crítico | segredos no browser, service-role sem auth uniforme, AI proxy aberto, credenciais Titan no payload | Onda 0 obrigatória antes de remodelação ampla |
+| 7. Integrações e contratos | 🔴/🟠 | API SAG B madura; Hub/Functions heterogêneos | Convergir endpoints e auth via API/connector contracts |
+| 8. UX/UI/acessibilidade/responsividade | 🟠 | NAGI tem smoke 3 viewports; shell não; amostra de componentes mostra pouco uso de ARIA/keyboard semantics | Criar baseline E2E/a11y sistêmica antes de alterações visuais amplas |
+| 9. QA/testes/regressão | 🔴 | `npm test` ignora testes TS de módulos; sem lint/typecheck gate | Caracterização é pré-requisito do strangler |
+| 10. Infra/deploy/observabilidade | 🟠 | preview/build verdes; main/develop sem proteção visível; observabilidade fragmentada | Preservar preview, fortalecer branch gates/logs/health |
+| 11. Performance/escalabilidade/dependências/custo | 🔴 | bundle principal 5,28 MB; vendor 3,41 MB; 37 vulnerabilidades npm (5 críticas); circular chunk | P0/P1 de dependências + code splitting |
+| 12. Governança/versionamento/operação | 🟠 | package 1.1.0, README 1.6.4, módulo Monitoramento cita platform 1.8.1; branches históricas | Definir fonte única de versão e runbook antes de 1.0/novo baseline |
+
+---
+
+# 18. Mapa das jornadas críticas e paridade necessária
+
+## J1 — Autenticação e entrada no shell
+`Auth → Supabase Auth → user/profile → AppShell → Sidebar/ModuleHost`
+
+**Não pode perder:** login, sessão, perfil, isolamento de workspace e acesso às rotas permitidas.
+
+## J2 — Conversa com agente
+`selecionar agente → criar/retomar sessão → persistir mensagem → montar contexto/DNA → provider IA → resposta → memória/qualidade/handoff`
+
+**Não pode perder:** histórico, contexto, provider selecionado, anexos, áudio, memória, eventos e bloqueios operacionais.
+
+## J3 — CID
+`upload → storage → asset/file → job → processor → extração/transcrição → chunks/outputs → busca`
+
+**Não pode perder:** arquivo original, job, status, chunks, outputs e vínculo por workspace.
+
+## J4 — TaskZei / Agenda
+`criar tarefa → editar/status → checklist/comentários → docs/anexos → notificações → reuniões/inbox`
+
+**Não pode perder:** IDs, links, soft delete, custom fields EAV, anexos e auditoria.
+
+## J5 — NAGI
+`entrada/ingestão → classificação → revisão → triagem/catálogo → score/governança → handoff`
+
+**Não pode perder:** evidências, histórico de decisão, promoção e handoff.
+
+## J6 — Central de Padrões
+`documento/padrão → persistência → relacionamento → validação → aprovação → evidência/auditoria`
+
+**Não pode perder:** fonte canônica Supabase, versões, decisões, aprovações e evidências.
+
+## J7 — Hub de Integrações
+`configurar canal → credencial → health → enviar/receber → inbox → logs/observabilidade`
+
+**Não pode perder:** integrações e IDs externos; **deve perder apenas o mecanismo inseguro de segredo no browser**.
+
+## J8 — Studio
+`captura/upload → sessão → mídia/chunks → storage → transcrição → CID/consumidores`
+
+**Não pode perder:** sessões e arquivos brutos.
+
+---
+
+# 19. Matriz de paridade funcional — estratégia Strangler
+
+| Função atual | Estado atual | Destino futuro | Estratégia | Paridade exigida | Evidência |
+|---|---|---|---|---|---|
+| Auth Supabase | Funcional | AuthBoundary + identity-access-core quando maduro | Adapter/strangler | login/sessão/workspace | `components/Auth.tsx`, Supabase auth |
+| Shell/tabs | Funcional, acoplado | AppShell + RouteResolver | Extração sem mudar rotas | 100% das entradas atuais | `App.tsx`, registry |
+| Registry | Funcional | Registry enriquecido | Preservar | IDs/rotas/status | 30 módulos registrados |
+| Dados legados App | Funcional | repositories por domínio | Facade compatível | CRUD + realtime | `services/supabase.ts` + App snapshots |
+| Núcleo Conversacional | Funcional | módulo standalone | Extrair UI/providers gradualmente | sessões/mensagens/memória/providers | module-doc + Supabase |
+| CID | Funcional | CID endurecido | Preservar domínio + proteger Functions | upload/process/search | docs + Functions |
+| TaskZei | Maduro | mesmo módulo | Preservar | tarefas/docs/EAV/notificações | v1.17 + migrations |
+| Central de Padrões | Maduro | mesmo módulo | Preservar | docs/approvals/audit | 26 services + RLS/tests |
+| NAGI | Parcial real | Supabase repositories | Swap de repository | triagem/catálogo/handoff | repo pattern localStorage |
+| NIC | Parcial/mock | backend real | substituir provider | UX e decisões | module-doc confirma mocks |
+| Metodologias global | Duplicado | NIDE domain | Redirect + retirada gradual | catálogo/CRUD/rotas | 34 blobs idênticos |
+| Mentorias global | Duplicado/fallback | NIDE domain | Redirect + retirada gradual | jornadas existentes | NIDE doc |
+| Missões global | Duplicado/fallback | NIDE core | Redirect + retirada gradual | jornadas existentes | NIDE doc |
+| Quadro de Elite | Fundido | Núcleo de Agentes | arquivar após paridade | CRUD/identidade | docs + blobs duplicados |
+| Hub credentials | Inseguro | backend/Vault/connector-core | troca por adapter | integrações continuam | CredentialManager local |
+| AI providers | Funcional/inseguro no gate | secure AI runtime adapter | manter providers, trocar boundary | mesmas actions/modelos | `ai.mjs` / providerProxy |
+| Module toggles | localStorage | feature-flags/settings | dual-read/dual-write temporário | estado por workspace | moduleActivation |
+| Files/anexos | fragmentado | files-attachments-core | adapter por domínio | IDs/storage/download | buckets/migrations |
+| Audit logs | fragmentado | audit-timeline-core | fan-out → central timeline | eventos existentes | múltiplas tabelas audit |
+
+**Gate de remoção:** nenhuma linha pode mudar para “legado removido” sem teste de caracterização + evidência de paridade + homologação.
+
+---
+
+# 20. Segurança, autorização e LGPD
+
+| Achado | Evidência | Risco | Classificação |
+|---|---|---|---|
+| Segredos em localStorage | CredentialManager | roubo de token/credencial | 🔴 P0 |
+| “Criptografia” reversível | `enc_` prefix | falsa sensação de proteção | 🔴 P0 |
+| Secrets `VITE_*` | WABA/ClickUp/Google secret | inclusão no bundle/browser | 🔴 P0 |
+| Functions service-role sem auth uniforme | CID/RAI/Governance/Email | bypass de RLS | 🔴 P0 |
+| AI proxy sem auth do consumidor | `/api/ai` | abuso/custo/exfiltração indireta | 🔴 P0 |
+| Webhook legado sem HMAC | WhatsApp inbound | evento forjado | 🔴 P0 |
+| Titan recebe senha no body | email driver | exposição de credencial | 🔴 P0 |
+| RAI fetch de URL configurável | server-side fetch | SSRF | 🟠 P1 |
+| RLS inconsistente | políticas granulares vs amplas | escalada/isolamento fraco | 🟠 P1 |
+| Sem CSP na config de repo | `netlify.toml` | superfície XSS/third-party script maior | 🟠 P1 |
+| Tailwind CDN em produção | `index.html` | dependência runtime externa/CSP | 🟠 P1 |
+| Retenção/LGPD não centralizada | múltiplos domínios | exclusão/retention inconsistente | 🟠 P1 |
+
+**Observação:** a auditoria não inspecionou dados pessoais reais nem conteúdo de produção. O achado LGPD é arquitetural: faltam políticas transversais explícitas de retenção, exclusão e trilha de acesso.
+
+---
+
+# 21. UX, UI, acessibilidade e responsividade
+
+## Evidência positiva
+
+- `index.html` possui viewport responsivo;
+- NAGI possui smoke real em:
+  - 1366×768;
+  - 768×1024;
+  - 390×844;
+- NAGI validou ausência de overflow horizontal na área auditada.
+
+## Lacunas
+
+Amostra estática:
+
+- `SystemicVision.tsx`: 33 botões, 6 inputs, **0 atributos ARIA** na contagem estática;
+- `CIDView.tsx`: 9 botões, 8 inputs, **0 ARIA**;
+- `StudioPage.tsx`: 15 botões, 8 inputs, **0 ARIA**;
+- `NAGIView.tsx`: 6 botões, 1 input, **0 ARIA**;
+- Sidebar possui alguns ARIA, mas cobertura não é sistêmica.
+
+Isso **não prova inacessibilidade**, mas prova que não existe evidência suficiente de conformidade por semântica/teclado.
+
+## Classificação
+
+🟠 **REFATORAR / INVESTIGAR**.
+
+Antes de remodelar UI:
+- smoke do shell inteiro;
+- testes teclado/foco;
+- axe/Lighthouse ou equivalente;
+- 1366×768 como gate;
+- tablet/mobile;
+- touch targets;
+- estados loading/error/empty;
+- navegação voltar/recarregar.
+
+## PWA
+
+Nenhum manifest/service worker/workbox foi encontrado na árvore auditada.
+
+**Estado:** ⚪ NÃO IMPLEMENTADO / não assumir requisito sem decisão de produto.
+
+---
+
+# 22. Performance, escalabilidade, dependências e custo
+
+## Build real do baseline
+
+O job verde registrou:
+
+- **3.392 módulos transformados**;
+- circular chunk: `vendor → react-vendor → vendor`;
+- `services/supabase.ts` importado de forma dinâmica e estática, impedindo separação efetiva;
+- `index JS`: **5.285,02 kB minificado / 1.275,57 kB gzip**;
+- `vendor JS`: **3.408,86 kB / 941,33 kB gzip**;
+- React vendor: 251,83 kB / 81,53 kB gzip;
+- alerta Vite para chunks >500 kB.
+
+## Dependências
+
+O mesmo `npm ci` registrou:
+
+- **602 packages** instalados;
+- **37 vulnerabilidades**:
+  - 2 low;
+  - 8 moderate;
+  - 22 high;
+  - **5 critical**.
+
+Além disso:
+
+- `vite` aparece em `dependencies` como `^7.3.0` e em `devDependencies` como `^6.2.0`;
+- o build auditado efetivamente executou Vite **6.4.2**;
+- Tailwind é carregado por CDN no `index.html`, não por pipeline local;
+- GitHub Actions já emite aviso de depreciação de Node 20 no runtime de actions.
+
+## Classificação
+
+🔴 P0: vulnerabilidades críticas.  
+🟠 P1: bundle/code splitting/dependency hygiene.
+
+A reescrita total não resolve automaticamente nenhum desses pontos; o strangler permite reduzir bundle e dependências módulo a módulo.
+
+---
+
+# 23. Dados, migrations, restore e rollback
+
+## Preservar
+
+- histórico completo das 72 migrations;
+- IDs e contratos existentes;
+- RLS/policies;
+- buckets e paths;
+- tabelas de auditoria;
+- soft-delete onde já definido;
+- vínculos interdomínio.
+
+## Risco identificado
+
+`supabase/run_all_migrations.sql` termina com observações de migrations antigas e não representa claramente o conjunto completo das 72 migrations posteriores.
+
+**Risco:** alguém tratar esse arquivo agregado como fonte integral de rebuild e subir schema incompleto.
+
+**Ação P1:** declarar uma única estratégia reproduzível de bootstrap/restore e validar do zero em ambiente descartável.
+
+## Regra futura
+
+- migrations novas devem ser aditivas nas primeiras ondas;
+- nenhuma drop/rename destrutiva sem backfill, dual-read ou compatibilidade;
+- snapshot/backup antes de qualquer migração estrutural;
+- rollback por feature flag/adapters quando schema não puder ser revertido.
+
+---
+
+# 24. Infra, ambientes, branches e governança
+
+## Branches
+
+Foram observadas 9 branches:
+
+- `main`;
+- `develop`;
+- `Teste-cor`;
+- `ajuste-novo`;
+- `ci-fix-github-actions-build`;
+- `review/finalizacao-api-sagb`;
+- `supabase_migracao`;
+- `supabase-migracao`;
+- `work/sagb-reativacao-launcher-20260914`.
+
+No retorno da API, branches aparecem `protected: false`; rulesets do repositório retornaram vazios.
+
+**Risco:** governança depende de disciplina/processo, não de enforcement técnico.
+
+## Versionamento divergente
+
+- `package.json`: **1.1.0**;
+- `README.md`: **1.6.4**;
+- Monitoramento documenta platform **1.8.1**.
+
+**Conclusão:** não existe fonte única clara de versão do produto.
+
+## Deploy
+
+Pontos positivos:
+- Deploy Preview por PR;
+- produção separada em push/main;
+- Netlify status no PR;
+- history compliance.
+
+Ponto de atenção:
+- workflow de produção pode publicar automaticamente em push na main;
+- como main não aparece protegida, um push indevido é risco operacional.
+
+**Ação P1:** branch protection/ruleset + aprovação obrigatória para produção.
+
+---
+
+# 25. Backlog derivado P0–P3
+
+## 🔴 P0 — antes de remodelação ampla
+
+**P0-SEC-01 — Remover segredos do browser**
+- CredentialManager → backend/Vault;
+- eliminar `VITE_*TOKEN/SECRET` sensíveis;
+- rotação das credenciais afetadas quando aplicável.
+
+**P0-SEC-02 — Autenticar Functions privilegiadas**
+- token/JWT/scopes;
+- workspace authorization;
+- negar chamadas anônimas;
+- service-role apenas server-side.
+
+**P0-SEC-03 — Proteger AI proxy**
+- auth;
+- rate limit;
+- quotas;
+- audit/correlation id;
+- allowlist de actions/providers.
+
+**P0-SEC-04 — Consolidar WhatsApp webhook**
+- retirar caminho legado inseguro;
+- HMAC obrigatório;
+- remover default verify token;
+- idempotência/event audit.
+
+**P0-SEC-05 — Reestruturar Titan credentials**
+- não aceitar senha bruta do browser;
+- integrationId → secret server-side.
+
+**P0-DEP-01 — Tratar 5 vulnerabilidades críticas npm**
+- identificar pacotes;
+- atualizar/substituir;
+- validar regressão.
+
+**P0-QA-01 — Baseline de caracterização**
+- typecheck;
+- lint;
+- suíte TS;
+- shell smoke;
+- auth/route/data characterization.
+
+**P0-IAM-01 — Gate `identity-access-core`**
+- modelo de memberships/roles/permissions;
+- mapear RLS A×B;
+- não recriar IAM isolado.
+
+## 🟠 P1 — primeira onda arquitetural
+
+- P1-ARCH-01: extrair AppShell/RouteResolver/AuthBoundary;
+- P1-DATA-01: decompor `services/supabase.ts` por adapters;
+- P1-SEC-06: auditoria RLS completa;
+- P1-SEC-07: SSRF guard do RAI;
+- P1-PERF-01: code splitting e bundle budget;
+- P1-DATA-02: bootstrap/restore reproduzível de migrations;
+- P1-AUDIT-01: integrar `audit-timeline-core`;
+- P1-FILES-01: integrar `files-attachments-core`;
+- P1-FLAGS-01: migrar toggles para feature flags governadas;
+- P1-GOV-01: branch protection + release gate;
+- P1-GOV-02: fonte única de versão.
+
+## 🟡 P2 — consolidação
+
+- consolidar NIDE × Metodologias;
+- consolidar NIDE × Mentorias;
+- consolidar NIDE × Missões;
+- NAGI → Supabase repository;
+- NIC → provider real;
+- Hub → connector-core;
+- IA → ai-runtime-adapter-core;
+- settings/preferências transversais;
+- accessibility suite;
+- Monitoramento → metrics-usage contract.
+
+## ⚪ P3 — limpeza após prova
+
+- arquivar `.centro_de_estudos`;
+- arquivar `quadro_de_elite` após paridade;
+- remover componentes raiz substituídos;
+- limpar branches históricas após owner/necessidade;
+- reconciliar docs antigas;
+- decidir destino de FluxoB, SagB Bridge, Simulador e Vídeos IA;
+- avaliar PWA somente se virar requisito.
+
+---
+
+# 26. Rollback do plano Strangler
+
+Cada onda deve manter uma saída reversível:
+
+1. **feature flag / route alias** para nova implementação;
+2. **facade compatível** no lugar de troca direta de contrato;
+3. **dual-read/dual-write temporário** quando persistência mudar;
+4. migrations aditivas antes de destrutivas;
+5. Deploy Preview por onda;
+6. smoke + caracterização;
+7. rollback por commit/flag;
+8. remoção física somente em onda posterior, após telemetria e homologação.
+
+Para dados:
+- backup/snapshot antes da migração;
+- migração idempotente;
+- reconciliação pós-migração;
+- relatório de divergências;
+- não apagar fonte antiga no mesmo deploy da primeira leitura nova.
+
+---
+
+# 27. Limitações da auditoria
+
+A auditoria foi profunda em código, configuração, migrations, CI e documentação, mas há limites explícitos:
+
+- não houve acesso a dados pessoais/reais de produção;
+- não foi executada migration;
+- não foi usada credencial para navegar todas as jornadas autenticadas no browser;
+- UX/a11y global foi avaliada por evidência estática + smoke NAGI existente, não por teste manual autenticado de todas as telas;
+- não foi executado `npm audit` novo localmente; o número de vulnerabilidades vem do job CI do mesmo baseline de código e lockfile;
+- branch protection não pôde ser lida pelo endpoint administrativo, mas a listagem de branch retornou `protected:false` e rulesets retornaram vazios;
+- módulos marcados ⚪ exigem investigação funcional antes de remoção.
+
+Essas limitações **não invalidam a decisão estratégica**: elas aumentam o argumento contra reescrita total e reforçam a necessidade de caracterização/segurança como Onda 0.
+
+---
+
+# 28. Gate final da auditoria
+
+## Estado técnico
+
+🟢 **AUDITORIA CONCLUÍDA**
+
+## Recomendação
+
+🟡 **AGUARDANDO APROVAÇÃO: STRANGLER / REMODELAÇÃO GRADUAL**
+
+## Próxima decisão humana
+
+```text
+APROVAR STRANGLER
+ou
+AJUSTAR RECOMENDAÇÃO
+ou
+NÃO APROVAR
+```
+
+Somente **APROVADO** autoriza transformar esta recomendação em decisão arquitetural oficial e iniciar a Onda 0.
