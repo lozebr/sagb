@@ -103,7 +103,24 @@ const resolveAuthErrorCode = (path: string, status: number, data: any) => {
 };
 
 const supabaseAuthFetch = async (path: string, body?: any, accessToken?: string) => {
-  const res = await fetch(`${supabaseUrl}/auth/v1${path}`, {
+  let configured = Boolean(supabaseAnonKey);
+  try {
+    const endpoint = new URL(supabaseUrl);
+    configured = configured && (endpoint.protocol === 'https:' || endpoint.hostname === 'localhost');
+  } catch {
+    configured = false;
+  }
+
+  if (!configured) {
+    throw createShimError({
+      code: 'auth/configuration-not-found',
+      message: 'Supabase Auth não configurado neste ambiente. Confira VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
+    });
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${supabaseUrl}/auth/v1${path}`, {
     method: body ? 'POST' : 'GET',
     headers: {
       apikey: supabaseAnonKey,
@@ -111,7 +128,13 @@ const supabaseAuthFetch = async (path: string, body?: any, accessToken?: string)
       'Content-Type': 'application/json'
     },
     body: body ? JSON.stringify(body) : undefined
-  });
+    });
+  } catch {
+    throw createShimError({
+      code: 'auth/network-request-failed',
+      message: 'Não foi possível conectar ao Supabase Auth deste ambiente. Verifique o endereço do projeto e o Deploy Preview.'
+    });
+  }
 
   const json = await res.json().catch(() => ({}));
 
