@@ -24,3 +24,9 @@ test('O diagnóstico não desativa o controle de autenticação para acessar o N
   assert.match(login, /await signInWithEmailAndPassword\(auth, email, password\)/);
   assert.match(login, /onAuthSuccess\(\)/);
 });
+
+test('Netlify não prende o login do Preview a um Supabase hardcoded', () => {
+  const toml = readFileSync(new URL('../netlify.toml', import.meta.url), 'utf8');
+  assert.doesNotMatch(toml, /^\s*VITE_SUPABASE_URL\s*=/m);
+  assert.doesNotMatch(toml, /^\s*VITE_SUPABASE_ANON_KEY\s*=/m);
+});
