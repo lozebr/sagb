@@ -450,3 +450,39 @@ Nenhuma publicação em produção.
 
 ### Próximo gate
 `APROVAÇÃO DA ESTRATÉGIA → somente então ONDA 0`.
+
+## 03-11-2026 — P0 Auth/Deploy Preview do NAGI — protocolo Supabase LOZE
+
+### Solicitação e evidência
+- Usuário forneceu captura do acesso a `/nagi/links` no Deploy Preview #6: login SagB apresentou `Erro ao autenticar (desconhecido)`.
+- Escopo: diagnosticar e corrigir o caminho de autenticação e respeitar o padrão LOZE, sem desativar Auth, sem tocar dados de produção e sem fazer merge na `main`.
+
+### Fontes verificadas
+- `README.md`, `components/Auth.tsx`, `services/supabase.ts`, `netlify.toml`, `.env.example`, workflow de build/deploy e P0 NAGI;
+- LOZE ADM: `docs/standards/3fb006-padrao-supabase-loze-v1-17-09-2026.md` (APROVADO);
+- LOZE ADM: `docs/standards/3fb006-padrao-auth-email-redirect-smtp-loze-v1-17-09-2026.md` (APROVADO);
+- leitura de configurações da Netlify `sagbapp` e lista read-only dos projetos Supabase conectados;
+- documentação oficial Netlify: `netlify.toml` tem precedência sobre variáveis do painel para chaves coincidentes.
+
+### Diagnóstico
+1. `Auth.tsx` mostrava `desconhecido` para rejeição sem `err.code` (p.ex. `TypeError` de rede), e registrava resultado de login/sessão no console.
+2. `netlify.toml` fixava um project ref legado e uma chave publishable dentro de `[build.environment]`, sobrescrevendo a separação de contextos Netlify.
+3. As variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` existem no site Netlify, porém os contextos `deploy-preview` não apresentavam valor configurado na leitura. O valor de produção estava oculto/mascarado e NÃO foi copiado ou alterado.
+4. O ref legado do arquivo TOML não aparece entre os dois projetos incubadores visíveis nas conexões Supabase atuais. Isso NÃO comprova que o projeto legado foi eliminado; pode pertencer a outra conta/organização.
+5. Portanto, sem confirmação do projeto de identidade correto e das variáveis do preview, o login end-to-end ainda é BLOQUEADO para homologação; não direcionar usuários a um projeto incubador por suposição.
+
+### Execução na develop
+- `services/supabase.ts`: validação explícita da configuração Auth, erro tipado para falha de rede, tratamento diferenciado de chave API inválida.
+- `components/Auth.tsx`: mensagens acionáveis e genéricas para usuários, retirada de logs de sessão/dados pessoais, preservação do login obrigatório.
+- `netlify.toml`: removida a dupla URL/chave fixas para permitir configuração por ambiente no Netlify.
+- `tests/sagb-auth-preview.test.mjs`: regressão para mensagens de falha, ausência de logs sensíveis, gate de autenticação e proibição de chave/URL Supabase no TOML.
+- Commits: `73b8051`, `c07e64e`, `474dea0`, `e72f161`, `a5cfdbc`, `3e1e415`, `37e2fe3`.
+- Nenhuma migration, usuário, dado, configuração de Supabase, variável/segredo Netlify ou regra de acesso foi alterada. `main`/produção intocadas.
+
+### Status e próximo gate
+- 🟠 Correção de diagnóstico e governança Supabase aplicada na `develop`.
+- 🟡 Validar testes/build/Deploy Preview do commit final; o resultado deve ser registrado em complemento.
+- 🔴 Confirmar o projeto Supabase Auth legítimo para o SagB e preencher `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` somente no contexto `deploy-preview` (escopo Builds) a partir de fonte autorizada. Não compartilhar chave administrativa nem migrar identidades implicitamente.
+- 🟡 Após configurar: homologar autenticação real com usuário autorizado e acesso a `/nagi/links`; checar redirects/allow-list quando aplicável.
+- 🟡 Pendências anteriores preservadas: validação humana NAGI, previews dos demais apps e aprovação formal da estratégia arquitetural.
+- Estado da presente demanda: `AJUSTAR` / acesso bloqueado por configuração externa ainda não validada.
