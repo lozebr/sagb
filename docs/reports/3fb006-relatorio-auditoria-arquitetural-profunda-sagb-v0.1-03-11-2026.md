@@ -608,3 +608,67 @@ Onda 1 — Shell
 
 ### Fazer após aprovação
 🟢 **Preservar o que funciona, cercar com testes, extrair fronteiras e substituir uma camada por vez.**
+
+
+---
+
+# 15. Cruzamento obrigatório — Módulos Reutilizáveis LOZE
+
+Fonte canônica consultada em modo somente leitura:
+
+- `lozebr/loze-adm/develop/docs/standards/3fb006-catalogo-mestre-modulos-reutilizaveis-loze-v1-17-09-2026.md`;
+- `lozebr/loze-adm/develop/docs/tasks/3fb006-fila-fabrica-modulos-reutilizaveis-loze-v1-17-09-2026.md`.
+
+O catálogo possui **20 módulos transversais aprovados**. A auditoria do SAG B mostra que várias capacidades já existem localmente, porém fragmentadas. Isso reforça o strangler: **não reescrever capacidades que a LOZE já está transformando em módulos reutilizáveis; migrar/adaptar por contrato quando cada módulo estiver maduro e homologado.**
+
+| Módulo LOZE | Estado observado no SAG B | Evidência / recomendação |
+|---|---|---|
+| `entity-registry-core` | 🟡 Capacidade local sobreposta | SAG B possui `agents`, workspace members, ventures e Cadastro de Empresas. Antes de consolidar cadastros, avaliar consumo do módulo já implementado em vez de manter identidades paralelas. |
+| `identity-access-core` | 🔴 GAP P0 | Supabase Auth existe, mas autorização/memberships/roles/permissões não são uniformes. É aderente ao maior gap de segurança encontrado. |
+| `audit-timeline-core` | 🔴 GAP P0 / fragmentado | Existem `api_audit_log`, auditoria de Central de Padrões, governance/audit e eventos de qualidade, porém sem timeline transversal única. |
+| `files-attachments-core` | 🔴 GAP P0 / fragmentado | CID, chat, TaskZei, Studio e Central de Padrões possuem storages/anexos próprios. Deve-se preservar dados e convergir metadados/contratos gradualmente. |
+| `notification-center-core` | 🟠 Parcial | TaskZei possui notificações/e-mail/push, mas não é centro transversal do SAG B. |
+| `settings-preferences-core` | 🟠 Parcial | Preferências/toggles estão dispersos em localStorage e módulos; forte candidato a substituir configuração local do shell. |
+| `approval-workflow-core` | 🟠 Parcial | Central de Padrões possui approval requests, mas a capacidade não é transversal. |
+| `comments-collaboration-core` | 🟠 Parcial | TaskZei possui comentários; não há contrato compartilhado sistêmico. |
+| `tags-classification-core` | 🟠 Parcial | CID/NAGI e outros domínios possuem tags/classificações próprias. |
+| `search-filter-views-core` | 🟠 Parcial | Busca/filtros são implementados por módulo, sem camada compartilhada. |
+| `import-export-core` | 🟠 Parcial | Existem importações pontuais (ex.: agentes/docs), mas não contrato transversal. |
+| `events-webhooks-core` | 🟡 Parcial | API SAG B e Hub possuem events/webhooks próprios; faltam retries/idempotência/contrato uniforme. |
+| `connector-core` | 🟡 Parcial e prioritário | Hub de Integrações já exerce parte do papel, mas com credenciais inseguras no browser. Deve convergir ao contrato reutilizável, não ser descartado. |
+| `scheduling-core` | 🟡 Parcial | TaskZei/Agenda cobrem tarefas, lembretes e recorrência; capacidade ainda acoplada ao produto. |
+| `documents-templates-core` | 🟡 Parcial | TaskZei e Central de Padrões possuem documentos, mas não um motor transversal de templates/versionamento. |
+| `rules-engine-core` | 🟡 GAP | Regras ainda aparecem em código/condicionais e domínios específicos. |
+| `billing-subscription-core` | ⚪ Sem evidência de núcleo equivalente | Gestão Financeira não equivale a planos/assinaturas/entitlements. |
+| `metrics-usage-core` | 🟡 Parcial | Monitoramento possui métricas/custos/saúde, mas não contrato funcional transversal de uso/quota. |
+| `feature-flags-core` | 🟡 Parcial e necessário | `moduleActivation.ts` usa localStorage; deve evoluir para flag governada por ambiente/workspace/conta. |
+| `ai-runtime-adapter-core` | 🟡 Parcial e prioritário | `providerProxy.ts`, providers e `ai.mjs` já fazem multi-provider; devem convergir a adapter seguro sem secrets no produto. |
+
+## Impacto na decisão arquitetural
+
+O catálogo LOZE **reduz ainda mais a justificativa de reconstrução total**.
+
+A estratégia recomendada passa a ser:
+
+```text
+preservar domínio SAG B
+        +
+preservar dados/contratos
+        +
+usar strangler no shell e serviços
+        +
+adotar módulos LOZE maduros por contrato
+        +
+desativar implementações locais somente após paridade
+```
+
+### Prioridade de adoção após aprovação
+
+1. `identity-access-core` — diretamente relacionado aos gaps P0 de autorização;
+2. `audit-timeline-core` — unificar auditorias fragmentadas;
+3. `files-attachments-core` — reduzir storage/anexos duplicados;
+4. `feature-flags-core` — substituir toggles locais do shell;
+5. `ai-runtime-adapter-core` — endurecer providers/segredos;
+6. `connector-core` — convergir Hub de Integrações sem reescrever o domínio.
+
+**Regra:** nenhum acoplamento foi executado nesta auditoria. Adoção depende da maturidade/homologação de cada módulo LOZE e de gate próprio.
