@@ -558,3 +558,10 @@ Próximo gate: CI/Deploy Preview → homologação humana do Observatory → con
 - Limitações de QA: smoke Chromium existente cobre NAGI isolado, **não a navegação real autenticada no Observatory**; build Vite/TSX e teste de tipo isolado NÃO equivalem ao typecheck global do repositório (gate global ainda não existe). Login do SagB continua bloqueado enquanto seu projeto Supabase operacional não for confirmado/configurado no Preview.
 - Nenhuma alteração realizada no banco operacional ou nas duas incubadoras; os snapshots exibidos representam **04/11/2026**, não telemetria live.
 - Status técnico: `IMPLEMENTADO NA DEVELOP — PRONTO PARA HOMOLOGAÇÃO TÉCNICA PARCIAL`; status de negócio: `AJUSTAR — AGUARDANDO PERMISSÕES, MANIFESTOS E LOGIN REAL`.
+
+### Complemento — matriz individual de módulos em 04/11/2026
+- Releitura de `src/core/modules/moduleRegistry.ts`: exatamente **30 módulos registrados**, mais **3 diretórios de manifest fora do registry** já identificados na auditoria anterior (`.centro_de_estudos`, `_orquestracao-principal`, `quadro_de_elite`).
+- Ampliação de `supabaseEcosystemRegistry.ts` para **33 entradas individuais**, indicando se pertencem ao runtime registrado e distinguindo internos, coexistentes com produtos externos, legados e itens a classificar. Nenhuma classificação autoriza exclusão física ou divisão de banco.
+- Página do Observatory exibe coluna `Registry`; teste confere quantitativos, unicidade e compatibilidade com registry fonte.
+- Commits complementares: `09233d4a`, `1782a920`, `9bcefcb9`.
+- Gate de futura reorganização: ownership e consumidores → teste de paridade → migration aditiva/rollback → homologação → aprovação QG.
