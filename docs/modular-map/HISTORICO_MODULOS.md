@@ -206,3 +206,10 @@ Documento de rastreabilidade macro por modulo.
 - Tipo: arquitetura / infra / dados (metadados somente leitura) / UI / segurança.
 - Arquivos: `src/modules/monitoramento/services/supabaseEcosystemRegistry.ts`, `src/modules/monitoramento/services/supabaseTablesService.ts`, `src/modules/monitoramento/services/supabaseObservabilityCatalog.ts`, `src/modules/monitoramento/services/index.ts`, `src/modules/monitoramento/pages/MonitoramentoSupabasePage.tsx`, `tests/sagb-supabase-observatory.test.mjs`, `supabase/manifest-sagb-operacional.md`, `src/modules/monitoramento/changelog.md`, Registro Vivo SagB.
 - Status: implementação segura em develop, sem alterações de Supabase remoto ou main. Homologação de Auth e live cross-project pendentes.
+
+### 2026-11-04 — Complemento de cobertura modular Supabase
+- Módulo: Monitoramento / 30 entradas do registry + 3 legados fora dele.
+- Mudança: matriz de dados estendida para cobrir cada módulo registrado, mostrando posição no registry e situação `interno`, `coexistente`, `legado_em_avaliacao` ou `a_classificar` sem inferir schema físico. Teste de paridade do catálogo incluído.
+- Tipo: arquitetura / UI / governança.
+- Arquivos: `supabaseEcosystemRegistry.ts`, `MonitoramentoSupabasePage.tsx`, `tests/sagb-supabase-observatory.test.mjs`.
+- Status: implementado em develop; nenhuma migração/exclusão.
