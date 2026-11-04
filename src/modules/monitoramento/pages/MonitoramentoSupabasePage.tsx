@@ -129,11 +129,11 @@ const MonitoramentoSupabasePage: React.FC = () => {
 
       <section className="rounded-[22px] border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] p-4 shadow-sm">
         <h2 className="text-lg font-black text-slate-950 dark:text-white">Módulos internos e produtos independentes</h2>
-        <p className="text-xs text-slate-500 mt-1 mb-3">Módulo independente no código não implica projeto Supabase separado. Classificação de preservação, sem excluir nem mover dados.</p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[11px] min-w-[700px]">
-            <thead><tr className="border-b dark:border-white/10 text-slate-500"><th className="py-2 pr-3">Módulo</th><th className="py-2 pr-3">Situação</th><th className="py-2 pr-3">Fronteira de dados</th><th className="py-2">Proteção / próximo gate</th></tr></thead>
-            <tbody>{sagbModuleBoundaries.map((mod) => <tr key={mod.name} className="border-b border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-300"><td className="py-2 pr-3 font-bold">{mod.name}</td><td className="py-2 pr-3">{mod.custody.replaceAll('_',' ')}</td><td className="py-2 pr-3">{mod.dataBoundary}</td><td className="py-2">{mod.note}</td></tr>)}</tbody>
+        <p className="text-xs text-slate-500 mt-1 mb-3">Inventário do registry: {sagbModuleBoundaries.filter((mod) => mod.registered).length} módulos registrados e {sagbModuleBoundaries.filter((mod) => !mod.registered).length} legados externos ao registry. Nenhuma exclusão ou migração foi realizada.</p>
+        <div className="max-h-[420px] overflow-auto">
+          <table className="w-full text-left text-[11px] min-w-[840px]">
+            <thead><tr className="border-b dark:border-white/10 text-slate-500"><th className="py-2 pr-3">Módulo</th><th className="py-2 pr-3">Registry</th><th className="py-2 pr-3">Situação</th><th className="py-2 pr-3">Fronteira de dados</th><th className="py-2">Proteção / próximo gate</th></tr></thead>
+            <tbody>{sagbModuleBoundaries.map((mod) => <tr key={mod.name} className="border-b border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-300"><td className="py-2 pr-3 font-bold">{mod.name}</td><td className="py-2 pr-3">{mod.registered ? 'Sim' : 'Não'}</td><td className="py-2 pr-3">{mod.custody.replaceAll('_',' ')}</td><td className="py-2 pr-3">{mod.dataBoundary}</td><td className="py-2">{mod.note}</td></tr>)}</tbody>
           </table>
         </div>
       </section>
