@@ -3,7 +3,7 @@
 **Produto:** SagB
 **Repositório:** `lozebr/sagb`
 **Branch:** `develop`
-**Status:** 🟡 AGUARDANDO AUDITORIA E DECISÃO
+**Status:** 🟡 AUDITORIA CONCLUÍDA — RECOMENDAÇÃO AGUARDANDO APROVAÇÃO
 **Regra:** nenhuma reconstrução ou limpeza destrutiva autorizada por este documento.
 
 # 1. Pergunta central
@@ -326,3 +326,37 @@ O relatório final deverá incluir:
 - próximo gate.
 
 `APROVADO — ESCOPO DE AUDITORIA EM 12 DIMENSÕES`
+
+# 17. Fechamento da auditoria — 03-11-2026
+
+Relatório oficial:
+`docs/reports/3fb006-relatorio-auditoria-arquitetural-profunda-sagb-v0.1-03-11-2026.md`
+
+## Resultado
+A auditoria em 12 dimensões foi concluída com:
+- mapa arquitetural e funcional;
+- classificação por módulo/camada;
+- matriz dos 20 módulos reutilizáveis LOZE;
+- matriz de paridade funcional;
+- riscos de dados e segurança;
+- QA/build/deploy/performance;
+- backlog P0–P3;
+- plano em ondas e rollback;
+- comparação Remodelar × Strangler × Reconstruir.
+
+## Recomendação técnica
+🟡 **AGUARDANDO APROVAÇÃO — STRANGLER / REMODELAÇÃO GRADUAL**
+
+Reconstrução total não é recomendada pela evidência atual.
+
+## Regra
+Este fechamento **não autoriza execução**. O próximo gate continua:
+
+`AUDITORIA CONCLUÍDA → APROVAÇÃO DA ESTRATÉGIA → ONDA 0`
+
+Sem aprovação explícita:
+- não iniciar refatoração;
+- não remover legado;
+- não aplicar migrations;
+- não mergear `main`;
+- não publicar produção.
