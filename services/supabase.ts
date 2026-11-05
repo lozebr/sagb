@@ -3125,9 +3125,22 @@ export const signOut = async (_auth: typeof auth) => auth.signOut();
 
 // Compat Firebase onAuthStateChanged
 export const onAuthStateChanged = (_auth: typeof auth, callback: (user: User | null) => void) => {
-  auth.getUser().then(({ data }) => callback(data.user ?? null));
-  const { data } = auth.onAuthStateChange((_event, session) => callback(session?.user ?? null));
-  return () => data.subscription.unsubscribe();
+  let active = true;
+  let lastUserId: string | null | undefined = undefined;
+  const deliver = (user: User | null) => {
+    if (!active) return;
+    const userId = (user as any)?.id ?? null;
+    if (userId === lastUserId) return;
+    lastUserId = userId;
+    callback(user);
+  };
+  auth.getUser().then(({ data }) => deliver(data.user ?? null)).catch(() => deliver(null));
+  const { data } = auth.onAuthStateChange((event, session) => {
+    // Rotação de tokens não deve reiniciar as inscrições de banco do App.
+    if (event === 'TOKEN_REFRESHED') return;
+    deliver(session?.user ?? null);
+  });
+  return () => { active = false; data.subscription.unsubscribe(); };
 };
 
 export { Timestamp };
