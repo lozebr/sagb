@@ -3127,6 +3127,7 @@ export const signOut = async (_auth: typeof auth) => auth.signOut();
 export const onAuthStateChanged = (_auth: typeof auth, callback: (user: User | null) => void) => {
   let active = true;
   let lastUserId: string | null | undefined = undefined;
+  let authEventGeneration = 0;
   const deliver = (user: User | null) => {
     if (!active) return;
     const userId = (user as any)?.id ?? null;
@@ -3134,8 +3135,18 @@ export const onAuthStateChanged = (_auth: typeof auth, callback: (user: User | n
     lastUserId = userId;
     callback(user);
   };
-  auth.getUser().then(({ data }) => deliver(data.user ?? null)).catch(() => deliver(null));
+  // A validação inicial pode demorar. Seu resultado não pode reverter um login/logout
+  // ocorrido enquanto a chamada /user ainda estava em andamento.
+  const initialGeneration = authEventGeneration;
+  auth.getUser()
+    .then(({ data }) => {
+      if (authEventGeneration === initialGeneration) deliver(data.user ?? null);
+    })
+    .catch(() => {
+      if (authEventGeneration === initialGeneration) deliver(null);
+    });
   const { data } = auth.onAuthStateChange((event, session) => {
+    authEventGeneration += 1;
     // Rotação de tokens não deve reiniciar as inscrições de banco do App.
     if (event === 'TOKEN_REFRESHED') return;
     deliver(session?.user ?? null);
