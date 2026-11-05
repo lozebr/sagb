@@ -162,3 +162,15 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 - PDF/DOCX ainda exigem extração externa futura.
 - Classificação usa heurísticas locais, sem IA avançada obrigatória.
 - Persistência ainda é localStorage, com interface pronta para Supabase.
+
+## [v3.1.1-proveniencia-loze] - 2026-11-04
+
+### Ajustado — Etapa 1B QG
+- Preservados 32 links históricos, 26 produtos canônicos, aliases e a regra de abertura de Preview validado (TaskZei).
+- `data/demoProducts.ts`: referência de dados tipada com `origin`, `projectClass`, campos opcionais de manifesto e `previewEvidence`; todas as associações a projeto/schema Supabase começam em `not_verified`, sem inferir implantação a partir de URL.
+- `PublishedLinksSection.tsx`: evidencia fonte histórica e distingue Preview documentado da situação desconhecida do Supabase do produto.
+- `NAGIView.tsx`: alerta explícito de que itens de ideias/triagem/ingestão permanecem em persistência local do navegador.
+- `module-doc.ts`: explicita ownership do read model NAGI e a compatibilidade conceitual com as duas incubadoras, sem conexão direta ou schema `nagi`.
+- Nenhuma alteração nas duas incubadoras LOZE, no banco operacional SagB ou nos demais módulos.
+- Testes de regressão: `tests/nagi-demo-registry.test.mjs` e `tests/sagb-access-nagi-etapa1.test.mjs`.
+- Pendente: manifesto dos owners, fonte de leitura autenticada e sincronização/arquivamento de dados locais somente após decisão específica.
