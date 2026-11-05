@@ -654,3 +654,12 @@ Próximo gate: CI/Deploy Preview → homologação humana do Observatory → con
 **Critérios de aceite:** suíte Node com mocks cobre login/logout/senha/refresh/recuperação; CI será registrado quando terminar. Sem Auth remoto corretamente configurado no Preview e usuário autorizado, NÃO é possível demonstrar autenticação real, envio de e-mail, callback permitido ou sessão autenticada no NAGI. Status `AJUSTAR`; é necessária autorização de QG/owner para configurar somente variáveis públicas de build do Preview e allow-list do projeto operacional confirmado.
 
 **Escopo preservado:** apenas Auth e NAGI; zero migrations, zero alterações em outros módulos, sem PR merge, sem `main` e sem produção.
+
+### Gate CI / PR de 04-11-2026 (commit `ffb528e1`)
+- 🟢 `npm test`: sucesso no job `Deploy to Netlify` (inclui testes Auth/NAGI com mock, privilégio mínimo e gate de links).
+- 🟢 Build de aplicação: sucesso tanto no deploy PR quanto no workflow `Build (Supabase stack)`.
+- 🟢 History Compliance: sucesso.
+- 🟢 Netlify Deploy Preview PR #6: sucesso; etapa produção `skipped`.
+- 🟡 NAGI UI Smoke final: ainda executando instalação do Chromium na última consulta; resultado não antecipado.
+- 🟡 Auth E2E remoto e recuperação de e-mail: bloqueados pelas variáveis `deploy-preview` e ausência de confirmação do projeto Auth operacional; nenhuma credencial foi modificada.
+- Comentário de recibos publicado na PR #6: GitHub issue comment `6646497598`.
