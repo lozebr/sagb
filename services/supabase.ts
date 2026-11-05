@@ -141,10 +141,7 @@ const supabaseAuthFetch = async (path: string, body?: any, accessToken?: string,
 
   const json = await res.json().catch(() => ({}));
 
-  // Token inválido: derruba sessão local pra forçar login
-  if (res.status === 401 && accessToken) {
-    forceSignOut();
-  }
+  // A decisão de revogar a sessão cabe ao caller: /user pode precisar renovar o token.
 
   if (!res.ok) {
     throw createShimError({
