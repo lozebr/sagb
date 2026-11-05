@@ -160,6 +160,9 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isPasswordRecoveryActive, setIsPasswordRecoveryActive] = useState(() =>
+    typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password'
+  );
 
   // State for Business Units (now dynamic)
   const [businessUnits, setBusinessUnits] = useState<BusinessUnit[]>(INITIAL_BUSINESS_UNITS);
@@ -398,7 +401,7 @@ const App: React.FC = () => {
 
   // --- VERIFICAÇÃO DE LOGIN SUPABASE ---
   useEffect(() => {
-    console.log('App: Iniciando verificação de autenticação...');
+    // A verificação de sessão ocorre sem expor identidades ou tokens no console.
 
 // Helpers locais para migração Firebase -> Supabase
 const getUserId = (u: any): string | null => (u && ((u as any).id || (u as any).uid)) || null;
@@ -420,14 +423,9 @@ const asDate = (v: any): Date | undefined => {
     let unsubscribeUsers: (() => void) | undefined;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      console.log('App: onAuthStateChanged chamado, usuário:', currentUser ? 'presente' : 'ausente');
       setUser(currentUser);
 
       if (currentUser) {
-        console.log('App: Usuário autenticado:', { 
-          id: getUserId(currentUser),
-          email: (currentUser as any)?.email 
-        });
         
         // Buscar perfil no banco de dados (public.users). Se não existir ainda, seguimos com um fallback.
         const userId = getUserId(currentUser);
@@ -436,11 +434,9 @@ const asDate = (v: any): Date | undefined => {
             doc(db, "users", userId),
             (snapshot) => {
               if (snapshot.exists()) {
-                console.log('App: Perfil carregado do banco de dados:', snapshot.data());
                 setUserProfile(snapshot.data() as UserProfile);
               } else {
                 // Perfil ainda não criado em public.users
-                console.log('App: Perfil não encontrado no banco, criando fallback');
                 setUserProfile({
                   uid: userId,
                   email: (currentUser as any)?.email || '',
@@ -449,7 +445,7 @@ const asDate = (v: any): Date | undefined => {
                   role: 'member',
                   avatarUrl: '',
                   company: 'GrupoB',
-                  tier: 'TÁTICO',
+                  tier: 'OPERACIONAL',
                   createdAt: new Date()
                 } as any);
               }
@@ -465,14 +461,13 @@ const asDate = (v: any): Date | undefined => {
                 role: 'member',
                 avatarUrl: '',
                 company: 'GrupoB',
-                tier: 'TÁTICO',
+                tier: 'OPERACIONAL',
                 createdAt: new Date()
               } as any);
               setIsInitializing(false);
             }
           );
         } else {
-          console.log('App: userId não encontrado no usuário atual');
           setUserProfile(null);
           setIsInitializing(false);
         }
@@ -537,11 +532,16 @@ const asDate = (v: any): Date | undefined => {
           }
         );
       } else {
-        console.log('App: Nenhum usuário autenticado, limpando estado');
         if (unsubscribeProfile) unsubscribeProfile();
         if (unsubscribeTopics) unsubscribeTopics();
         if (unsubscribeTasks) unsubscribeTasks();
         if (unsubscribeVentures) unsubscribeVentures();
+        if (unsubscribeUsers) unsubscribeUsers();
+        unsubscribeProfile = undefined;
+        unsubscribeTopics = undefined;
+        unsubscribeTasks = undefined;
+        unsubscribeVentures = undefined;
+        unsubscribeUsers = undefined;
         setUserProfile(null);
         setTopics([]);
         setTasks([]);
@@ -552,7 +552,6 @@ const asDate = (v: any): Date | undefined => {
     });
 
     return () => {
-      console.log('App: Limpando listeners de autenticação');
       unsubscribeAuth();
       if (unsubscribeProfile) unsubscribeProfile();
       if (unsubscribeTopics) unsubscribeTopics();
@@ -2059,6 +2058,13 @@ const asDate = (v: any): Date | undefined => {
       default: return <DashboardHome agents={activatedAgents} tasks={tasks} businessUnits={businessUnits} onNavigate={setActiveTab} activeWorkspaceId={activeWorkspaceId} userDisplayName={currentUserDisplayName} />;
     }
   };
+
+  if (isPasswordRecoveryActive) {
+    return <Auth isPasswordRecovery onAuthSuccess={() => {}} onRecoveryComplete={() => {
+      if (typeof window !== 'undefined') window.history.replaceState(null, '', '/');
+      setIsPasswordRecoveryActive(false);
+    }} />;
+  }
 
   if (isInitializing) {
     return (
