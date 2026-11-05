@@ -573,3 +573,66 @@ Próximo gate: CI/Deploy Preview → homologação humana do Observatory → con
 - 🟢 Chromium NAGI UI Smoke.
 - 🟢 Deploy Preview na Netlify pelo workflow PR; etapa de produção `skipped`.
 - 🟡 Homologação E2E autenticada específica do Observatory ainda não disponível. Não confundir green CI com prova de acesso ao banco operacional.
+
+## 04-11-2026 — QG Zalu P0 | Etapa 1A Acesso e Etapa 1B NAGI
+
+**Origem e decisão:** QG LOZE determinou modernização incremental, preservando Supabase Free, e SUSPENDEU a missão anterior de adequação ampla de todos os módulos. Escopo autorizado exclusivamente para login/autenticação/senha/sessão/recuperação e NAGI, no `lozebr/sagb/develop`. É a orientação operacional atual; não é aprovação de reconstrução, migração física ou alteração da fundação compartilhada.
+
+### Fontes obrigatórias lidas
+- `lozebr/loze-adm/develop/docs/story/3fb006-registro-vivo-acompanhamento-tarefas-agentes-v0.1-18-09-2026.md`, com decisão QG de 04/11/2026 e suspensão de migração automática;
+- `lozebr/loze-adm/develop/docs/standards/3fb006-padrao-supabase-loze-v1-17-09-2026.md` (APROVADO);
+- `lozebr/loze-adm/develop/docs/standards/3fb006-padrao-auth-email-redirect-smtp-loze-v1-17-09-2026.md` (APROVADO);
+- `README.md`, Registro Vivo SagB anterior, `services/supabase.ts`, `components/Auth.tsx`, `App.tsx`, `netlify.toml`, `src/modules/nagi/data/demoProducts.ts`, `data/publishedLinks.ts`, `repository/nagi.repository.ts`, `repository/nagiIngestion.repository.ts`, `module-doc.ts`, componentes NAGI, testes e PR #6;
+- Consultas somente leitura a variáveis Netlify `sagbapp` e lista de projetos dos dois conectores Supabase;
+- Documentação Supabase atual sobre recuperação com redirect, validação e `updateUser`.
+
+### RECIBO 1 — ACESSO (Etapa 1A)
+
+**ANTES**
+- Login do SagB usava adaptador Supabase Auth REST compatível com Firebase; sessão `sagb_supabase_session_v1` persistida em localStorage sem expiração/refresh previamente implementados.
+- Tela não oferecia solicitação de recuperação de senha e não tinha callback de redefinição.
+- `App.tsx` imprimia e-mail e perfil carregado no console, e fallback de perfil ausente assumia tier `TÁTICO`; mudanças de sessão poderiam criar assinaturas repetidas.
+- Netlify `sagbapp`: `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` têm valor em `production`, mas **não** em `deploy-preview`/dev/branch-deploy na leitura de 04/11; produção possui `SUPABASE_SERVICE_ROLE_KEY` e essa chave NÃO deve ir para o browser.
+- Os dois vínculos Supabase consultáveis mostram exclusivamente `loze-products-incubator` e `loze-client-apps-incubator`; não provam que o banco histórico SagB/Dathex não exista em outra conta. Projeto Auth operacional ainda não confirmado na conta acessível.
+
+**DEPOIS**
+- `services/supabase.ts`: resposta de sessão com expiração, refresh token com concorrência controlada, revalidação via `/auth/v1/user`, preservação da sessão em falhas temporárias de rede, logout com limpeza local e evento de sessão deduplicado; `resetPasswordForEmail` com redirect dinâmico exato `window.location.origin + /auth/reset-password`; callback `type=recovery` em hash ou `token_hash`, atualização via `PUT /auth/v1/user`, remoção de token do URL. Não muda projeto Supabase.
+- `components/Auth.tsx`: opção `Esqueci minha senha`, estado de envio de e-mail neutro (sem revelar existência de conta), campo nova senha com mínimo 8 caracteres na interface, mostrar/ocultar senha, erro de link expirado e retorno ao login.
+- `App.tsx`: rota de recuperação isolada e pública (`/auth/reset-password`) sem exibir aplicação protegida; remoção de logs sensíveis de login; fallback sem privilégios elevados (tier `OPERACIONAL`); limpeza de assinaturas de banco na troca de usuário. Este fallback NÃO equivale a autorização granular de backend: validação de memberships/RLS do banco histórico permanece pendente.
+- Nenhuma alteração de domínio Site URL/allow-list/SMTP/secrets/Auth global foi executada; dependerá de QG/owner remoto.
+
+**TESTES E EVIDÊNCIAS**
+- `tests/sagb-access-nagi-etapa1.test.mjs`: cenários de integração do adaptador Auth com respostas HTTP de Supabase simuladas para login, logout, senha incorreta, refresh expirado, recuperação por redirect e alteração por PUT, link expirado, ambiente sem configuração; parsing TSX de App/Auth e assertivas de segurança.
+- `tests/sagb-auth-preview.test.mjs` preservado; build e testes GitHub Actions do commit `b9b75091` aprovados (rodada com testes `npm test`, build e Deploy Preview).
+- 🔴 **Não homologado end-to-end com pessoa real**: não existe acesso confirmado ao projeto Auth original nem variáveis de build no contexto deploy-preview; nenhum usuário de teste e-mail foi criado. E-mail real, link entregue, políticas Auth, redirecionamento allow-list, usuário A × B e login/logout real dependem de credenciais/permissões e homologação.
+- **Mudança remota que precisa de aprovação:** identificar ref do Auth operacional original; configurar `VITE_SUPABASE_URL` e chave **publishable/anon** correspondente no escopo `builds` do contexto `deploy-preview` (e desenvolvimento autorizado), manter production inalterado; confirmar callback `https://deploy-preview-6--sagbapp.netlify.app/auth/reset-password` e origem local na allow-list daquele projeto. Para e-mail real em produção, QG/infra devem revisar SMTP/branding. Nunca publicar service_role no client nem apontar para incubadora por dedução.
+
+**ESTADO:** `AJUSTAR` — correções de código implementadas e testadas em simulação; acesso real continua bloqueado pela configuração externa.
+
+### RECIBO 2 — NAGI (Etapa 1B)
+
+**ANTES**
+- PR #6 Draft aberto: `32` links históricos → `26` produtos canônicos, `6` duplicidades visuais eliminadas, Preview do TaskZei documentado, demais não verificados; este trabalho já estava implementado/testado e foi preservado.
+- Ideias/triagem usam `LocalStorageNagiRepository` (`sagb_nagi_items_v2`); ingestão usa `LocalStorageNagiIngestionRepository` (`sagb_nagi_ingestion_documents_v1`); há seeds/blueprints, sem Supabase NAGI ativo.
+- Central de Aplicativos usa `publishedLinks.ts` histórico e `demoProducts.ts` estático; não consulta tabelas, migrations ou APIs dos bancos de CRM/NEXI/RadScan/Noivalía, nem sua própria tabela Supabase.
+- Central de Padrões SagB permanece canônica para documentação normativa; NAGI não deve copiar a fonte dona.
+
+**DEPOIS**
+- `src/modules/nagi/data/demoProducts.ts`: acrescenta contrato de referência de fonte `historical_links | owner_manifest | readonly_observation` e classes `loze_products_incubator | client_apps_incubator | dedicated | legacy | not_verified`; todo produto permanece `not_verified` quanto a schema/ref Supabase até o owner publicar manifesto, sem inventar vínculo.
+- `src/modules/nagi/components/PublishedLinksSection.tsx`: origem histórica e estado de conexão Supabase explícitos, Preview documentado separado de dados reais; regra de um card por produto/URLs históricas e filtro preservados.
+- `src/modules/nagi/components/NAGIView.tsx`: aviso de que ideias/triagem/ingestão são dados locais do navegador, NÃO dados oficiais sincronizados.
+- `src/modules/nagi/module-doc.ts` e `src/modules/nagi/changelog.md`: documentação de fronteira de dados, read model e compatibilidade com duas incubadoras sem acesso direto nesta etapa.
+- Não foi criado schema `nagi`, RPC, migration, integração com banco externo ou manifesto concorrente. Não houve movimentação de registros locais.
+
+**TESTES E EVIDÊNCIAS**
+- `tests/nagi-demo-registry.test.mjs` (deduplicação, links e bloqueio de Preview não verificado), `tests/sagb-access-nagi-etapa1.test.mjs` (proveniência), `NAGI UI Smoke` existente na CI.
+- Navegação real no NAGI após login ainda depende da correção do acesso do Preview; não declarar homologado por apenas fazer build ou smoke isolado.
+- Pendências futuras: fonte dona fornecer manifestos/versões/owner/status/links confiáveis; via leitura mínima autorizada, alimentar NAGI como mapa/read model. Migração de LocalStorage só após domínio real, consentimento, backup e gate QG. Evitar cópia de dados de outros produtos.
+
+**ESTADO:** `IMPLEMENTADO NA DEVELOP — HOMOLOGAÇÃO FUNCIONAL AUTENTICADA PENDENTE`.
+
+### Governança e Git
+- Branch exclusivamente `develop`, PR [#6](https://github.com/lozebr/sagb/pull/6) Draft aberto; nenhuma alteração `main`, nenhum merge, nenhuma publicação produção, nenhuma migration nem alteração de dados Supabase.
+- Commits principais desta etapa: `c49509ac`, `497db12c`, `4ce088c8`, `59b0aaa0`, `f333fe03`, `cf15ca0b`, `c431b979`, `92c46f35`, `9fe8dc20`, `b9b75091`, `92d15d7c`, `d8a93601`, `32099e00`.
+- Preview canônico: https://deploy-preview-6--sagbapp.netlify.app/nagi/links
+- Proposta antiga de remodelação global permanece sem aprovação; adequação ampla de módulos suspensa nesta etapa.
