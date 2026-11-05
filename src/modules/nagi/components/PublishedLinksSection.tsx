@@ -82,7 +82,7 @@ const PublishedLinksSection: React.FC = () => {
             Aplicativos
           </h2>
           <p style={{ margin: '6px 0 0', color: 'var(--nagi-muted)', fontSize: 11 }}>
-            Um produto por card. Preview de homologação é o alvo principal quando validado.
+            Um produto por card. Catálogo de links históricos, sem acesso direto aos bancos dos produtos; preview só quando validado.
           </p>
         </div>
 
@@ -232,6 +232,11 @@ const ProductCard: React.FC<{ product: DemoProduct }> = ({ product }) => {
           Versão {product.version}
         </div>
       )}
+
+      <p style={{ margin: '0 0 3px', color: 'var(--nagi-muted)', fontSize: 9, lineHeight: 1.45 }}>
+        Fonte: {product.dataReference.origin === 'historical_links' ? 'links históricos' : 'manifesto do produto'} · Supabase: {product.dataReference.projectClass === 'not_verified' ? 'não verificado' : product.dataReference.projectClass.replaceAll('_', ' ')}
+        {product.previewEvidence === 'official_product_readme' ? ' · Preview documentado' : ''}
+      </p>
 
       <div style={{ marginTop: 'auto' }}>
         {canOpen ? (
