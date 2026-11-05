@@ -220,3 +220,10 @@ Documento de rastreabilidade macro por modulo.
 - NAGI: catálogo histórico deduplicado preservado, proveniência de links e Preview exposta, vínculo ao Supabase dos produtos explicitamente não verificado, aviso de persistência local; nenhum schema criado.
 - Arquivos: `services/supabase.ts`, `components/Auth.tsx`, `App.tsx`, `src/modules/nagi/data/demoProducts.ts`, `src/modules/nagi/components/PublishedLinksSection.tsx`, `src/modules/nagi/components/NAGIView.tsx`, `src/modules/nagi/module-doc.ts`, `src/modules/nagi/changelog.md`, `tests/sagb-access-nagi-etapa1.test.mjs`, Registro Vivo.
 - Status: implementado na `develop`; testes automatizados do adaptador com rede simulada e CI de Preview; **login real bloqueado** por configuração de ambiente Netlify `deploy-preview` sem URL/chave publishable Supabase e ausência de projeto operacional SagB nos conectores atuais. Nenhum bypass, migração, merge ou deploy de produção.
+
+### 2026-11-04 — Etapa 1A/1B — endurecimento pontual do acesso e demonstrações NAGI
+- Módulos: Auth SagB e NAGI apenas; adequação ampla Supabase suspensa pela nova orientação QG.
+- Auth: autodeclaração de cargo no cadastro não concede privilégios nem tier elevado; verificação inicial de sessão não sobrescreve evento de login/logout posterior.
+- NAGI: URL de demonstração sozinha não habilita abertura; status validado + fonte oficial necessária.
+- Arquivos: `components/Auth.tsx`, `services/supabase.ts`, `src/modules/nagi/components/PublishedLinksSection.tsx`, `tests/sagb-access-nagi-etapa1.test.mjs`, documentação.
+- Banco/Auth remoto e outros módulos inalterados. `develop` somente, PR #6 Draft.
