@@ -166,7 +166,7 @@ const SummaryChip: React.FC<{ value: number; label: string }> = ({ value, label 
 
 const ProductCard: React.FC<{ product: DemoProduct }> = ({ product }) => {
   const statusMeta = STATUS_META[product.status];
-  const canOpen = Boolean(product.demoUrl);
+  const canOpen = product.status === 'validated' && product.previewEvidence === 'official_product_readme' && Boolean(product.demoUrl);
 
   return (
     <article
