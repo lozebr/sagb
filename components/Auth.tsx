@@ -33,14 +33,6 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, isPasswordRecovery = false, 
       return () => { active = false; };
     }, [isPasswordRecovery]);
 
-    const inferTier = (roleName: string) => {
-        const r = roleName.toLowerCase();
-        if (r.includes('chairman') || r.includes('ceo') || r.includes('cfo') || r.includes('cro') || r.includes('conselheiro')) return 'ESTRATÉGICO';
-        if (r.includes('diretor') || r.includes('head') || r.includes('gestor') || r.includes('sócio')) return 'TÁTICO';
-        if (r.includes('mentor') || r.includes('auditor') || r.includes('treinador') || r.includes('controller')) return 'CONTROLE';
-        return 'OPERACIONAL';
-    };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -83,9 +75,11 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, isPasswordRecovery = false, 
           email: (user as any)?.email || '',
           name: name || '',
           nickname: (name || '').split(' ')[0] || 'User',
-          role: role || 'Colaborador',
+          // Cargo informado é descritivo, nunca autorização concedida pelo cliente.
+          role: 'member',
+          requestedRole: role.trim(),
           company: 'GrupoB',
-          tier: inferTier(role || ''),
+          tier: 'OPERACIONAL',
           createdAt: new Date()
         };
 
