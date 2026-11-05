@@ -144,6 +144,12 @@ const NAGIView: React.FC<NAGIViewProps> = ({
         </div>
       )}
 
+      {section !== 'links' && (
+        <p role="note" style={{ fontSize: 11, lineHeight: 1.5, margin: '0 0 12px', padding: '9px 12px', border: '1px solid var(--nagi-line)', borderRadius: 'var(--nagi-radius-md)', color: 'var(--nagi-muted)' }}>
+          Dados de trabalho locais deste navegador (ideias, documentos e triagem). Não são dados oficiais sincronizados com o Supabase dos produtos.
+        </p>
+      )}
+
       {/* ── Header + Actions ──────────────────── */}
       {section !== 'dashboard' && section !== 'governanca' && section !== 'links' && (
         <div style={{ marginBottom: 16 }}>
