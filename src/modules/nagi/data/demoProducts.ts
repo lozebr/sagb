@@ -2,6 +2,20 @@ import { PublishedAppLink, PUBLISHED_APP_LINKS } from './publishedLinks';
 
 export type DemoProductStatus = 'validated' | 'review' | 'blocked' | 'not_verified';
 
+/** Compatível com a taxonomia LOZE, sem presumir que um schema/projeto esteja implantado. */
+export type NagiProductProjectClass = 'loze_products_incubator' | 'client_apps_incubator' | 'dedicated' | 'legacy' | 'not_verified';
+export type NagiProductDataOrigin = 'historical_links' | 'owner_manifest' | 'readonly_observation';
+export interface NagiProductDataReference {
+  origin: NagiProductDataOrigin;
+  projectClass: NagiProductProjectClass;
+  /** Apenas fonte dona pode confirmar ref, schema e owner. */
+  projectRef?: string;
+  schema?: string;
+  ownerRepo?: string;
+  verifiedAt?: string;
+}
+
+
 export interface DemoProduct {
   productId: string;
   name: string;
@@ -12,6 +26,8 @@ export interface DemoProduct {
   status: DemoProductStatus;
   aliases: string[];
   legacyLinks: PublishedAppLink[];
+  dataReference: NagiProductDataReference;
+  previewEvidence: 'official_product_readme' | 'not_verified';
   note?: string;
 }
 
@@ -101,6 +117,10 @@ export const DEMO_PRODUCTS: DemoProduct[] = Object.entries(byProduct)
       status: override.status || 'not_verified',
       aliases,
       legacyLinks,
+      // Não inventar banco, schema, titularidade ou telemetria viva a partir de links Netlify.
+      dataReference: { origin: 'historical_links', projectClass: 'not_verified' },
+      previewEvidence: override.status === 'validated' && Boolean(override.demoUrl)
+        ? 'official_product_readme' : 'not_verified',
       note: override.note,
     };
   })
