@@ -174,3 +174,8 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 - Nenhuma alteração nas duas incubadoras LOZE, no banco operacional SagB ou nos demais módulos.
 - Testes de regressão: `tests/nagi-demo-registry.test.mjs` e `tests/sagb-access-nagi-etapa1.test.mjs`.
 - Pendente: manifesto dos owners, fonte de leitura autenticada e sincronização/arquivamento de dados locais somente após decisão específica.
+
+## 2026-11-04 — Etapa 1B, gate de demonstração
+- Corrigida a regra `canOpen` da Central de Aplicativos: não basta existir URL; exige `status=validated`, evidência oficial de preview e URL presente.
+- Mantidos 26 produtos canônicos, 32 registros históricos, referências às incubadoras não verificadas e a ausência de conexão direta ao Supabase externo.
+- Incluído teste de regressão em `tests/sagb-access-nagi-etapa1.test.mjs`. Nenhum dado migrou ou foi excluído.
