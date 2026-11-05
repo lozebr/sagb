@@ -636,3 +636,21 @@ Próximo gate: CI/Deploy Preview → homologação humana do Observatory → con
 - Commits principais desta etapa: `c49509ac`, `497db12c`, `4ce088c8`, `59b0aaa0`, `f333fe03`, `cf15ca0b`, `c431b979`, `92c46f35`, `9fe8dc20`, `b9b75091`, `92d15d7c`, `d8a93601`, `32099e00`.
 - Preview canônico: https://deploy-preview-6--sagbapp.netlify.app/nagi/links
 - Proposta antiga de remodelação global permanece sem aprovação; adequação ampla de módulos suspensa nesta etapa.
+
+### 04-11-2026 — Complemento da Missão P0 Etapa 1A/1B (escopo reduzido do QG)
+**Solicitação:** focar acesso e NAGI; adequação Supabase geral suspensa. As melhorias anteriores da Etapa 1 já estavam no `develop` e foram preservadas, sem reconstrução.
+
+**Execução adicional:**
+- `components/Auth.tsx`: removida inferência de nível de acesso a partir de texto livre de cargo (`inferTier`); novos perfis originados da tela registram `role: 'member'`, `tier: 'OPERACIONAL'` e `requestedRole` apenas informativo. Este controle de UI não substitui políticas backend/RLS.
+- `services/supabase.ts`: guarda de geração no callback `onAuthStateChanged`; resposta assíncrona inicial de `/auth/v1/user` não sobrescreve login/logout ocorrido durante a requisição.
+- `src/modules/nagi/components/PublishedLinksSection.tsx`: link só é clicável com `status: validated`, evidência `official_product_readme` e URL existente; catálogo histórico preservado.
+- `tests/sagb-access-nagi-etapa1.test.mjs`: acrescentados regressões para privilégio mínimo de cadastro, ordem dos eventos de sessão e gate da demonstração.
+- `src/modules/nagi/changelog.md` e `docs/modular-map/HISTORICO_MODULOS.md`: rastreabilidade registrada.
+
+**Commits adicionais:** `13f7a3ef` (Auth), `421ec770` (sessão), `437c581b` (testes), `2686d239` (NAGI), `a2a677f7` (teste), `b68b0cbe` e `a9cee846` (documentação).
+
+**Auditoria remota somente leitura:** site Netlify SagB `sagbapp`: `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` com valor apenas no contexto `production`, sem valor em `deploy-preview`, `dev` ou `branch-deploy`. `SUPABASE_SERVICE_ROLE_KEY` não deve ser exposta no browser. Projeto Supabase Auth operacional não está confirmado por conexões atuais; NÃO substituir pelo products/client apps incubator. Nenhuma mudança nas variáveis, Auth remoto ou bancos nesta rodada.
+
+**Critérios de aceite:** suíte Node com mocks cobre login/logout/senha/refresh/recuperação; CI será registrado quando terminar. Sem Auth remoto corretamente configurado no Preview e usuário autorizado, NÃO é possível demonstrar autenticação real, envio de e-mail, callback permitido ou sessão autenticada no NAGI. Status `AJUSTAR`; é necessária autorização de QG/owner para configurar somente variáveis públicas de build do Preview e allow-list do projeto operacional confirmado.
+
+**Escopo preservado:** apenas Auth e NAGI; zero migrations, zero alterações em outros módulos, sem PR merge, sem `main` e sem produção.
