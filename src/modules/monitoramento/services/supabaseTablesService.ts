@@ -1,4 +1,4 @@
-import { ModuleDoc } from '../../../core/modules/module.types';
+import { supabaseObservedAssets } from './supabaseObservabilityCatalog';
 
 interface TableUsage {
   tableName: string;
@@ -18,37 +18,32 @@ interface ModuleTableData {
  * Varre todos os module-doc.ts e monta mapa de tabela → módulos
  */
 export class SupabaseTablesService {
-  private moduleDocs: ModuleDoc[] = [];
+  private moduleDocs: ModuleTableData[] = [];
 
   /**
-   * Carrega todos os module-doc.ts disponíveis no sistema
-   * Nota: Em produção, isso seria feito via import dinâmico ou API
+   * Catálogo declarado pelo SagB, NÃO leitura ao vivo de todos os schemas.
+   * Conserva a interface histórica sem simular importação de module-docs.
+   * O inventário de incubadoras tem fonte e classe de projeto próprias.
    */
   async loadModuleDocs(): Promise<void> {
-    try {
-      // Em ambiente real, buscaríamos todos os módulos registrados
-      // Por enquanto, simulamos com alguns módulos conhecidos
-      this.moduleDocs = [
-        // Módulos que sabemos que existem
-        await import('../module-doc').then(m => m.moduleDoc),
-        // Outros módulos seriam carregados dinamicamente
-      ];
-    } catch (error) {
-      console.warn('Não foi possível carregar todos os module-doc.ts:', error);
+    const byModule = new Map<string, ModuleTableData>();
+    for (const asset of supabaseObservedAssets) {
+      if (asset.kind !== 'table') continue;
+      const key = asset.moduleId;
+      const existing = byModule.get(key) || {
+        moduleId: key,
+        moduleName: asset.moduleName,
+        tables: []
+      };
+      if (!existing.tables.includes(asset.tableName)) existing.tables.push(asset.tableName);
+      byModule.set(key, existing);
     }
+    this.moduleDocs = Array.from(byModule.values());
   }
 
-  /**
-   * Extrai dados de tabelas de todos os módulos carregados
-   */
+  /** Declarações do catálogo local, não garantia de existência física. */
   extractTableData(): ModuleTableData[] {
-    return this.moduleDocs
-      .filter(doc => doc.fontes_de_dados?.supabase_tabelas?.length > 0)
-      .map(doc => ({
-        moduleId: doc.id,
-        moduleName: doc.displayName,
-        tables: doc.fontes_de_dados.supabase_tabelas
-      }));
+    return this.moduleDocs.map((item) => ({ ...item, tables: [...item.tables] }));
   }
 
   /**

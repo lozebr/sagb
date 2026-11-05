@@ -182,3 +182,48 @@ Documento de rastreabilidade macro por modulo.
   - `netlify/functions/ai.mjs`
   - tabela `agent_memories`
 - Status: concluido
+
+### 2026-11-03 — Correção de diagnóstico Supabase Auth no Deploy Preview NAGI
+- Módulo: SagB Auth / Infra Netlify / NAGI (rota protegida).
+- Mudança:
+  - diferencia configuração ausente, chave API inválida e erro de rede no login;
+  - apresenta mensagem compreensível sem remover autenticação ou publicar sessão no console;
+  - remove URL e chave Supabase fixas em `[build.environment]` do Netlify TOML, respeitando configuração de contexto do site;
+  - adiciona regressão automatizada e registra o diagnóstico no Registro Vivo;
+  - bloqueio restante: configuração autorizada de `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` para `deploy-preview`, depois validar login real com usuário do SagB.
+- Tipo: infra / correção / segurança.
+- Arquivos afetados:
+  - `services/supabase.ts`
+  - `components/Auth.tsx`
+  - `netlify.toml`
+  - `tests/sagb-auth-preview.test.mjs`
+  - `docs/story/3fb006-registro-vivo-sagb-v0.1-18-09-2026.md`
+- Status: correção de código concluída em `develop`; autenticação end-to-end pendente de configuração do ambiente.
+
+### 2026-11-04 — P0 Reconciliação Observatory × Padrão Supabase LOZE
+- Módulo: Monitoramento / Database Observatory; fronteiras do banco operacional SagB e incubadoras.
+- Mudança: registro observacional datado de dois projetos Supabase LOZE e schemas reais; classificação explícita de exemplos normativos, owner/manifesto pendentes; inventário de módulos internos/coexistentes/legados; separação entre HEAD no banco SagB e snapshots externos somente leitura; correção de serviço que simulava leitura integral de module-docs.
+- Tipo: arquitetura / infra / dados (metadados somente leitura) / UI / segurança.
+- Arquivos: `src/modules/monitoramento/services/supabaseEcosystemRegistry.ts`, `src/modules/monitoramento/services/supabaseTablesService.ts`, `src/modules/monitoramento/services/supabaseObservabilityCatalog.ts`, `src/modules/monitoramento/services/index.ts`, `src/modules/monitoramento/pages/MonitoramentoSupabasePage.tsx`, `tests/sagb-supabase-observatory.test.mjs`, `supabase/manifest-sagb-operacional.md`, `src/modules/monitoramento/changelog.md`, Registro Vivo SagB.
+- Status: implementação segura em develop, sem alterações de Supabase remoto ou main. Homologação de Auth e live cross-project pendentes.
+
+### 2026-11-04 — Complemento de cobertura modular Supabase
+- Módulo: Monitoramento / 30 entradas do registry + 3 legados fora dele.
+- Mudança: matriz de dados estendida para cobrir cada módulo registrado, mostrando posição no registry e situação `interno`, `coexistente`, `legado_em_avaliacao` ou `a_classificar` sem inferir schema físico. Teste de paridade do catálogo incluído.
+- Tipo: arquitetura / UI / governança.
+- Arquivos: `supabaseEcosystemRegistry.ts`, `MonitoramentoSupabasePage.tsx`, `tests/sagb-supabase-observatory.test.mjs`.
+- Status: implementado em develop; nenhuma migração/exclusão.
+
+### 2026-11-04 — QG LOZE P0 / Etapa 1A + 1B: acesso e NAGI
+- Escopo **apenas** login/senha/sessão/recuperação e módulo NAGI. Adequação ampla Supabase **suspensa**. Sem modificação de outros módulos ou projeto remoto.
+- Auth: recuperação por link do ambiente (`/auth/reset-password`), alteração via Supabase Auth, erros genéricos para conta desconhecida, estado de recuperação separado do sistema, refresh token, logout, limpeza de subscrições e fallback sem privilégio tático.
+- NAGI: catálogo histórico deduplicado preservado, proveniência de links e Preview exposta, vínculo ao Supabase dos produtos explicitamente não verificado, aviso de persistência local; nenhum schema criado.
+- Arquivos: `services/supabase.ts`, `components/Auth.tsx`, `App.tsx`, `src/modules/nagi/data/demoProducts.ts`, `src/modules/nagi/components/PublishedLinksSection.tsx`, `src/modules/nagi/components/NAGIView.tsx`, `src/modules/nagi/module-doc.ts`, `src/modules/nagi/changelog.md`, `tests/sagb-access-nagi-etapa1.test.mjs`, Registro Vivo.
+- Status: implementado na `develop`; testes automatizados do adaptador com rede simulada e CI de Preview; **login real bloqueado** por configuração de ambiente Netlify `deploy-preview` sem URL/chave publishable Supabase e ausência de projeto operacional SagB nos conectores atuais. Nenhum bypass, migração, merge ou deploy de produção.
+
+### 2026-11-04 — Etapa 1A/1B — endurecimento pontual do acesso e demonstrações NAGI
+- Módulos: Auth SagB e NAGI apenas; adequação ampla Supabase suspensa pela nova orientação QG.
+- Auth: autodeclaração de cargo no cadastro não concede privilégios nem tier elevado; verificação inicial de sessão não sobrescreve evento de login/logout posterior.
+- NAGI: URL de demonstração sozinha não habilita abertura; status validado + fonte oficial necessária.
+- Arquivos: `components/Auth.tsx`, `services/supabase.ts`, `src/modules/nagi/components/PublishedLinksSection.tsx`, `tests/sagb-access-nagi-etapa1.test.mjs`, documentação.
+- Banco/Auth remoto e outros módulos inalterados. `develop` somente, PR #6 Draft.

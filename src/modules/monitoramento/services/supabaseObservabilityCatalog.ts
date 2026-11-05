@@ -143,7 +143,8 @@ const readSupabaseSessionToken = () => {
 const classifyCountError = (status: number, message: string): SupabaseObservabilityStatus => {
   const normalized = message.toLowerCase();
   if (status === 401 || status === 403 || normalized.includes('permission') || normalized.includes('rls')) return 'sem_permissao';
-  if (status === 404 || normalized.includes('not find') || normalized.includes('does not exist')) return 'nao_encontrado';
+  // REST 404 pode significar schema não exposto ou falta de permissão: não atesta exclusão física.
+  if (status === 404 || normalized.includes('not find') || normalized.includes('does not exist')) return 'pendente';
   return 'erro';
 };
 
@@ -177,13 +178,25 @@ export const countSupabaseTableRowsSafely = async (asset: SupabaseObservedAsset)
     };
   }
 
+  const token = readSupabaseSessionToken();
+  if (!token) {
+    return {
+      tableName: asset.tableName,
+      recordCount: null,
+      status: 'sem_permissao',
+      lastReadAt: checkedAt,
+      note: 'Sessão autenticada SagB obrigatória. Sem consulta anônima ou a projetos externos.',
+      origin: asset.origin,
+      sourceEvidence: asset.sourceEvidence
+    };
+  }
+
   try {
-    const token = readSupabaseSessionToken();
     const response = await fetch(`${supabaseUrl}/rest/v1/${asset.tableName}?select=*`, {
       method: 'HEAD',
       headers: {
         apikey: supabaseAnonKey,
-        Authorization: `Bearer ${token || supabaseAnonKey}`,
+        Authorization: `Bearer ${token}`,
         Prefer: 'count=exact'
       }
     });

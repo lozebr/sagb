@@ -62,7 +62,7 @@ const SECTION_CONFIG: Record<NagiSection, SectionConfig> = {
   documentos: { title: 'Documentos', description: 'Documentos entram, o NAGI sugere, você revisa e decide.', dotColor: 'var(--nagi-brand)' },
   ideias: { title: 'Ideias em análise', description: 'Ideias em análise — aguardando sua avaliação. Itens elegíveis podem ser promovidos ao catálogo.', dotColor: 'var(--nagi-warning)' },
   catalogo: { title: 'Catálogo', description: 'Itens oficiais do ecossistema — prontos, catalogados e vinculados.', dotColor: 'var(--nagi-success)' },
-  links: { title: 'Links publicados', description: 'Apps publicados no Netlify, separados por empresa e prontos para sincronização.', dotColor: 'var(--nagi-info)' },
+  links: { title: 'Central de Aplicativos', description: 'Aplicativos do GrupoB consolidados por produto para demonstração e homologação.', dotColor: 'var(--nagi-info)' },
   governanca: { title: 'Governança', description: 'Acompanhamento de decisões, auditoria e controle do pipeline.', dotColor: 'var(--nagi-accent)' },
 };
 
@@ -142,6 +142,12 @@ const NAGIView: React.FC<NAGIViewProps> = ({
           {toast.type === 'ok' && <CheckIconSVG />}
           {toast.text}
         </div>
+      )}
+
+      {section !== 'links' && (
+        <p role="note" style={{ fontSize: 11, lineHeight: 1.5, margin: '0 0 12px', padding: '9px 12px', border: '1px solid var(--nagi-line)', borderRadius: 'var(--nagi-radius-md)', color: 'var(--nagi-muted)' }}>
+          Dados de trabalho locais deste navegador (ideias, documentos e triagem). Não são dados oficiais sincronizados com o Supabase dos produtos.
+        </p>
       )}
 
       {/* ── Header + Actions ──────────────────── */}

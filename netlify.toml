@@ -13,8 +13,9 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  VITE_SUPABASE_URL = "https://hfcpisvogbdlbsxnkjdv.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "sb_publishable_gxQw6GRaCdsvQ2-NOiErqg_zH7fKakR"
+  # Supabase Auth: configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+  # por contexto (production / deploy-preview) nas variáveis de build do Netlify.
+  # Não fixe aqui URL nem chave: netlify.toml teria precedência sobre o painel.
 
 # ─── API SagB — Variáveis de Ambiente ──────────────────────────────
 

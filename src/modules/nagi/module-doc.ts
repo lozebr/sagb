@@ -50,6 +50,14 @@ export const moduleDoc = {
     'Nenhuma migração ativa. Itens usam LocalStorageNagiRepository e documentos de ingestão usam LocalStorageNagiIngestionRepository, ambos preparados para swap futuro para Supabase.',
   ],
 
+  fontesDeProdutos: {
+    atual: 'data/publishedLinks.ts (32 registros históricos) → data/demoProducts.ts (26 produtos, 1 por card, histórico preservado)',
+    proveniencia: 'Links históricos; Preview TaskZei documentado; banco, schema e owner de cada produto não verificados pelo NAGI.',
+    naoFaz: 'Não lê schemas Supabase dos produtos, não possui service_role, não armazena manifestos oficiais.',
+    compatibilidadePreparada: 'Referência tipada de classe loze_products_incubator/client_apps_incubator/dedicated/legacy/not_verified; até que o owner forneça manifesto verificável, cada produto fica not_verified.',
+    proximoGate: 'Fonte dona → manifesto versionado → agregação somente leitura autorizada → NAGI como read model, sem nova fonte normativa.',
+  },
+
   bucketsStorage: [
     'Não é storage primário; gerencia evidências referenciadas por uri.',
   ],
@@ -75,7 +83,9 @@ export const moduleDoc = {
     'src/modules/nagi/services/nagiPromotionService.ts (regra de promoção triagem → catálogo)',
     'src/modules/nagi/services/nagiNicBridge.ts (recepção de saídas do NIC)',
     'src/modules/nagi/services/nagiHandoffService.ts (tracking de handoff para especialistas)',
-    'src/modules/nagi/components/NAGIView.tsx (hub orquestrador com abas: Documentos, Triagem e Catálogo)',
+    'src/modules/nagi/components/NAGIView.tsx (hub orquestrador com abas: Documentos, Triagem, Catálogo e Central de Aplicativos)',
+    'src/modules/nagi/components/PublishedLinksSection.tsx (launcher compacto: busca, filtros e um card por produto)',
+    'src/modules/nagi/data/demoProducts.ts (registro canônico de demonstração, deduplicado por productId e com histórico preservado)',
     'src/modules/nagi/components/IngestionSection.tsx (entrada, lote, revisão, vínculo, salvamento e histórico)',
     'src/modules/nagi/components/CatalogSection.tsx (catálogo governado — Alice UI)',
     'src/modules/nagi/components/TriageSection.tsx (triagem com pipeline visual — Alice UI)',
@@ -97,6 +107,7 @@ export const moduleDoc = {
     '8. Executar ações em lote: selecionar documentos e mandar rapidamente para Catálogo ou Triagem.',
     '9. Visualizar histórico da ingestão: recebido, revisado, salvo ou descartado.',
     '10. Continuar usando Catálogo, Triagem, score, governança, promoção e handoff existentes.',
+    '11. Abrir a Central de Aplicativos para localizar um produto único e usar apenas preview/homologação explicitamente validado como ação principal.',
   ],
 
   pendenciasPrincipais: [
