@@ -423,6 +423,12 @@ const asDate = (v: any): Date | undefined => {
     let unsubscribeUsers: (() => void) | undefined;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      // Evita assinaturas antigas após logout ou troca de usuário.
+      unsubscribeProfile?.(); unsubscribeProfile = undefined;
+      unsubscribeTopics?.(); unsubscribeTopics = undefined;
+      unsubscribeTasks?.(); unsubscribeTasks = undefined;
+      unsubscribeVentures?.(); unsubscribeVentures = undefined;
+      unsubscribeUsers?.(); unsubscribeUsers = undefined;
       setUser(currentUser);
 
       if (currentUser) {
