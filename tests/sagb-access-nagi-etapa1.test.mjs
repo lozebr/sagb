@@ -180,3 +180,7 @@ test('Validação inicial de sessão não sobrescreve login/logout ocorrido dura
   assert.match(authSource, /if \(authEventGeneration === initialGeneration\) deliver\(data\.user \?\? null\)/);
   assert.match(authSource, /authEventGeneration \+= 1;/);
 });
+
+test('NAGI nunca abre demonstração apenas por existir URL sem status e evidência', () => {
+  assert.match(nagiUI, /const canOpen = product\.status === 'validated' && product\.previewEvidence === 'official_product_readme' && Boolean\(product\.demoUrl\)/);
+});
