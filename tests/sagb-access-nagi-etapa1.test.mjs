@@ -167,3 +167,16 @@ test('NAGI mantém identidade canônica, declara proveniência histórica e não
   assert.match(nagiCore, /Dados de trabalho locais deste navegador/);
   assert.doesNotMatch(nagiRegistry, /service_role|SUPABASE_SERVICE_ROLE_KEY/i);
 });
+
+test('Cadastro não concede cargo administrativo nem tier estratégico a partir de campo autodeclarado', () => {
+  assert.match(authUI, /role: 'member'/);
+  assert.match(authUI, /requestedRole: role\.trim\(\)/);
+  assert.match(authUI, /tier: 'OPERACIONAL'/);
+  assert.doesNotMatch(authUI, /tier: inferTier\(/);
+});
+
+test('Validação inicial de sessão não sobrescreve login/logout ocorrido durante a requisição', () => {
+  assert.match(authSource, /let authEventGeneration = 0;/);
+  assert.match(authSource, /if \(authEventGeneration === initialGeneration\) deliver\(data\.user \?\? null\)/);
+  assert.match(authSource, /authEventGeneration \+= 1;/);
+});
