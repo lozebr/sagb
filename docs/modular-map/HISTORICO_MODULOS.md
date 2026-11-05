@@ -213,3 +213,10 @@ Documento de rastreabilidade macro por modulo.
 - Tipo: arquitetura / UI / governança.
 - Arquivos: `supabaseEcosystemRegistry.ts`, `MonitoramentoSupabasePage.tsx`, `tests/sagb-supabase-observatory.test.mjs`.
 - Status: implementado em develop; nenhuma migração/exclusão.
+
+### 2026-11-04 — QG LOZE P0 / Etapa 1A + 1B: acesso e NAGI
+- Escopo **apenas** login/senha/sessão/recuperação e módulo NAGI. Adequação ampla Supabase **suspensa**. Sem modificação de outros módulos ou projeto remoto.
+- Auth: recuperação por link do ambiente (`/auth/reset-password`), alteração via Supabase Auth, erros genéricos para conta desconhecida, estado de recuperação separado do sistema, refresh token, logout, limpeza de subscrições e fallback sem privilégio tático.
+- NAGI: catálogo histórico deduplicado preservado, proveniência de links e Preview exposta, vínculo ao Supabase dos produtos explicitamente não verificado, aviso de persistência local; nenhum schema criado.
+- Arquivos: `services/supabase.ts`, `components/Auth.tsx`, `App.tsx`, `src/modules/nagi/data/demoProducts.ts`, `src/modules/nagi/components/PublishedLinksSection.tsx`, `src/modules/nagi/components/NAGIView.tsx`, `src/modules/nagi/module-doc.ts`, `src/modules/nagi/changelog.md`, `tests/sagb-access-nagi-etapa1.test.mjs`, Registro Vivo.
+- Status: implementado na `develop`; testes automatizados do adaptador com rede simulada e CI de Preview; **login real bloqueado** por configuração de ambiente Netlify `deploy-preview` sem URL/chave publishable Supabase e ausência de projeto operacional SagB nos conectores atuais. Nenhum bypass, migração, merge ou deploy de produção.
