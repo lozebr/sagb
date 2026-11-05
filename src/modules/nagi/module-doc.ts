@@ -50,6 +50,14 @@ export const moduleDoc = {
     'Nenhuma migração ativa. Itens usam LocalStorageNagiRepository e documentos de ingestão usam LocalStorageNagiIngestionRepository, ambos preparados para swap futuro para Supabase.',
   ],
 
+  fontesDeProdutos: {
+    atual: 'data/publishedLinks.ts (32 registros históricos) → data/demoProducts.ts (26 produtos, 1 por card, histórico preservado)',
+    proveniencia: 'Links históricos; Preview TaskZei documentado; banco, schema e owner de cada produto não verificados pelo NAGI.',
+    naoFaz: 'Não lê schemas Supabase dos produtos, não possui service_role, não armazena manifestos oficiais.',
+    compatibilidadePreparada: 'Referência tipada de classe loze_products_incubator/client_apps_incubator/dedicated/legacy/not_verified; até que o owner forneça manifesto verificável, cada produto fica not_verified.',
+    proximoGate: 'Fonte dona → manifesto versionado → agregação somente leitura autorizada → NAGI como read model, sem nova fonte normativa.',
+  },
+
   bucketsStorage: [
     'Não é storage primário; gerencia evidências referenciadas por uri.',
   ],
