@@ -8,6 +8,31 @@
 ## Regra
 Atualizar após toda execução relevante registrando pedido, fontes, interpretação, execução, commits, validações, decisões/aprovações, erros, pendências e próximo gate.
 
+## 17-11-2026 — QG: localização de backup SagB e avaliação para futura incubadora LOZE (somente leitura)
+
+**Origem:** Douglas solicita localizar o backup técnico anteriormente realizado do SagB e avaliar sua futura incorporação à arquitetura LOZE. Esta rodada é **somente leitura e documentação**. Não há autorização de restauração, reativação de banco remoto, schema, troca de Auth, deploy ou pagamento.
+
+### Evidência apurada diretamente (17/11/2026)
+
+1. **Projeto legado localizado:** na conexão Supabase da organização `Dathex` (id `ocukpnmthiknkexxuccs`), projeto `SagB` (ref `hfcpisvogbdlbsxnkjdv`, região `us-west-2`, criado em 25/02/2026), status **`INACTIVE`**, organização atualmente no Free. Isto comprova a referência e estado do projeto, mas **não prova existência de um backup íntegro ou data de último dump**. Não houve restore nem consultas às tabelas do banco inativo.
+2. **Estrutura versionada:** o repositório `lozebr/sagb`, branch `develop`, possui `supabase/migrations/` com SQLs de vários módulos, incluindo NAGI, CID, TaskZei, Chat, autenticação de domínio, Central de Padrões etc. Há também `supabase/run_all_migrations.sql` e `supabase/manifest-sagb-operacional.md`. **Migration não é backup de dados/usuários/arquivos.**
+3. **Snapshot de inventário (histórico, não atual):** `plans/auditoria_supabase_tabelas_2026-05-31.txt` contém listagem de tabelas e estimativas de registros/tamanhos de maio de 2026. É evidência de estrutura antiga, **não é um dump restaurável**.
+4. **Manifesto atual do SagB:** `supabase/manifest-sagb-operacional.md`, com checagem 04/11/2026, classifica o projeto remoto operacional real como **NÃO VERIFICADO**. Não assumir que o projeto inativo Dathex corresponde à conexão atualmente utilizada em produção/preview; verificar URLs e consumidores de modo seguro.
+5. **Google Drive:** buscas por nomes de backup do SagB e arquivos `.sql`, `.dump`, `.gz`, `.zip`, além de buscas em texto, localizaram arquivos de **conversas históricas sobre Backup e Segurança** e inventários, mas **nenhum artefato de dump completo identificado/validado** nas fontes consultadas. Isto não é prova de inexistência: backups podem estar em disco local, outra pasta, outro serviço ou no painel Supabase.
+6. **Capacidade atual separada:** nos dois projetos LOZE Free foram aferidos por SQL, em 17/11, ~67 MB no banco `loze-products-incubator` e ~19 MB no `loze-client-apps-incubator`; **não há medição atual do volume do banco SagB**, inativo. Os projetos LOZE não foram alterados.
+
+### Caminho de verificação segura (sem executar)
+
+- [PV] Localizar o artefato real do SagB: painel do projeto legado (Backups/possibilidade de download quando pausado), disco local/HD, Drive ou storage externo; registrar nome, localizador, data, formato, tamanho, checksum, versão Postgres e escopo (schema/dados/Auth/Storage/secrets).
+- [PV] Comprovar integridade por restauração **em ambiente isolado e autorizado**, sem importar sobre LOZE ou alterar projeto Dathex; comparar objetos, contagens, constraints, RLS, funções, Auth e buckets, reconhecendo que arquivos binários Storage requerem fluxo de cópia/backup independente.
+- [PV] Reconciliar qual project ref é consumido hoje pelo código/deploy SagB, preservando a conexão existente e sem ler/expor credenciais.
+- [PV] Somente após evidências, propor estratégia incremental por domínio para eventual `schema sagb` em `loze-products-incubator` (ou projeto dedicado, se isolamento exigir), com plano de migração de identidades, storage, RLS, rollback e gate QG. **Não autorizar incorporação automática do banco inteiro.**
+- [PV] Priorizar login e NAGI conforme instrução QG; não iniciar auditoria geral de 12 dimensões agora. Noivalía continua na incubadora atual, sem transferência antecipada.
+
+**Classificação:** [FDR] Douglas recorda backup anterior; [EVIDÊNCIA] migrations, inventário e projeto antigo encontrados; [PV] artefato de backup íntegro restaurável ainda não verificado. **Execução:** nenhuma mudança remota, pagamento ou restauração.
+
+---
+
 ## 18-09-2026 — P0 NAGI / Central de Demonstração
 
 ### Pedido
