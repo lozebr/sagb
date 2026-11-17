@@ -8,6 +8,34 @@
 ## Regra
 Atualizar após toda execução relevante registrando pedido, fontes, interpretação, execução, commits, validações, decisões/aprovações, erros, pendências e próximo gate.
 
+## 17-11-2026 — Backup PostgreSQL anexado: inventário estrutural e proposta de implantação mínima SagB
+
+**Origem:** arquivo enviado por Douglas no chat do QG em 17/11/2026, identificado como `db_cluster-17-08-2026@09-08-35.backup.gz`. **Classificação:** [EVIDÊNCIA] arquivo PostgreSQL efetivamente examinado; [PI] pedido de aproveitar somente o essencial e crescer módulo a módulo; [PV] homologação de restore, identidade atual da origem e destino.
+
+### Integridade e alcance da inspeção local (read-only)
+
+- Arquivo gzip ~10,8 MB; texto PostgreSQL descomprimido ~32,36 MB. Cabeçalho `PostgreSQL database cluster dump`, SQL legível com `\\connect template1` e `\\connect postgres`; **não** é um backup PGDMP de formato customizado.
+- Verificação `gzip -t`: **PASSOU**. SHA-256 do anexo recebido: `36443b98a140e70ee691cc24adf69100a46985e2ba3610424059b25d824a79ca`. Isso demonstra integridade da compressão, **não prova que um restore PostgreSQL funcionaria** ou que todos os arquivos externos estejam nele.
+- Aproximadamente **195 tabelas criadas** (das quais **160 em `public`**); inclui schemas Supabase gerenciados `auth`, `storage`, `realtime`, extensões, **16 roles** e centenas de políticas; **não executar este dump inteiro** em incubadora LOZE, pois conflitaria com serviços e papéis existentes.
+- No arquivo: **7 registros** em `auth.users`, **7** em `auth.identities`, **1** em `public.users`, **1** em `public.workspace_members`; copiar diretamente `auth.users`, sessões e tokens antigos ao Auth LOZE **não é procedimento seguro/aprovado**. Planejar novas credenciais ou vínculo controlado com identidades autorizadas.
+- **NAGI:** 5 tabelas antigas (`nagi_ecosystem_entities`, `nagi_entity_relations`, `nagi_external_signals`, `nagi_insight_distributions`, `nagi_ecosystem_decisions`) e **zero linhas nos cinco blocos COPY**. Há migration histórica `supabase/migrations/20260313000102_nagi_radar_core.sql`; o dataset da Central de Aplicativos é tratado no código/PR #6. Não requer importação de dados dessas cinco tabelas.
+- Dados legados potencialmente sensíveis: `public.vault_items` (28 linhas), chats, CID, documentos, possíveis perfis, tokens de Auth. **Não subir o dump ou seus registros/credenciais para GitHub, previews, logs ou ambientes compartilhados; armazenar cópia protegida.**
+- `storage.buckets` tem 6 registros e `storage.objects` 14 registros de metadados. **Os bytes dos arquivos de Storage não são fornecidos pelo dump SQL**. Restauração completa exigiria verificar os objetos originais em outra fonte.
+- A análise não teve execução SQL nem teste de restore em Postgres local; não garante referencial, RLS, volumes atuais, identidade do sistema que gerou o dump, cobertura histórica do arquivo ou funcionamento do login após importação.
+
+### Proposta incremental [PI] — NÃO É MIGRAÇÃO APROVADA
+
+1. **Fase 1A: somente acesso SagB.** Projetar Auth no destino escolhido (candidato: `loze-products-incubator`, projeto LOZE; carece de gate de ownership), memberships e RLS próprias, login/logout/recuperação em Preview; não importar tokens nem roles de sistema do cluster.
+2. **Fase 1B: somente NAGI.** Aproveitar interface e registry canônico atual no GitHub, comparar a migration histórica com o novo padrão por schema; se não houver persistência exigida, manter leitura do catálogo atual e **não criar tabelas só por existirem no legado**. Se for preciso persistir, criar migration nova versionada com tabelas do domínio SagB e RLS.
+3. **Demais módulos: sob demanda.** Preservar material histórico e importar seletivamente só se houver caso de uso, owner, contrato de dados, evidência de backup/rollback e testes. Sem importação automática de CID/Chat/Central de Padrões/Vault/Storage ou outros domínios.
+4. **Gate técnico:** avaliar restauro de uma cópia apenas em ambiente descartável autorizado para confirmar que o SQL e os dados são legíveis, sem aplicar no Supabase LOZE nem remover dependências no sistema antigo. Conferir disponibilidade de arquivos de Storage separadamente.
+
+**Fonte normativa:** `lozebr/loze-adm/develop/docs/standards/3fb006-padrao-supabase-loze-v1-17-09-2026.md`. O padrão não é alterado automaticamente por esta proposta.
+
+**Status:** backup encontrado, catalogado e compressão íntegra; **restauração não homologada, nenhum banco/produção/assinatura alterado**. A pendência de localizar o arquivo recebido é resolvida; permanece a pendência de validar restaurabilidade, proteção e execução modular.
+
+---
+
 ## 17-11-2026 — QG: localização de backup SagB e avaliação para futura incubadora LOZE (somente leitura)
 
 **Origem:** Douglas solicita localizar o backup técnico anteriormente realizado do SagB e avaliar sua futura incorporação à arquitetura LOZE. Esta rodada é **somente leitura e documentação**. Não há autorização de restauração, reativação de banco remoto, schema, troca de Auth, deploy ou pagamento.
