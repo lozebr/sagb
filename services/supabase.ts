@@ -24,6 +24,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 const authListeners = new Set<(event: string, session: any) => void>();
+const AUTH_RECOVERY_PATH = '/auth/reset-password';
+export const getAuthRecoveryRedirectUrl = () => typeof window === 'undefined' ? '' : `${window.location.origin}${AUTH_RECOVERY_PATH}`;
 const SESSION_STORAGE_KEY = 'sagb_supabase_session_v1';
 
 const readSessionFromStorage = () => {
@@ -91,6 +93,7 @@ const pickErrorMessage = (data: any, fallback: string) => {
 
 const resolveAuthErrorCode = (path: string, status: number, data: any) => {
   const msg = String(pickErrorMessage(data, '')).toLowerCase();
+  if (msg.includes('invalid api key') || msg.includes('apikey') || msg.includes('api key')) return 'auth/configuration-not-found';
   if (path.includes('/token') && (status === 400 || status === 401)) return 'auth/invalid-credentials';
   if (path.includes('/signup')) {
     if (msg.includes('already') || msg.includes('registered')) return 'auth/email-already-in-use';
@@ -102,23 +105,43 @@ const resolveAuthErrorCode = (path: string, status: number, data: any) => {
   return `auth/http-${status}`;
 };
 
-const supabaseAuthFetch = async (path: string, body?: any, accessToken?: string) => {
-  const res = await fetch(`${supabaseUrl}/auth/v1${path}`, {
-    method: body ? 'POST' : 'GET',
-    headers: {
-      apikey: supabaseAnonKey,
-      Authorization: accessToken ? `Bearer ${accessToken}` : `Bearer ${supabaseAnonKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
+const supabaseAuthFetch = async (path: string, body?: any, accessToken?: string, method?: 'GET' | 'POST' | 'PUT') => {
+  let configured = Boolean(supabaseAnonKey);
+  try {
+    const endpoint = new URL(supabaseUrl);
+    configured = configured && (endpoint.protocol === 'https:' || endpoint.hostname === 'localhost');
+  } catch {
+    configured = false;
+  }
+
+  if (!configured) {
+    throw createShimError({
+      code: 'auth/configuration-not-found',
+      message: 'Supabase Auth não configurado neste ambiente. Confira VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.'
+    });
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${supabaseUrl}/auth/v1${path}`, {
+      method: method || (body ? 'POST' : 'GET'),
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: accessToken ? `Bearer ${accessToken}` : `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch {
+    throw createShimError({
+      code: 'auth/network-request-failed',
+      message: 'Não foi possível conectar ao Supabase Auth deste ambiente. Verifique o endereço do projeto e o Deploy Preview.'
+    });
+  }
 
   const json = await res.json().catch(() => ({}));
 
-  // Token inválido: derruba sessão local pra forçar login
-  if (res.status === 401) {
-    forceSignOut();
-  }
+  // A decisão de revogar a sessão cabe ao caller: /user pode precisar renovar o token.
 
   if (!res.ok) {
     throw createShimError({
@@ -146,7 +169,7 @@ export const restFetch = async (
   options: { method?: string; query?: URLSearchParams; body?: any; headers?: Record<string, string> } = {},
   accessToken?: string
 ) => {
-  const session = getStoredSession();
+  const session = await validStoredSession();
   const token = accessToken || session?.access_token;
   const queryString = options.query ? `?${options.query.toString()}` : '';
   const parsed = splitSchemaFromTable(table);
@@ -190,6 +213,69 @@ export const restFetch = async (
   return data;
 };
 
+const sessionExpiry = (session: any): number | null =>
+  typeof session?.expires_at === 'number' ? session.expires_at : null;
+
+let refreshInFlight: Promise<any | null> | null = null;
+
+const refreshStoredSession = async () => {
+  if (refreshInFlight) return refreshInFlight;
+  const current = getStoredSession();
+  if (!current?.refresh_token) {
+    forceSignOut();
+    return null;
+  }
+  refreshInFlight = (async () => {
+    try {
+      const data = await supabaseAuthFetch('/token?grant_type=refresh_token', {
+        refresh_token: current.refresh_token
+      });
+      if (!data?.access_token || !data?.user) {
+        forceSignOut();
+        return null;
+      }
+      const session = {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token || current.refresh_token,
+        expires_at: Math.floor(Date.now() / 1000) + Number(data.expires_in || 3600),
+        user: data.user
+      };
+      setStoredSession(session);
+      emitAuth('TOKEN_REFRESHED', session);
+      return session;
+    } catch (error: any) {
+      // Erros de rede não são provas de revogação. Preserve a sessão para tentar novamente.
+      if (error?.status === 400 || error?.status === 401) forceSignOut();
+      return null;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
+};
+
+const validStoredSession = async () => {
+  const session = getStoredSession();
+  if (!session?.access_token) return null;
+  const expiresAt = sessionExpiry(session);
+  if (expiresAt !== null && expiresAt <= Math.floor(Date.now() / 1000) + 60) {
+    return refreshStoredSession();
+  }
+  return session;
+};
+
+const sessionFromResponse = (data: any, fallbackUser?: any) => ({
+  access_token: data.access_token,
+  refresh_token: data.refresh_token,
+  expires_at: Math.floor(Date.now() / 1000) + Number(data.expires_in || 3600),
+  user: data.user || fallbackUser
+});
+
+/** Tokens de recuperação nunca devem aparecer no histórico ou nos logs. */
+const clearRecoveryUrl = () => {
+  if (typeof window !== 'undefined') window.history.replaceState(null, '', window.location.pathname);
+};
+
 export const auth = {
   get currentUser() {
     const session = getStoredSession();
@@ -205,7 +291,7 @@ export const auth = {
           error: createShimError({ code: 'auth/invalid-credentials', message: 'Credenciais inválidas.' })
         };
       }
-      const session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
+      const session = sessionFromResponse(data);
       setStoredSession(session);
       emitAuth('SIGNED_IN', session);
       return { data: { user: data.user, session }, error: null };
@@ -217,7 +303,7 @@ export const auth = {
   async signUp({ email, password }: { email: string; password: string }) {
     try {
       const data = await supabaseAuthFetch('/signup', { email, password });
-      const session = data.access_token ? { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user } : null;
+      const session = data.access_token ? sessionFromResponse(data) : null;
       if (session) {
         setStoredSession(session);
         emitAuth('SIGNED_IN', session);
@@ -241,15 +327,77 @@ export const auth = {
   },
 
   async getUser() {
-    const session = getStoredSession();
+    let session = await validStoredSession();
     if (!session?.access_token) return { data: { user: null }, error: null };
     try {
-      const data = await supabaseAuthFetch('/user', undefined, session.access_token);
-      return { data: { user: data }, error: null };
-    } catch {
-      // Se falhou o /user, considera sessão inválida e força login
-      forceSignOut();
-      return { data: { user: null }, error: null };
+      const user = await supabaseAuthFetch('/user', undefined, session.access_token);
+      return { data: { user }, error: null };
+    } catch (error: any) {
+      if (error?.status === 401) {
+        session = await refreshStoredSession();
+        if (session?.access_token) {
+          try {
+            const user = await supabaseAuthFetch('/user', undefined, session.access_token);
+            return { data: { user }, error: null };
+          } catch { /* inválida ou falha: nega entrada sem liberar privilégio */ }
+        }
+      }
+      // Falha de rede não deve apagar tokens, mas também não autentica usuário.
+      return { data: { user: null }, error };
+    }
+  },
+
+  async resetPasswordForEmail(email: string) {
+    try {
+      const redirectTo = getAuthRecoveryRedirectUrl();
+      if (!redirectTo) throw createShimError({ code: 'auth/configuration-not-found', message: 'Ambiente sem origem de redirect.' });
+      await supabaseAuthFetch('/recover?redirect_to=' + encodeURIComponent(redirectTo), { email });
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  },
+
+  async consumeRecoveryLink() {
+    if (typeof window === 'undefined') return { error: createShimError({ code: 'auth/invalid-action-code', message: 'Recuperação indisponível.' }) };
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const query = new URLSearchParams(window.location.search);
+    const errorCode = hash.get('error_code') || query.get('error_code');
+    const tokenHash = query.get('token_hash');
+    const accessToken = hash.get('access_token');
+    const refreshToken = hash.get('refresh_token');
+    const type = hash.get('type') || query.get('type');
+    try {
+      if (errorCode || type !== 'recovery') throw createShimError({ code: 'auth/invalid-action-code', message: 'Link de recuperação inválido ou expirado.' });
+      let session: any;
+      if (tokenHash) {
+        const data = await supabaseAuthFetch('/verify', { type: 'recovery', token_hash: tokenHash });
+        if (!data?.access_token) throw createShimError({ code: 'auth/invalid-action-code', message: 'Link expirado.' });
+        session = sessionFromResponse(data);
+      } else if (accessToken && refreshToken) {
+        const user = await supabaseAuthFetch('/user', undefined, accessToken);
+        session = { access_token: accessToken, refresh_token: refreshToken, expires_at: Math.floor(Date.now() / 1000) + Number(hash.get('expires_in') || 3600), user };
+      } else {
+        throw createShimError({ code: 'auth/invalid-action-code', message: 'Link incompleto ou expirado.' });
+      }
+      if (!session.user) throw createShimError({ code: 'auth/invalid-action-code', message: 'Link sem usuário validado.' });
+      setStoredSession(session);
+      clearRecoveryUrl();
+      return { error: null };
+    } catch (error) {
+      clearRecoveryUrl();
+      return { error };
+    }
+  },
+
+  async updatePassword(password: string) {
+    try {
+      const session = await validStoredSession();
+      if (!session?.access_token) throw createShimError({ code: 'auth/invalid-action-code', message: 'Sessão de recuperação expirada.' });
+      await supabaseAuthFetch('/user', { password }, session.access_token, 'PUT');
+      return { error: null };
+    } catch (error) {
+      return { error };
     }
   },
 
@@ -2977,9 +3125,33 @@ export const signOut = async (_auth: typeof auth) => auth.signOut();
 
 // Compat Firebase onAuthStateChanged
 export const onAuthStateChanged = (_auth: typeof auth, callback: (user: User | null) => void) => {
-  auth.getUser().then(({ data }) => callback(data.user ?? null));
-  const { data } = auth.onAuthStateChange((_event, session) => callback(session?.user ?? null));
-  return () => data.subscription.unsubscribe();
+  let active = true;
+  let lastUserId: string | null | undefined = undefined;
+  let authEventGeneration = 0;
+  const deliver = (user: User | null) => {
+    if (!active) return;
+    const userId = (user as any)?.id ?? null;
+    if (userId === lastUserId) return;
+    lastUserId = userId;
+    callback(user);
+  };
+  // A validação inicial pode demorar. Seu resultado não pode reverter um login/logout
+  // ocorrido enquanto a chamada /user ainda estava em andamento.
+  const initialGeneration = authEventGeneration;
+  auth.getUser()
+    .then(({ data }) => {
+      if (authEventGeneration === initialGeneration) deliver(data.user ?? null);
+    })
+    .catch(() => {
+      if (authEventGeneration === initialGeneration) deliver(null);
+    });
+  const { data } = auth.onAuthStateChange((event, session) => {
+    authEventGeneration += 1;
+    // Rotação de tokens não deve reiniciar as inscrições de banco do App.
+    if (event === 'TOKEN_REFRESHED') return;
+    deliver(session?.user ?? null);
+  });
+  return () => { active = false; data.subscription.unsubscribe(); };
 };
 
 export { Timestamp };

@@ -4,6 +4,29 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 
 ---
 
+## [v3.1.0-central-aplicativos] - 2026-09-18
+
+### Adicionado
+- Registro canônico de demonstração em `data/demoProducts.ts`, com identidade por `productId` e histórico dos links antigos preservado.
+- Status de demonstração separado do status histórico de publicação: validado, revisar, bloqueado e não verificado.
+- Deploy Preview oficial do TaskZei como alvo demonstrável validado.
+
+### Alterado
+- `Links publicados` passou a ser **Central de Aplicativos**, em grade única, sem blocos por empresa.
+- Regra visual alterada de `1 URL = 1 card` para `1 produto = 1 card`.
+- Busca passa a considerar nome, venture, descrição e aliases; filtros permanecem discretos.
+- Cards foram compactados para uso em 1366×768, com ação principal `ABRIR` e sem URL/GitHub/Netlify expostos na superfície principal.
+- Alvos sem preview/homologação comprovados ficam `⚪ NÃO VERIFICADO` e com ação principal bloqueada.
+
+### Auditoria do dataset
+- 32 registros históricos analisados.
+- 26 produtos canônicos após consolidação.
+- 6 cards duplicados removidos da interface sem apagar histórico.
+- Grupos consolidados: EDA 360, QG 3forB, Site 3forB, TaskZei e CRM LOZE/CRM Ziplia.
+- NEXO classificado como referência legada do produto oficial LIVZE.
+
+---
+
 ## [v1.0.0-formalizacao-inicial] - 2026-04-11
 
 ### Adicionado
@@ -139,3 +162,20 @@ Registro de mudanças técnicas, decisões de arquitetura e evolução do módul
 - PDF/DOCX ainda exigem extração externa futura.
 - Classificação usa heurísticas locais, sem IA avançada obrigatória.
 - Persistência ainda é localStorage, com interface pronta para Supabase.
+
+## [v3.1.1-proveniencia-loze] - 2026-11-04
+
+### Ajustado — Etapa 1B QG
+- Preservados 32 links históricos, 26 produtos canônicos, aliases e a regra de abertura de Preview validado (TaskZei).
+- `data/demoProducts.ts`: referência de dados tipada com `origin`, `projectClass`, campos opcionais de manifesto e `previewEvidence`; todas as associações a projeto/schema Supabase começam em `not_verified`, sem inferir implantação a partir de URL.
+- `PublishedLinksSection.tsx`: evidencia fonte histórica e distingue Preview documentado da situação desconhecida do Supabase do produto.
+- `NAGIView.tsx`: alerta explícito de que itens de ideias/triagem/ingestão permanecem em persistência local do navegador.
+- `module-doc.ts`: explicita ownership do read model NAGI e a compatibilidade conceitual com as duas incubadoras, sem conexão direta ou schema `nagi`.
+- Nenhuma alteração nas duas incubadoras LOZE, no banco operacional SagB ou nos demais módulos.
+- Testes de regressão: `tests/nagi-demo-registry.test.mjs` e `tests/sagb-access-nagi-etapa1.test.mjs`.
+- Pendente: manifesto dos owners, fonte de leitura autenticada e sincronização/arquivamento de dados locais somente após decisão específica.
+
+## 2026-11-04 — Etapa 1B, gate de demonstração
+- Corrigida a regra `canOpen` da Central de Aplicativos: não basta existir URL; exige `status=validated`, evidência oficial de preview e URL presente.
+- Mantidos 26 produtos canônicos, 32 registros históricos, referências às incubadoras não verificadas e a ausência de conexão direta ao Supabase externo.
+- Incluído teste de regressão em `tests/sagb-access-nagi-etapa1.test.mjs`. Nenhum dado migrou ou foi excluído.
