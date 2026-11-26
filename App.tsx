@@ -168,6 +168,7 @@ const App: React.FC = () => {
   const [businessUnits, setBusinessUnits] = useState<BusinessUnit[]>(INITIAL_BUSINESS_UNITS);
 
   const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (typeof window !== 'undefined' && /^\/biblioteca-modulos(?:\/|$)/.test(window.location.pathname)) return 'biblioteca-modulos';
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/nagi')) {
       return 'nagi';
     }

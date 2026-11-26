@@ -95,6 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       'management': <LayoutIcon className="w-4 h-4" />,
       'nucleo_de_agentes': <ShieldCheckIcon className="w-4 h-4" />,
       'central_padroes': <ShieldCheckIcon className="w-4 h-4" />,
+      'biblioteca-modulos': <CubeIcon className="w-4 h-4" />,
       'ecosystem': <BriefcaseIcon className="w-4 h-4" />,
       'cadastro-empresas': <ClipboardIcon className="w-4 h-4" />,
       'nucleo-conversacional': <MessageSquareIcon className="w-4 h-4" />,

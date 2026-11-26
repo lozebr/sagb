@@ -120,3 +120,7 @@ As telas abaixo foram aprovadas pelo Chairman e **NÃO DEVEM** ser alteradas em 
 - [ ] Refinar a persistência de memória dos agentes (além do localStorage).
 - [ ] Implementar busca global no Ecossistema.
 - [ ] Conectar n8n para automações externas (webhook).
+
+
+## 26/11/2026 — Biblioteca de Módulos LOZE (MVP em branch isolada)
+Área plugável nativa: catálogo oficial pinado, demos locais de Registry/IAM, link do legado, testes. Sem alteração de DB, main ou produção. Fonte LOZE ADM f8ed7a678a8424e130c1e6845d916ece992602a4.

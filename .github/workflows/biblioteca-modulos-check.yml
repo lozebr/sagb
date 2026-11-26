@@ -1,0 +1,21 @@
+name: Biblioteca LOZE QA (no deploy)
+on:
+  push:
+    branches: [work/loze-biblioteca-modulos-20261126]
+  pull_request:
+    branches: [develop]
+    paths: ['src/modules/biblioteca-modulos/**','tests/biblioteca-modulos.test.mjs']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node --test tests/biblioteca-modulos.test.mjs
+      - run: npm run build
