@@ -1,0 +1,39 @@
+name: Biblioteca LOZE — Preview isolado
+on:
+  push:
+    branches: [work/loze-biblioteca-modulos-20261126]
+permissions:
+  contents: read
+concurrency:
+  group: biblioteca-modulos-preview
+  cancel-in-progress: true
+jobs:
+  preview:
+    if: github.ref == 'refs/heads/work/loze-biblioteca-modulos-20261126'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node --test tests/biblioteca-modulos.test.mjs
+      - name: Build using existing SagB Preview configuration
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+      - name: Deploy non-production preview
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: ./dist
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Biblioteca LOZE — preview branch — no production"
+          enable-pull-request-comment: false
+          enable-commit-comment: false
+          netlify-config-path: ./netlify.toml
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
