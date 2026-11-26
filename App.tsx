@@ -28,7 +28,8 @@ import ConversationsView from './src/modules/nucleo-conversacional/pages/Convers
 import { setDbProvider, createSupabaseDbProvider } from './src/modules/nucleo-conversacional/services/ncDb';
 import Auth from './components/Auth'; // NOVA IMPORTAÇÃO
 import { getModuleRoutes } from './src/core/modules/moduleRegistry';
-import { readModuleToggles, isModuleEnabled as isModuleEnabledByToggle } from './src/core/modules/moduleActivation';
+import { isModuleEnabled as isModuleEnabledByToggle } from './src/core/modules/moduleActivation';
+import { ModuleActivationContext, useModuleActivationState } from './src/core/modules/ModuleActivationContext';
 import SalaDevPage from './src/modules/sala-dev/pages/SalaDevPage';
 import { setNucleoDeAgentesRuntimeContext } from './src/modules/nucleo_de_agentes/store';
 import { setNideRuntimeContext } from './src/modules/nide/store';
@@ -160,18 +161,21 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isPasswordRecoveryActive, setIsPasswordRecoveryActive] = useState(() =>
+    typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password'
+  );
 
   // State for Business Units (now dynamic)
   const [businessUnits, setBusinessUnits] = useState<BusinessUnit[]>(INITIAL_BUSINESS_UNITS);
 
   const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (typeof window !== 'undefined' && /^\/biblioteca-modulos(?:\/|$)/.test(window.location.pathname)) return 'biblioteca-modulos';
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/nagi')) {
       return 'nagi';
     }
     return 'home';
   }); // DEFAULT: HOME
   const [activeBU, setActiveBU] = useState<BusinessUnit>(INITIAL_BUSINESS_UNITS[0]);
-  const [moduleToggles, setModuleToggles] = useState<Record<string, boolean>>({});
 
   const [activatedAgents, setActivatedAgents] = useState<Agent[]>([]);
   const [dbAgents, setDbAgents] = useState<Agent[]>([]);
@@ -292,20 +296,8 @@ const App: React.FC = () => {
     return null;
   }, [preferredWorkspaceId, memberWorkspaceIds]);
 
-  useEffect(() => {
-    const syncToggles = () => setModuleToggles(readModuleToggles(activeWorkspaceId));
-    syncToggles();
-
-    const onStorage = () => syncToggles();
-    const onCustom = () => syncToggles();
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-    };
-  }, [activeWorkspaceId]);
+  const moduleActivation = useModuleActivationState(activeWorkspaceId);
+  const moduleToggles = moduleActivation.toggles;
 
   useEffect(() => {
     if (!activeTab) return;
@@ -398,7 +390,7 @@ const App: React.FC = () => {
 
   // --- VERIFICAÇÃO DE LOGIN SUPABASE ---
   useEffect(() => {
-    console.log('App: Iniciando verificação de autenticação...');
+    // A verificação de sessão ocorre sem expor identidades ou tokens no console.
 
 // Helpers locais para migração Firebase -> Supabase
 const getUserId = (u: any): string | null => (u && ((u as any).id || (u as any).uid)) || null;
@@ -420,14 +412,15 @@ const asDate = (v: any): Date | undefined => {
     let unsubscribeUsers: (() => void) | undefined;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      console.log('App: onAuthStateChanged chamado, usuário:', currentUser ? 'presente' : 'ausente');
+      // Evita assinaturas antigas após logout ou troca de usuário.
+      unsubscribeProfile?.(); unsubscribeProfile = undefined;
+      unsubscribeTopics?.(); unsubscribeTopics = undefined;
+      unsubscribeTasks?.(); unsubscribeTasks = undefined;
+      unsubscribeVentures?.(); unsubscribeVentures = undefined;
+      unsubscribeUsers?.(); unsubscribeUsers = undefined;
       setUser(currentUser);
 
       if (currentUser) {
-        console.log('App: Usuário autenticado:', { 
-          id: getUserId(currentUser),
-          email: (currentUser as any)?.email 
-        });
         
         // Buscar perfil no banco de dados (public.users). Se não existir ainda, seguimos com um fallback.
         const userId = getUserId(currentUser);
@@ -436,11 +429,9 @@ const asDate = (v: any): Date | undefined => {
             doc(db, "users", userId),
             (snapshot) => {
               if (snapshot.exists()) {
-                console.log('App: Perfil carregado do banco de dados:', snapshot.data());
                 setUserProfile(snapshot.data() as UserProfile);
               } else {
                 // Perfil ainda não criado em public.users
-                console.log('App: Perfil não encontrado no banco, criando fallback');
                 setUserProfile({
                   uid: userId,
                   email: (currentUser as any)?.email || '',
@@ -449,7 +440,7 @@ const asDate = (v: any): Date | undefined => {
                   role: 'member',
                   avatarUrl: '',
                   company: 'GrupoB',
-                  tier: 'TÁTICO',
+                  tier: 'OPERACIONAL',
                   createdAt: new Date()
                 } as any);
               }
@@ -465,14 +456,13 @@ const asDate = (v: any): Date | undefined => {
                 role: 'member',
                 avatarUrl: '',
                 company: 'GrupoB',
-                tier: 'TÁTICO',
+                tier: 'OPERACIONAL',
                 createdAt: new Date()
               } as any);
               setIsInitializing(false);
             }
           );
         } else {
-          console.log('App: userId não encontrado no usuário atual');
           setUserProfile(null);
           setIsInitializing(false);
         }
@@ -537,11 +527,16 @@ const asDate = (v: any): Date | undefined => {
           }
         );
       } else {
-        console.log('App: Nenhum usuário autenticado, limpando estado');
         if (unsubscribeProfile) unsubscribeProfile();
         if (unsubscribeTopics) unsubscribeTopics();
         if (unsubscribeTasks) unsubscribeTasks();
         if (unsubscribeVentures) unsubscribeVentures();
+        if (unsubscribeUsers) unsubscribeUsers();
+        unsubscribeProfile = undefined;
+        unsubscribeTopics = undefined;
+        unsubscribeTasks = undefined;
+        unsubscribeVentures = undefined;
+        unsubscribeUsers = undefined;
         setUserProfile(null);
         setTopics([]);
         setTasks([]);
@@ -552,7 +547,6 @@ const asDate = (v: any): Date | undefined => {
     });
 
     return () => {
-      console.log('App: Limpando listeners de autenticação');
       unsubscribeAuth();
       if (unsubscribeProfile) unsubscribeProfile();
       if (unsubscribeTopics) unsubscribeTopics();
@@ -2060,6 +2054,13 @@ const asDate = (v: any): Date | undefined => {
     }
   };
 
+  if (isPasswordRecoveryActive) {
+    return <Auth isPasswordRecovery onAuthSuccess={() => {}} onRecoveryComplete={() => {
+      if (typeof window !== 'undefined') window.history.replaceState(null, '', '/');
+      setIsPasswordRecoveryActive(false);
+    }} />;
+  }
+
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-white dark:bg-sagb-bg flex flex-col items-center justify-center transition-colors duration-300">
@@ -2077,6 +2078,7 @@ const asDate = (v: any): Date | undefined => {
   const userName = authenticatedUserProfile?.name || authenticatedUserProfile?.nickname || 'Usuário';
 
   return (
+    <ModuleActivationContext.Provider value={moduleActivation}>
     <div className="h-screen bg-gray-50 dark:bg-sagb-bg font-nunito text-gray-900 dark:text-sagb-text transition-colors duration-300 overflow-hidden">
       <div className="flex h-full overflow-hidden">
         {!hideSidebar && (
@@ -2124,6 +2126,7 @@ const asDate = (v: any): Date | undefined => {
         </main>
       </div>
     </div>
+    </ModuleActivationContext.Provider>
   );
 };
 

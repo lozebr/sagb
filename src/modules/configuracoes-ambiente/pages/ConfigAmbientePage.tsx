@@ -2,9 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTheme } from '../../../core/context/ThemeContext';
 import {
   getModuleManifests,
-  ModuleToggleMap,
-  readModuleToggles,
-  writeModuleToggles,
   isModuleEnabled,
   readModuleOrder,
   writeModuleOrder,
@@ -12,6 +9,7 @@ import {
   writeModuleOrderLocked,
   sortModulesByOrder,
 } from '../../../core/modules/moduleActivation';
+import { useModuleActivation } from '../../../core/modules/ModuleActivationContext';
 import { BookIcon } from '../../../../components/Icon';
 import { manifest } from '../manifest';
 import { configuracoesCategorias } from '../services/configuracoesCatalog';
@@ -32,7 +30,8 @@ const CORE_IDS = new Set(CORE_SIDEBAR_ITEMS.map((i) => i.id));
 const ConfigAmbientePage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const allModules = useMemo(() => getModuleManifests(), []);
-  const [moduleToggles, setModuleToggles] = useState<ModuleToggleMap>({});
+  const { toggles: moduleToggles, setEnabled, workspaceId } = useModuleActivation();
+  const [toggleError,setToggleError]=useState(false);
 
   /* ── Ordem dos módulos ── */
   const [moduleOrder, setModuleOrder] = useState<string[]>(() => readModuleOrder());
@@ -67,26 +66,10 @@ const ConfigAmbientePage: React.FC = () => {
     [activeSlug]
   );
 
-  useEffect(() => {
-    const synced = readModuleToggles();
-    setModuleToggles(synced);
-
-    const onCustom = () => setModuleToggles(readModuleToggles());
-    window.addEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-    return () => {
-      window.removeEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-    };
-  }, []);
-
-  const persistModuleToggles = (next: ModuleToggleMap) => {
-    setModuleToggles(next);
-    writeModuleToggles(next);
-  };
-
   const isModuleActive = (moduleId: string) => isModuleEnabled(moduleId, moduleToggles);
 
   const handleToggleModule = (moduleId: string, current: boolean) => {
-    persistModuleToggles({ ...moduleToggles, [moduleId]: !current });
+    setToggleError(!setEnabled(moduleId,!current));
   };
 
   const activeCount = sortedModules.filter((m) => isModuleActive(m.id)).length;
@@ -296,6 +279,8 @@ const ConfigAmbientePage: React.FC = () => {
                 </button>
               </div>
 
+              <p className="text-[11px] text-sagb-muted mb-2">{workspaceId?'Preferência local deste workspace':'Preferência local global'} · não altera permissões de segurança.</p>
+              {toggleError&&<p role="alert" className="text-xs text-red-600 mb-2">Não foi possível salvar a preferência no navegador.</p>}
               {/* Lista de exibição — todos os módulos com toggle + drag */}
               <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                 {sortedModules.map((item, index) => {

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TabId, BusinessUnit, UserProfile } from '../types';
 import { getRegisteredModules } from '../src/core/modules/moduleRegistry';
-import { ModuleToggleMap, readModuleToggles, isModuleEnabled as resolveModuleEnabled, readModuleOrder, sortModulesByOrder } from '../src/core/modules/moduleActivation';
+import { isModuleEnabled as resolveModuleEnabled, readModuleOrder, sortModulesByOrder } from '../src/core/modules/moduleActivation';
+import { useModuleActivation } from '../src/core/modules/ModuleActivationContext';
 import { CurrencyDollarIcon, SearchIcon, MessageSquareIcon, FolderIcon, BookIcon, ShieldCheckIcon, CubeIcon, LockIcon, FileTextIcon, PlayIcon, MicIcon, VideoIcon, UserPlusIcon, AlertCircleIcon, PencilIcon, HomeIcon, BriefcaseIcon, ClipboardIcon, NetworkIcon, LayoutIcon, CalendarIcon, CompassIcon, TerminalIcon, BotIcon } from './Icon';
 
 
@@ -54,23 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // [Estado] Chaveado por módulo: true/false para exibir item dinâmico
   // Exemplo: { "hub-integracao": true, "nucleo_de_agentes": true }
-  const [moduleToggles, setModuleToggles] = useState<ModuleToggleMap>({});
-
-  useEffect(() => {
-    const syncToggles = () => setModuleToggles(readModuleToggles(_userProfile?.workspaceId));
-    syncToggles();
-
-    const onStorage = () => syncToggles();
-    const onCustom = () => syncToggles();
-
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-    };
-  }, [_userProfile?.workspaceId]);
+  const { toggles: moduleToggles } = useModuleActivation();
 
   // [Estado] Ordem personalizada dos módulos
   const [moduleOrder, setModuleOrder] = useState<string[]>(() => readModuleOrder());
@@ -95,6 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       'management': <LayoutIcon className="w-4 h-4" />,
       'nucleo_de_agentes': <ShieldCheckIcon className="w-4 h-4" />,
       'central_padroes': <ShieldCheckIcon className="w-4 h-4" />,
+      'biblioteca-modulos': <CubeIcon className="w-4 h-4" />,
       'ecosystem': <BriefcaseIcon className="w-4 h-4" />,
       'cadastro-empresas': <ClipboardIcon className="w-4 h-4" />,
       'nucleo-conversacional': <MessageSquareIcon className="w-4 h-4" />,
