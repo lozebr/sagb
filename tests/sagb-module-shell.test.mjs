@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+import vm from 'node:vm';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const code=ts.transpileModule(read('src/core/navigation/moduleShellPolicy.ts'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const sandbox={exports:{}};vm.runInNewContext(code,sandbox);const policy=sandbox.exports.getModuleShellPolicy;
+test('Home exclusively retains global chrome; all module tabs hide it',()=>{assert.equal(policy('home').showGlobalChrome,true);assert.equal(policy('home').showFallbackExit,false);for(const tab of ['ecosystem','nagi','nide','nucleo-conversacional','agenda','cid','monitoramento','central_padroes','gestao-financeira','crm-ziplia','mcp_sagb','nic','sala-dev','configuracoes-sistema','future-module'])assert.equal(policy(tab).showGlobalChrome,false,tab);});
+test('native exits are not duplicated; unknown modules receive safe fallback',()=>{for(const tab of ['nagi','nide','central_padroes','agenda','crm-ziplia','gestao-financeira','mcp_sagb','monitoramento','cid'])assert.equal(policy(tab).showFallbackExit,false,tab);for(const tab of ['nic','ecosystem','nucleo-conversacional','future-module'])assert.equal(policy(tab).showFallbackExit,true,tab);});
+test('shell consumes resolved policy and does not intercept null registry elements',()=>{const app=read('App.tsx');assert.match(app,/getModuleShellPolicy\(effectiveShellTab\)/);assert.equal((app.match(/\{showGlobalChrome && \(/g)||[]).length,2);assert.match(app,/moduleRoutes\[resolvedActiveTab\]\?\.element != null/);assert.match(app,/data-sagb-module-exit/);assert.doesNotMatch(app,/const hideSidebar =/);assert.match(read('components/Sidebar.tsx'),/onClick=\{onLogout\}[^>]*>Sair da conta/);});

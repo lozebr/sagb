@@ -334,7 +334,7 @@ export const CrmZipliaNativePage: React.FC = () => {
           </nav>
 
           <button
-            onClick={() => window.history.back()}
+            onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'home' }))}
             className="mt-4 px-4 py-2 rounded-lg border border-gray-300 dark:border-sagb-border hover:bg-white dark:hover:bg-sagb-bg text-sm font-semibold"
           >
             Voltar ao SagB

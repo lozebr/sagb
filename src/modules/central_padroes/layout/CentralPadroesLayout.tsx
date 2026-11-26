@@ -245,7 +245,7 @@ export const CentralPadroesLayout: React.FC = () => {
 
           <div className="cp-docs-sidebar-foot">
             <button type="button" onClick={() => setCurrentView('settings')} className={`cp-docs-tree-row ${currentView === 'settings' ? 'active' : ''}`}><span>⚙</span><span className="cp-docs-tree-text">Configurações</span></button>
-            <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'ecosystem' }))} className="cp-docs-tree-row"><span>←</span><span className="cp-docs-tree-text">Voltar ao SagB</span></button>
+            <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'home' }))} className="cp-docs-tree-row"><span>←</span><span className="cp-docs-tree-text">Voltar ao SagB</span></button>
           </div>
         </aside>
 
@@ -277,6 +277,7 @@ export const CentralPadroesLayout: React.FC = () => {
       </div>
 
       <nav className="cp-docs-mobile-bottom">
+        <button className="cp-docs-mobile-item" type="button" aria-label="Voltar ao SagB" onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'home' }))}>←<span>SagB</span></button>
         <button className={`cp-docs-mobile-item ${currentView === 'dashboard' ? 'active' : ''}`} type="button" onClick={() => setCurrentView('dashboard')}>⌂<span>Início</span></button>
         <button className={`cp-docs-mobile-item ${currentView === 'chat-pietro' ? 'active' : ''}`} type="button" onClick={() => setCurrentView('chat-pietro')}>💬<span>Pietro</span></button>
         <button className={`cp-docs-mobile-item ${currentView === 'search' ? 'active' : ''}`} type="button" onClick={() => setCurrentView('search')}>⌕<span>Busca</span></button>

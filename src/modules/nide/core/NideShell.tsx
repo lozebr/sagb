@@ -51,7 +51,7 @@ export const NideShell: React.FC<NideShellProps> = ({ onBackToSagB }) => {
       onBackToSagB();
     } else {
       window.dispatchEvent(
-        new CustomEvent('sagb:navigate', { detail: { route: 'ecosystem' } })
+        new CustomEvent('sagb:navigate', { detail: 'home' })
       );
     }
   };
@@ -109,14 +109,14 @@ export const NideShell: React.FC<NideShellProps> = ({ onBackToSagB }) => {
 
   return (
     <NideProvider>
-      <NideFullscreenLayout onBackToSagB={onBackToSagB}>
+      <NideFullscreenLayout>
         <div className="flex h-full">
           {/* Sidebar interna de domínios */}
-          <aside className="w-56 shrink-0 border-r border-slate-200 dark:border-white/5 p-3 overflow-y-auto">
-            <NideDomainNav
-              onSelectDomain={handleSelectDomain}
-              selectedDomainId={selectedDomain?.manifest.id}
-            />
+          <aside className="w-56 shrink-0 border-r border-slate-200 dark:border-white/5 p-3 flex flex-col min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <NideDomainNav onSelectDomain={handleSelectDomain} selectedDomainId={selectedDomain?.manifest.id} />
+            </div>
+            <footer className="shrink-0 pt-3"><button type="button" onClick={handleBackToSagB} className="w-full text-left text-xs font-semibold text-slate-500 hover:text-blue-600">← Voltar ao SagB</button></footer>
           </aside>
 
           {/* Conteúdo principal */}

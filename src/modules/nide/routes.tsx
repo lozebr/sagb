@@ -5,7 +5,7 @@ import { nideManifest } from './manifest';
 import { NideShell } from './core/NideShell';
 
 const handleBackToSagB = () => {
-  dispatchNavigate('ecosystem');
+  dispatchNavigate('home');
 };
 
 export const nideRoutes: ModuleRoute = {

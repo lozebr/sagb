@@ -45,7 +45,7 @@ const MonitoramentoPage: React.FC<MonitoramentoPageProps> = ({ onBackToHub }) =>
 
   const handleBackToHub = onBackToHub || (() => {
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'ecosystem' }));
+      window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'home' }));
     }
   });
 
@@ -54,7 +54,7 @@ const MonitoramentoPage: React.FC<MonitoramentoPageProps> = ({ onBackToHub }) =>
   return (
     <section className="flex-1 h-full overflow-hidden bg-[#EDF3FA] dark:bg-[#07111F] custom-scrollbar">
       <div className="h-full">
-        <div className="grid h-full grid-cols-1 xl:grid-cols-[260px_1fr] overflow-hidden">
+        <div className="grid h-full grid-cols-[minmax(112px,30%)_minmax(0,1fr)] md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)] overflow-hidden">
           <MonitoramentoSidebar activeSection={activeSection} onSelect={setActiveSection} onBackToHub={handleBackToHub} />
           <main className="min-w-0 h-full overflow-y-auto p-4 md:p-5 custom-scrollbar">
             {activeSection === 'inicio' && <MonitoramentoHomePage onNavigate={setActiveSection} />}

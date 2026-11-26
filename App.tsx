@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback, Suspense } fr
 import ReactMarkdown from 'react-markdown';
 import { SendIcon, MicIcon, StopCircleIcon, PaperclipIcon, XIcon, FileTextIcon } from './components/Icon';
 import Sidebar from './components/Sidebar';
+import { getModuleShellPolicy } from './src/core/navigation/moduleShellPolicy';
 import SystemicVision from './components/SystemicVision'; // RESTAURADO
 import AgentFactory from './components/AgentFactory';
 import BacklogView from './components/BacklogView';
@@ -866,11 +867,16 @@ const asDate = (v: any): Date | undefined => {
 
   // --- GLOBAL NAVIGATION LISTENER ---
   useEffect(() => {
-    const handleNavigate = (e: any) => {
-      if (e.detail) setActiveTab(e.detail);
+    const handleNavigate = (e: CustomEvent) => {
+      const destination = typeof e.detail === 'string' ? e.detail : e.detail?.route;
+      if (typeof destination !== 'string') return;
+      if (destination === 'home') {
+        window.history.replaceState(null, '', '/');
+      }
+      setActiveTab(destination as TabId);
     };
-    window.addEventListener('sagb:navigate', handleNavigate);
-    return () => window.removeEventListener('sagb:navigate', handleNavigate);
+    window.addEventListener('sagb:navigate', handleNavigate as EventListener);
+    return () => window.removeEventListener('sagb:navigate', handleNavigate as EventListener);
   }, []);
 
   const handleSelectBU = (bu: BusinessUnit) => {
@@ -903,6 +909,7 @@ const asDate = (v: any): Date | undefined => {
     setIsTransitioning(true);
     setTimeout(() => {
       setActiveBU(businessUnits[0]); // Volta para GrupoB
+      window.history.replaceState(null, '', '/');
       setActiveTab('home'); // Volta para Início (Dashboard)
       setIsTransitioning(false);
     }, 300);
@@ -1718,8 +1725,6 @@ const asDate = (v: any): Date | undefined => {
     } finally { setIsLoading(false); }
   };
 
-  const hideSidebar = activeBU && activeBU.id === 'audacus' && activeTab === 'audacus-home' || activeTab === 'gestao-financeira' || activeTab === 'crm-ziplia' || activeTab === 'mentorias' || activeTab === 'metodologias' || activeTab === 'agenda' || activeTab === 'central_padroes' || activeTab === 'monitoramento' || activeTab === 'nide' || activeTab === 'nagi' || activeTab === 'cid';
-  const hideHeader = activeBU && activeBU.id === 'audacus' && activeTab === 'audacus-home' || activeTab === 'monitoramento' || activeTab === 'nide' || activeTab === 'nagi' || activeTab === 'cid';
 
   const tabAliases: Partial<Record<TabId, TabId>> = {
     hub: 'ecosystem',
@@ -1734,6 +1739,8 @@ const asDate = (v: any): Date | undefined => {
   };
 
   const resolvedActiveTab = tabAliases[activeTab] || activeTab;
+  const effectiveShellTab = isModuleEnabledByToggle(resolvedActiveTab, moduleToggles) ? resolvedActiveTab : 'home';
+  const { showGlobalChrome, showFallbackExit } = getModuleShellPolicy(effectiveShellTab);
 
   const renderContent = () => {
     // SAFEGUARD: Early return if activeBU is undefined/null
@@ -1813,7 +1820,7 @@ const asDate = (v: any): Date | undefined => {
     // Módulos Registrados Dinamicamente
     // Exceção: NAGI é gerenciado pelo switch case abaixo para receber onBack/onOpenTab
     const moduleRoutes = getModuleRoutes();
-    if (moduleRoutes[resolvedActiveTab] && isModuleEnabledByToggle(resolvedActiveTab, moduleToggles) && resolvedActiveTab !== 'nagi') {
+    if (moduleRoutes[resolvedActiveTab]?.element != null && isModuleEnabledByToggle(resolvedActiveTab, moduleToggles) && resolvedActiveTab !== 'nagi' && resolvedActiveTab !== 'cid') {
       return moduleRoutes[resolvedActiveTab].element;
     }
 
@@ -1873,7 +1880,7 @@ const asDate = (v: any): Date | undefined => {
       case 'nagi':
         return (
           <NAGIPage
-            onBack={() => setActiveTab('ecosystem')}
+            onBack={handleReturnToHub}
             onOpenTab={(tab) => setActiveTab(tab)}
             initialSection={typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/nagi/links' ? 'links' : undefined}
           />
@@ -1889,7 +1896,7 @@ const asDate = (v: any): Date | undefined => {
             ownerUserId={ownerUserId}
             userProfile={authenticatedUserProfile}
             ventures={ventures}
-            onBack={() => setActiveTab('ecosystem')}
+            onBack={handleReturnToHub}
           />
         );
       case 'continuous-memory':
@@ -2091,7 +2098,7 @@ const asDate = (v: any): Date | undefined => {
   return (
     <div className="h-screen bg-gray-50 dark:bg-sagb-bg font-nunito text-gray-900 dark:text-sagb-text transition-colors duration-300 overflow-hidden">
       <div className="flex h-full overflow-hidden">
-        {!hideSidebar && (
+        {showGlobalChrome && (
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -2104,7 +2111,7 @@ const asDate = (v: any): Date | undefined => {
           />
         )}
         <main className="flex-1 flex flex-col overflow-hidden relative bg-white dark:bg-sagb-bg transition-colors duration-300">
-          {!hideHeader && (
+          {showGlobalChrome && (
             <header className="shrink-0 h-14 bg-white/95 dark:bg-sagb-panel/95 backdrop-blur border-b border-gray-100 dark:border-white/10 z-[60] px-4 md:px-6 flex items-center justify-between">
               <div className="text-[10px] font-black text-gray-400 uppercase tracking-wider">SagB v{version}</div>
               <div className="flex items-center gap-2 md:gap-3">
@@ -2121,7 +2128,7 @@ const asDate = (v: any): Date | undefined => {
                     ) : null}
                   </div>
                   <span className="text-xs font-semibold text-gray-700 dark:text-sagb-text max-w-[130px] truncate">{userName}</span>
-                  <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-red-600 font-semibold">Sair</button>
+                  
                 </div>
               </div>
             </header>
@@ -2131,7 +2138,14 @@ const asDate = (v: any): Date | undefined => {
               <div className="w-10 h-10 border-4 border-gray-100 dark:border-white/10 border-t-sagb-blue rounded-full animate-spin"></div>
             </div>
           }>
-            {renderContent()}
+            {showFallbackExit ? (
+              <div className="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden" data-sagb-module-shell>
+                <div className="flex flex-col flex-1 min-h-0 min-w-0 overflow-auto">{renderContent()}</div>
+                <footer className="shrink-0 px-3 py-2 bg-white dark:bg-sagb-panel" data-sagb-module-exit>
+                  <button type="button" onClick={handleReturnToHub} className="text-xs font-semibold text-gray-600 dark:text-sagb-muted hover:text-sagb-blue focus-visible:outline focus-visible:outline-2">← Voltar ao SagB</button>
+                </footer>
+              </div>
+            ) : renderContent()}
           </Suspense>
         </main>
       </div>

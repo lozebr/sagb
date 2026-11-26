@@ -1286,7 +1286,7 @@
   box-shadow: var(--cp-shadow-soft);
   backdrop-filter: blur(18px);
   z-index: 50;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   align-items: center;
 }
 

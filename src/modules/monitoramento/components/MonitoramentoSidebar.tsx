@@ -47,7 +47,7 @@ export const MonitoramentoSidebar: React.FC<MonitoramentoSidebarProps> = ({ acti
         className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left transition-all hover:border-blue-300/60 hover:bg-blue-500/10 active:scale-[0.98]"
       >
         <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">← Voltar ao SagB</span>
-        <span className="mt-0.5 block text-[8px] font-semibold text-slate-400 dark:text-slate-500">Hub do ecossistema</span>
+        <span className="mt-0.5 block text-[8px] font-semibold text-slate-400 dark:text-slate-500">Centro de Comando</span>
       </button>
     </footer>
   </aside>

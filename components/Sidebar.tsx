@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeBU: _activeBU,
   version = "1.8.1",
   onReset: _onReset,
-  onLogout: _onLogout,
+  onLogout,
   userProfile: _userProfile
 }) => {
   // [UI] Controle do menu no mobile (abre/fecha overlay + sidebar)
@@ -341,6 +341,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* BLOCO 5 - SISTEMA (RODAPÉ) */}
       <div className="mt-auto pt-4 border-t border-gray-100 dark:border-white/5 px-6 pb-4 shrink-0">
+        {onLogout && <button type="button" onClick={onLogout} className="w-full mb-3 text-left text-xs font-semibold text-gray-500 hover:text-red-600 focus-visible:outline focus-visible:outline-2">Sair da conta</button>}
         <div className="flex flex-col text-[10px] text-gray-400 font-medium space-y-1">
           <span>SagB v{version}</span>
           <span>by Dathex</span>

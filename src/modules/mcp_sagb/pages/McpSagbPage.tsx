@@ -95,7 +95,7 @@ const McpSagbPage: React.FC = () => {
 
   /* ─── Handlers ─── */
   const handleBack = useCallback(() => {
-    window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'ecosystem' }));
+    window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'home' }));
   }, []);
 
   const handleRunTool = useCallback(async (toolId: string) => {
@@ -510,12 +510,12 @@ const McpSagbPage: React.FC = () => {
       {/* ═══ Botão Voltar ao SagB ═══ */}
       <button
         onClick={handleBack}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-sagb-text text-sagb-bg rounded-2xl shadow-2xl flex items-center justify-center group hover:scale-110 active:scale-95 transition-all z-[100]"
-        title="Voltar para o Ecossistema"
+        className="fixed bottom-8 left-8 w-14 h-14 bg-sagb-text text-sagb-bg rounded-2xl shadow-2xl flex items-center justify-center group hover:scale-110 active:scale-95 transition-all z-[100]"
+        title="Voltar ao SagB" aria-label="Voltar ao SagB"
       >
         <BackIcon className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
-        <span className="absolute right-full mr-4 px-3 py-1.5 bg-sagb-text text-sagb-bg text-[10px] font-bold rounded-lg opacity-0 whitespace-nowrap pointer-events-none group-hover:opacity-100 transition-all">
-          VOLTAR PARA O ECOSSISTEMA
+        <span className="absolute left-full ml-4 px-3 py-1.5 bg-sagb-text text-sagb-bg text-[10px] font-bold rounded-lg opacity-0 whitespace-nowrap pointer-events-none group-hover:opacity-100 transition-all">
+          VOLTAR AO SAGB
         </span>
       </button>
 

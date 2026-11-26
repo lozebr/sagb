@@ -119,7 +119,7 @@ export const AgendaInteligenteLayout: React.FC = () => {
   };
 
   return (
-    <div className="m-3 flex h-full overflow-hidden" style={{ borderRadius: 'var(--sagb-radius-xl)', border: '1px solid var(--sagb-line)', backgroundColor: 'var(--sagb-surface)', boxShadow: 'var(--sagb-shadow)' }}>
+    <div className="flex flex-1 min-h-0 overflow-hidden" style={{ borderRadius: 'var(--sagb-radius-xl)', border: '1px solid var(--sagb-line)', backgroundColor: 'var(--sagb-surface)', boxShadow: 'var(--sagb-shadow)' }}>
       {/* Shell Sidebar Módulo */}
       <aside className="flex w-64 shrink-0 flex-col" style={{ borderRight: '1px solid var(--sagb-line)', backgroundColor: 'var(--sagb-surface-soft)' }}>
         <div className="h-16 shrink-0 px-5" style={{ borderBottom: '1px solid var(--sagb-line)' }}>
@@ -176,7 +176,7 @@ export const AgendaInteligenteLayout: React.FC = () => {
         <div className="shrink-0 p-3" style={{ borderTop: '1px solid var(--sagb-line)' }}>
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'ecosystem' }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate', { detail: 'home' }))}
             className="flex h-9 w-full items-center gap-3 rounded-[var(--sagb-radius-sm)] border border-transparent px-3 text-[13px] font-medium transition-colors"
             style={{ color: 'var(--sagb-muted)' }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--sagb-surface)'; (e.currentTarget as HTMLElement).style.color = 'var(--sagb-text)'; }}
