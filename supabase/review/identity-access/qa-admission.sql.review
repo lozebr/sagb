@@ -1,0 +1,45 @@
+-- QA SINTÉTICO: inserir antes do ROLLBACK de install.sql.review em ambiente descartável.
+-- Não executar em schema persistente. Não cria auth.users nem usa sessão assinada.
+insert into sagb.iam_principals(id,principal_type,provider,provider_subject) values
+ ('10000000-0000-4000-8000-000000000001','human','supabase','20000000-0000-4000-8000-000000000001'),
+ ('10000000-0000-4000-8000-000000000002','human','supabase','20000000-0000-4000-8000-000000000002');
+insert into sagb.iam_memberships(id,principal_id,scope_type,scope_id) values
+ ('30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','product','sagb'),
+ ('30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002','product','other');
+insert into sagb.iam_membership_roles(membership_id,role_id)
+ select m.id,r.id from sagb.iam_memberships m cross join sagb.iam_roles r where r.slug='sagb-entry';
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"20000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
+do $$ begin
+ if sagb.iam_has_permission('sagb.access.enter','product','sagb','aal1') is distinct from true
+    or sagb.iam_has_permission('sagb.access.enter','product','other','aal1') is distinct from false
+    or sagb.iam_has_permission('sagb.access.manage','product','sagb','aal1') is distinct from false
+    or sagb.iam_has_permission('sagb.access.enter','product','sagb','aal2') is distinct from false
+    or (select count(*) from sagb.iam_principals)<>1
+    or (select count(*) from sagb.iam_memberships)<>1 then raise exception 'A authorization or RLS mismatch'; end if;
+ begin
+   insert into sagb.iam_membership_roles(membership_id,role_id)
+    values ('30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001');
+   raise exception 'unexpected browser role assignment';
+ exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claims','{"sub":"20000000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000002',true);
+do $$ begin
+ if sagb.iam_has_permission('sagb.access.enter','product','sagb','aal1') is distinct from false then raise exception 'B cross-context admission'; end if;
+end $$;
+select set_config('request.jwt.claims','{"sub":"20000000-0000-4000-8000-000000000003","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000003',true);
+do $$ begin
+ if sagb.iam_has_permission('sagb.access.enter','product','sagb','aal1') is distinct from false then raise exception 'C non-member admission'; end if;
+end $$;
+reset role;
+update sagb.iam_memberships set status='revoked' where id='30000000-0000-4000-8000-000000000001';
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"20000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
+do $$ begin
+ if sagb.iam_has_permission('sagb.access.enter','product','sagb','aal1') is distinct from false then raise exception 'revoked admission'; end if;
+end $$;
+reset role;

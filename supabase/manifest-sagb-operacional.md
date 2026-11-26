@@ -73,3 +73,6 @@ Relatório: `docs/reports/3fb006-sdvu-g0-mega-operacao-sagb-supabase-modularizac
 
 ## 26-11-2026 — entrada candidata IAM
 Bootstrap isolado para ref LOZE/flag explícita; SDK e storage de sessão por ref, Auth e RPC sagb somente no cliente candidato. Nenhuma alteração de ambiente ou banco. Configurar apenas após gate Hub/QG, RLS, sessão real e autorização de usuário. A confirmação de admissão não equivale à disponibilidade do dashboard.
+
+## 26-11-2026 — Pacote G1 IAM para revisão
+`supabase/review/identity-access/` contém SQL candidato com ROLLBACK, seed de catálogo sem identidade, QA sintético e checklist. Não é migration aplicável; execução e exposição Data API aguardam Hub/QG e revisão dos helpers privilegiados. Sem alteração remota.
