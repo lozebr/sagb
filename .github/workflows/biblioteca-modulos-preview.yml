@@ -1,15 +1,11 @@
-name: Biblioteca LOZE — Preview isolado
+name: Biblioteca LOZE — QA da entrada isolada (Netlify nativo publica)
 on:
   push:
     branches: [work/loze-biblioteca-modulos-20261126]
 permissions:
   contents: read
-concurrency:
-  group: biblioteca-modulos-preview
-  cancel-in-progress: true
 jobs:
-  preview:
-    if: github.ref == 'refs/heads/work/loze-biblioteca-modulos-20261126'
+  preview-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,36 +13,22 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      - name: Require dedicated preview configuration
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_PREVIEW_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_PREVIEW_ANON_KEY }}
-        run: |
-          for key in NETLIFY_AUTH_TOKEN NETLIFY_SITE_ID VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY; do
-            if [ -z "${!key}" ]; then
-              echo "::error::Missing preview configuration: $key"
-              exit 1
-            fi
-          done
       - run: npm ci --ignore-scripts
       - run: node --test tests/biblioteca-modulos.test.mjs
-      - name: Build using dedicated SagB Preview configuration
+      - name: Compile standalone preview without Auth or secrets
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_PREVIEW_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_PREVIEW_ANON_KEY }}
-        run: npm run build
-      - name: Deploy non-production preview
-        uses: nwtgck/actions-netlify@v3.0
-        with:
-          publish-dir: ./dist
-          production-deploy: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Biblioteca LOZE — preview branch — no production"
-          enable-pull-request-comment: false
-          enable-commit-comment: false
-          netlify-config-path: ./netlify.toml
+          CONTEXT: deploy-preview
+          REVIEW_ID: '9'
+          HEAD: work/loze-biblioteca-modulos-20261126
+        run: |
+          node tools/build-library-preview.mjs
+          test -f dist/biblioteca-preview/index.html
+          grep -q 'noindex,nofollow,noarchive' dist/biblioteca-preview/index.html
+      - name: Production context must not retain demo
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          CONTEXT: production
+          REVIEW_ID: '9'
+          HEAD: work/loze-biblioteca-modulos-20261126
+        run: |
+          node tools/build-library-preview.mjs
+          test ! -e dist/biblioteca-preview
