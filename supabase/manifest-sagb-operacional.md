@@ -70,3 +70,6 @@ Relatório: `docs/reports/3fb006-sdvu-g0-mega-operacao-sagb-supabase-modularizac
 ## 26-11-2026 — IAM preparação de consumo
 - Módulo: identity-access-core 0.1.1, origem lozebr/loze-adm @ 0fd27045b49d5a29fadd8a02a8e653519c794904, `src/modules/identity-access/module-source.json`.
 - Estado: PREPARADO, NÃO ATIVADO. Snapshot e migrations-modelo isolados em vendor; nenhuma migration executável adicionada. Schema sagb e Data API aguardam owner Hub #74; escopo product/sagb e permission sagb.access.enter propostas, não provisionadas. Auth existente sem alteração. CI dedicado sem deploy; gates signed Auth, RLS e regressão pendentes.
+
+## 26-11-2026 — entrada candidata IAM
+Bootstrap isolado para ref LOZE/flag explícita; SDK e storage de sessão por ref, Auth e RPC sagb somente no cliente candidato. Nenhuma alteração de ambiente ou banco. Configurar apenas após gate Hub/QG, RLS, sessão real e autorização de usuário. A confirmação de admissão não equivale à disponibilidade do dashboard.

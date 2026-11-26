@@ -7,5 +7,5 @@ export const identityAccessManifest = {
   icon: 'ShieldCheckIcon',
   initialStatus: 'inactive',
   essential: true,
-  lifecycle: 'prepared-not-activated',
+  lifecycle: 'pilot-entry-implemented-not-enabled',
 } as const;

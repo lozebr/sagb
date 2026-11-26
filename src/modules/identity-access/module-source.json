@@ -4,7 +4,7 @@
   "repository": "lozebr/loze-adm",
   "commit": "0fd27045b49d5a29fadd8a02a8e653519c794904",
   "sourcePath": "modules/identity-access-core",
-  "state": "prepared-not-activated",
+  "state": "pilot-entry-implemented-not-enabled",
   "target": {
     "projectRef": "txyuwaffzgsjndqsralg",
     "schema": "sagb"
