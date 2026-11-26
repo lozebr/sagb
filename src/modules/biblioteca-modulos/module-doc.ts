@@ -1,0 +1,2 @@
+import type {ModuleDoc} from '../../core/modules/module.types';
+export const moduleDoc:ModuleDoc={displayName:'Biblioteca de Módulos LOZE',purpose:'Consultar catálogo oficial pinado e experimentar cores com fixtures locais.',version:'0.1.0',boundaries:['Não alterar dados operacionais','Não homologar módulos','Não hospedar fonte canônica dos cores'],integrations:{internal:['Central de Padrões','Sala Dev'],external:['lozebr/loze-adm']}};
