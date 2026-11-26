@@ -79,3 +79,6 @@ Bootstrap isolado para ref LOZE/flag explícita; SDK e storage de sessão por re
 
 ## 26-11-2026 — G1 estrutura IAM instalada por autorização Direção
 Projeto txyuwaffzgsjndqsralg; sagb 7 tabelas RLS, sagb_private 3 helpers definer, sagb RPC invoker restrita. Migrations 20261126191902 e 20261126191930, cópia do histórico em supabase/source-migrations/sagb/. API preserva public, graphql_public, crm, crm_homolog e acrescenta sagb; sagb_private não exposto. QA SQL transacional verde e rollback comprovado antes da instalação. Zero principals; signed Auth, autorização de conta, Preview e homologação pendentes; tentativa Netlify 403. Não restaurar legado nem executar migrações históricas.
+
+## 26-11-2026 — primeiro acesso candidato
+Extensão SagB em revisão para autorização de uso único, sessão email OTP/magiclink e claim de sagb-entry. SQL negativo/rollback validado; instalação ainda não confirmada. Não altera IAM vendor/Auth global. Preview e sessão real pendentes.

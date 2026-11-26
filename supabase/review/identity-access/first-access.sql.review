@@ -1,0 +1,46 @@
+-- SagB controlled first access; IAM consumer extension, never edit vendor.
+create table sagb_private.first_access_authorizations (
+ email text primary key check (email=lower(btrim(email)) and length(email)>3),
+ expires_at timestamptz not null,
+ consumed_subject uuid,
+ consumed_at timestamptz,
+ created_at timestamptz not null default now(),
+ check ((consumed_subject is null)=(consumed_at is null))
+);
+alter table sagb_private.first_access_authorizations enable row level security;
+revoke all on sagb_private.first_access_authorizations from public,anon,authenticated;
+create function sagb_private.iam_claim_first_access() returns boolean
+language plpgsql security definer set search_path=pg_catalog as $$
+declare subject uuid := auth.uid(); mail text; session_ref text := auth.jwt()->>'session_id'; pid uuid; mid uuid; rid uuid;
+begin
+ if subject is null or coalesce(auth.jwt()->>'is_anonymous','false')='true' or session_ref is null then return false; end if;
+ -- Passwordless email session; reject pre-existing passwords to prevent pre-hijacking.
+ select lower(btrim(u.email)) into mail from auth.users u
+ where u.id=subject and u.email_confirmed_at is not null and u.deleted_at is null
+ and (u.banned_until is null or u.banned_until<now()) and not coalesce(u.is_anonymous,false)
+ and coalesce(u.phone,'')='' and coalesce(u.encrypted_password,'')=''
+ and lower(btrim(u.email))=lower(btrim(auth.jwt()->>'email'))
+ and exists(select 1 from auth.identities i where i.user_id=u.id and i.provider='email' and lower(i.email)=lower(u.email))
+ and not exists(select 1 from auth.identities i where i.user_id=u.id and i.provider<>'email')
+ and exists(select 1 from auth.sessions s join auth.mfa_amr_claims a on a.session_id=s.id
+ where s.user_id=u.id and s.id::text=session_ref and (s.not_after is null or s.not_after>now())
+ and a.authentication_method in ('otp','magiclink') and a.created_at>now()-interval '15 minutes');
+ if mail is null then return false; end if;
+ perform 1 from sagb_private.first_access_authorizations f where f.email=mail and f.expires_at>now() and f.consumed_at is null for update;
+ if not found then return false; end if;
+ if exists(select 1 from sagb.iam_principals p where p.provider='supabase' and p.provider_subject=subject::text) then return false; end if;
+ select id into rid from sagb.iam_roles where slug='sagb-entry' and status='active';
+ if rid is null or (select count(*) from sagb.iam_role_permissions where role_id=rid)<>1
+ or not exists(select 1 from sagb.iam_role_permissions rp join sagb.iam_permissions p on p.id=rp.permission_id where rp.role_id=rid and p.code='sagb.access.enter') then return false; end if;
+ insert into sagb.iam_principals(principal_type,provider,provider_subject) values ('human','supabase',subject::text) returning id into pid;
+ insert into sagb.iam_memberships(principal_id,scope_type,scope_id) values (pid,'product','sagb') returning id into mid;
+ insert into sagb.iam_membership_roles(membership_id,role_id) values(mid,rid);
+ update sagb_private.first_access_authorizations set consumed_subject=subject,consumed_at=now() where email=mail;
+ return true;
+end; $$;
+revoke all on function sagb_private.iam_claim_first_access() from public,anon;
+grant execute on function sagb_private.iam_claim_first_access() to authenticated;
+create function sagb.iam_claim_first_access() returns boolean language sql security invoker set search_path=pg_catalog as $$ select sagb_private.iam_claim_first_access(); $$;
+revoke all on function sagb.iam_claim_first_access() from public,anon;
+grant execute on function sagb.iam_claim_first_access() to authenticated;
+notify pgrst, 'reload schema';

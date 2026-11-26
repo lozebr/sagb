@@ -6,3 +6,6 @@
 
 ## 26/11/2026 — entrada candidata
 - Bootstrap isolado, SDK e sessão por projeto, login/logout/recuperação PKCE, admissão IAM e allowlist de rede, testes de contrato. Não habilitado remotamente.
+
+## 26/11/2026 — primeiro acesso controlado
+- Interface de criação por link/OTP de e-mail, claim IAM sem argumentos, definição de senha após admissão; configuração dedicada de Preview. SQL de revisão e QA negativo transacional. Instalação persistente a confirmar.
