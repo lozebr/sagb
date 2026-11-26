@@ -9,3 +9,6 @@ Projeto ChatGPT proposto pela Direção: um chat por Core, chat central Fábrica
 
 ### Entrada de demonstração isolada
 No PR auxiliar #9, o build Netlify gera `/biblioteca-preview/index.html` com o mesmo componente LibraryPage, sem importar App, ThemeProvider, Supabase, sessão ou dados operacionais. Não altera login do SagB. A página de demo não é protegida por login e deve conter somente catálogo e fixtures sintéticos. noindex não é controle de acesso. O build de produção e demais previews removem a saída isolada. Não armazenar dados pessoais ou credenciais; não incluir recursos operacionais nesta entrada.
+
+### Redesign v0.2.0
+UI compartilhada pela área nativa e Preview isolado. Status Implementado (verde), Documentado (âmbar) e Planejado/somente catalogado (cinza); homologação é gate distinto. Laboratórios continuam fixtures em memória com os cores originais. Indicadores e filtros derivados do snapshot. Sem novo backend, pacote ou dependência de rede. Validar visual em desktop/mobile antes do aceite.
