@@ -1,0 +1,24 @@
+name: SagB identity access preparation
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'src/modules/identity-access/**'
+      - '.github/workflows/identity-access-preparation.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx --no-install tsc -p src/modules/identity-access/vendor/tsconfig.json
+      - run: node --test src/modules/identity-access/vendor/tests/*.test.mjs
+      - run: npx --no-install tsc -p src/modules/identity-access/tsconfig.check.json
+      - run: node --test src/modules/identity-access/tests/*.test.mjs
+      - run: npm run check

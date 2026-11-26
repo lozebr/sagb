@@ -1,0 +1,82 @@
+{
+  "module": "identity-access-core",
+  "version": "0.1.1",
+  "repository": "lozebr/loze-adm",
+  "commit": "0fd27045b49d5a29fadd8a02a8e653519c794904",
+  "sourcePath": "modules/identity-access-core",
+  "state": "prepared-not-activated",
+  "target": {
+    "projectRef": "txyuwaffzgsjndqsralg",
+    "schema": "sagb"
+  },
+  "files": [
+    {
+      "path": ".gitignore",
+      "gitBlobSha": "1eae0cf6700cebfee743504d0bdeaf642a11f012"
+    },
+    {
+      "path": "README.md",
+      "gitBlobSha": "204ebb316bf6e1cec7c2837b2f3d62855cf457c2"
+    },
+    {
+      "path": "adapters/index.ts",
+      "gitBlobSha": "6c3984506acda4b89fc988b41010f0124b29f7fe"
+    },
+    {
+      "path": "core/index.ts",
+      "gitBlobSha": "ebe43de72b3a6c5cfb4e937a9985b9fea2b2fc37"
+    },
+    {
+      "path": "core/types.ts",
+      "gitBlobSha": "6aa6c0a67cf5806e54a9da87473b860d042fabfd"
+    },
+    {
+      "path": "migrations/0001_identity_access_core.sql",
+      "gitBlobSha": "516d9a01dffd64a4c867990d602e589579b5d452"
+    },
+    {
+      "path": "migrations/0002_identity_access_rls.sql",
+      "gitBlobSha": "fd821ad43faa2a93b53aa0cd4d50689e6884be84"
+    },
+    {
+      "path": "migrations/README.md",
+      "gitBlobSha": "7a9572dd810386abdb501419162a9060e577e600"
+    },
+    {
+      "path": "package.json",
+      "gitBlobSha": "a1d58f923eed40c66392bc97550f176393cc0336"
+    },
+    {
+      "path": "playground/README.md",
+      "gitBlobSha": "10a3a2104ac4cc33a35195af4d4e14abc10ac068"
+    },
+    {
+      "path": "playground/index.html",
+      "gitBlobSha": "d927b1177f2a7b6d967e33ce99a4f1c2e29f7713"
+    },
+    {
+      "path": "playground/server.mjs",
+      "gitBlobSha": "3d76fc3dce87a9dabdac4e1b612d3f3a16a00bf8"
+    },
+    {
+      "path": "tests/adapters.test.mjs",
+      "gitBlobSha": "b29189f337c655f46b771202c0f263c671d682cd"
+    },
+    {
+      "path": "tests/cloud-first-rls-ab.sql",
+      "gitBlobSha": "a149c9f8a86f545b2d468f943ca9f94ef4a3e7ac"
+    },
+    {
+      "path": "tests/core.test.mjs",
+      "gitBlobSha": "e18c1169fc0ed95c5081bf4917ce3dcaa7206bbb"
+    },
+    {
+      "path": "tests/migrations-security.test.mjs",
+      "gitBlobSha": "ea50ba6c5d080a12b2e06ee0631a4701328e7e7c"
+    },
+    {
+      "path": "tsconfig.json",
+      "gitBlobSha": "e97b01c3bf818f589ac1a444104ceaa94ea79d6d"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LOZE Identity & Access Core Playground</title>
+  <style>
+:root { font-family: Inter, system-ui, sans-serif; color-scheme: light; }
+body { margin: 0; background: #f7f7fb; color: #171326; }
+main { max-width: 760px; margin: 48px auto; padding: 32px; background: white; border-radius: 20px; box-shadow: 0 16px 50px #312e811a; }
+h1 { color: #5b35d5; margin-top: 0; }
+.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 24px 0; }
+label { display: grid; gap: 8px; font-weight: 700; }
+select { padding: 10px; border-radius: 10px; border: 1px solid #d9d6eb; }
+button { background: #126fe5; color: white; border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 800; cursor: pointer; }
+pre { margin-top: 20px; padding: 18px; border-radius: 14px; background: #151225; color: #fff; overflow: auto; border-left: 7px solid #f6c927; }
+pre[data-allowed="true"] { border-left-color: #18a66a; }
+pre[data-allowed="false"] { border-left-color: #e5484d; }
+@media (max-width: 640px) { main { margin: 16px; padding: 20px; } .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Identity & Access Core</h1>
+    <p>Harness humano para validar RBAC, contexto, suspensão e MFA sem depender de um produto.</p>
+    <section class="grid">
+      <label>Contexto
+        <select id="scope"><option value="t1">Tenant A</option><option value="t2">Tenant B</option></select>
+      </label>
+      <label>Permission
+        <select id="permission"><option>crm.contact.read</option><option>crm.contact.write</option></select>
+      </label>
+      <label>Role
+        <select id="role"><option value="viewer">Viewer</option><option value="admin">Admin</option></select>
+      </label>
+      <label>Membership
+        <select id="membership"><option value="active">Ativa</option><option value="suspended">Suspensa</option></select>
+      </label>
+      <label>MFA
+        <select id="aal"><option value="aal1">AAL1</option><option value="aal2">AAL2</option></select>
+      </label>
+      <label><input id="requireAal2" type="checkbox" /> Exigir AAL2</label>
+    </section>
+    <button id="check">Verificar acesso</button>
+    <pre id="result"></pre>
+  </main>
+  <script type="module">
+import { checkAccess } from '../dist/core/index.js';
+const $ = (id) => document.getElementById(id);
+const build = () => {
+  const admin = $('role').value === 'admin';
+  return {
+    principals: [{ id: 'p1', type: 'human', status: 'active', provider: 'supabase', providerSubject: 'demo-user' }],
+    memberships: [{ id: 'm1', principalId: 'p1', scopeType: 'tenant', scopeId: 't1', status: $('membership').value }],
+    roles: [
+      { id: 'viewer', slug: 'viewer', name: 'Viewer', status: 'active' },
+      { id: 'admin', slug: 'admin', name: 'Admin', status: 'active' }
+    ],
+    permissions: [
+      { id: 'read', code: 'crm.contact.read' },
+      { id: 'write', code: 'crm.contact.write' }
+    ],
+    membershipRoles: [{ membershipId: 'm1', roleId: admin ? 'admin' : 'viewer' }],
+    rolePermissions: [
+      { roleId: 'viewer', permissionId: 'read' },
+      { roleId: 'admin', permissionId: 'read' },
+      { roleId: 'admin', permissionId: 'write' }
+    ]
+  };
+};
+$('check').addEventListener('click', () => {
+  const decision = checkAccess({
+    session: { authenticated: true, provider: 'supabase', providerSubject: 'demo-user', assuranceLevel: $('aal').value },
+    context: { scopeType: 'tenant', scopeId: $('scope').value },
+    permission: $('permission').value,
+    requiredAssuranceLevel: $('requireAal2').checked ? 'aal2' : 'aal1'
+  }, build());
+  $('result').textContent = JSON.stringify(decision, null, 2);
+  $('result').dataset.allowed = String(decision.allowed);
+});
+$('check').click();
+  </script>
+</body>
+</html>

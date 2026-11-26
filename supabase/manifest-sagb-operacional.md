@@ -65,3 +65,8 @@ Este complemento é cronológico: a declaração anterior de que a incubadora n�
 | Gate | liberação Hub + coordenação Noivalía, prova restore, segurança e QA candidato, aceite QG |
 | Última validação | 26/11/2026, somente leitura de metadados destino e código; nenhuma implantação |
 Relatório: `docs/reports/3fb006-sdvu-g0-mega-operacao-sagb-supabase-modularizacao-v0.1-26-11-2026.md`.
+
+
+## 26-11-2026 — IAM preparação de consumo
+- Módulo: identity-access-core 0.1.1, origem lozebr/loze-adm @ 0fd27045b49d5a29fadd8a02a8e653519c794904, `src/modules/identity-access/module-source.json`.
+- Estado: PREPARADO, NÃO ATIVADO. Snapshot e migrations-modelo isolados em vendor; nenhuma migration executável adicionada. Schema sagb e Data API aguardam owner Hub #74; escopo product/sagb e permission sagb.access.enter propostas, não provisionadas. Auth existente sem alteração. CI dedicado sem deploy; gates signed Auth, RLS e regressão pendentes.

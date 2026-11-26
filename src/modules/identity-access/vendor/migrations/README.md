@@ -1,0 +1,3 @@
+# IAM migration templates v0.1.1
+
+Fresh installs only. Render with `renderIdentityMigration` and a validated consumer schema. Apply 0001 → 0002 atomically after inventory. Never revoke consumer schema or unrelated table grants. Browser receives only self diagnostics and scoped permission helpers; administrative writes remain backend-mediated. No public/global auth objects, no secrets. Existing installations require a reviewed additive forward migration, not replay. Follow the shared Cloud First lifecycle guide.

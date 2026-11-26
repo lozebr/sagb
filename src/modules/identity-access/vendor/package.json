@@ -1,0 +1,16 @@
+{
+  "name": "@loze/identity-access-core-incubator",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Incubator implementation of the LOZE Identity & Access Core.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "check": "npm run test",
+    "playground": "npm run build && node playground/server.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
