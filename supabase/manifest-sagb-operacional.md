@@ -44,3 +44,24 @@ Módulos internos não são automaticamente produtos independentes no Supabase. 
 3. Comparar esquema real × migrations deste repositório e demonstrar backup/rollback para futuras mudanças.
 4. Homologar login e telas SagB em Deploy Preview com usuário autorizado.
 5. Registrar a evidência no Registro Vivo e levar decisões estruturais ao QG LOZE.
+
+
+## 26-11-2026 — Nova direção QG: transição progressiva (G0)
+**Estado atual desta frente:** `AJUSTAR — DESTINO APROVADO COMO DIREÇÃO; G0 PARCIAL; DDL NÃO LIBERADO`.
+Este complemento é cronológico: a declaração anterior de que a incubadora não era destino operacional descreve o estado de 04/11 e é preservada como histórico. A ordem de 26/11 define o destino PRETENDIDO, não um cutover realizado.
+| Campo | Estado atualizado |
+|---|---|
+| Origem operacional histórica | SagB/Dathex, ref hfcpisvogbdlbsxnkjdv; status histórico INACTIVE, permissão negada na consulta atual; URL runtime real não verificada |
+| Destino pretendido | loze-products-incubator / txyuwaffzgsjndqsralg / sa-east-1 |
+| Schema pretendido | sagb; não encontrado em pg_namespace em 26/11; não criado |
+| Ownership | SagB somente no próprio domínio após liberação Hub; nenhum FK ou ownership de outro produto |
+| Auth | compartilhado no destino, membership específico SagB obrigatório; reconciliação ID legado → principal/entidade; sem copiar sessões/tokens |
+| Entity Registry | consumir core homologado sob escopo aprovado; preservar DNA e IDs/contratos existentes |
+| IAM | candidato piloto, QG + Fábrica pendentes; não aplicar templates remotos |
+| Migrations | 72 SQL históricos preservados; futura trilha alvo versionada somente depois de revisão e gate; não executar run_all_migrations.sql na incubadora |
+| Storage | namespace privado SagB a definir; 6 buckets/14 metadados no backup histórico, objetos físicos não verificados |
+| Backup | 17/08 localizado por metadado, acesso aos bytes negado nesta rodada; restore/checksum pendentes |
+| Ambientes | Preview Netlify sem VITE_SUPABASE_URL/ANON_KEY; produção valores presentes, ref não visível; não alterar |
+| Gate | liberação Hub + coordenação Noivalía, prova restore, segurança e QA candidato, aceite QG |
+| Última validação | 26/11/2026, somente leitura de metadados destino e código; nenhuma implantação |
+Relatório: `docs/reports/3fb006-sdvu-g0-mega-operacao-sagb-supabase-modularizacao-v0.1-26-11-2026.md`.
