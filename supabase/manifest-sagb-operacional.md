@@ -76,3 +76,6 @@ Bootstrap isolado para ref LOZE/flag explícita; SDK e storage de sessão por re
 
 ## 26-11-2026 — Pacote G1 IAM para revisão
 `supabase/review/identity-access/` contém SQL candidato com ROLLBACK, seed de catálogo sem identidade, QA sintético e checklist. Não é migration aplicável; execução e exposição Data API aguardam Hub/QG e revisão dos helpers privilegiados. Sem alteração remota.
+
+## 26-11-2026 — G1 estrutura IAM instalada por autorização Direção
+Projeto txyuwaffzgsjndqsralg; sagb 7 tabelas RLS, sagb_private 3 helpers definer, sagb RPC invoker restrita. Migrations 20261126191902 e 20261126191930, cópia do histórico em supabase/source-migrations/sagb/. API preserva public, graphql_public, crm, crm_homolog e acrescenta sagb; sagb_private não exposto. QA SQL transacional verde e rollback comprovado antes da instalação. Zero principals; signed Auth, autorização de conta, Preview e homologação pendentes; tentativa Netlify 403. Não restaurar legado nem executar migrações históricas.
