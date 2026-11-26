@@ -84,3 +84,5 @@ Projeto txyuwaffzgsjndqsralg; sagb 7 tabelas RLS, sagb_private 3 helpers definer
 Extensão SagB em revisão para autorização de uso único, sessão email OTP/magiclink e claim de sagb-entry. SQL negativo/rollback validado; instalação ainda não confirmada. Não altera IAM vendor/Auth global. Preview e sessão real pendentes.
 
 - Instalação confirmada: 20261126200133, tabela privada e RPC de claim; autorização individual pendente de consumo. Signed Auth e Preview ainda não validados. Fonte: supabase/source-migrations/sagb/20261126200133_sagb_iam_controlled_first_access.sql.
+
+- Incidente primeiro acesso: link confirmou e-mail sem sessão (redirect localhost). Migration 20261126201743 prepara senha após sessão OTP e exige alteração antes do claim; QA negativo/rollback, sem alteração Auth global. Redirect URLs e E2E pendentes. supabase/source-migrations/sagb/20261126201743_sagb_iam_first_access_password_setup.sql.
