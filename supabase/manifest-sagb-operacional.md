@@ -82,3 +82,5 @@ Projeto txyuwaffzgsjndqsralg; sagb 7 tabelas RLS, sagb_private 3 helpers definer
 
 ## 26-11-2026 — primeiro acesso candidato
 Extensão SagB em revisão para autorização de uso único, sessão email OTP/magiclink e claim de sagb-entry. SQL negativo/rollback validado; instalação ainda não confirmada. Não altera IAM vendor/Auth global. Preview e sessão real pendentes.
+
+- Instalação confirmada: 20261126200133, tabela privada e RPC de claim; autorização individual pendente de consumo. Signed Auth e Preview ainda não validados. Fonte: supabase/source-migrations/sagb/20261126200133_sagb_iam_controlled_first_access.sql.
