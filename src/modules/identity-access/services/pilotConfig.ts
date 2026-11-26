@@ -35,6 +35,6 @@ export function isPilotRequestAllowed(url: string, method: string): boolean {
       '/auth/v1/logout': ['POST'],
     };
     return (authPaths[target.pathname] || []).includes(verb) ||
-      (['/rest/v1/rpc/iam_has_permission','/rest/v1/rpc/iam_claim_first_access'].includes(target.pathname) && verb === 'POST');
+      (['/rest/v1/rpc/iam_has_permission','/rest/v1/rpc/iam_claim_first_access','/rest/v1/rpc/iam_prepare_first_access'].includes(target.pathname) && verb === 'POST');
   } catch { return false; }
 }

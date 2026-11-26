@@ -13,11 +13,11 @@ const isRecovery = window.location.pathname === RECOVERY_PATH;
 const isFirstAccess = window.location.pathname === FIRST_ACCESS_PATH;
 const firstMarker = SESSION_KEY + ':first-access';
 let firstExchange: Promise<boolean> | undefined;
-async function claimFirstAccess(): Promise<boolean> {
+async function firstAccessStep(step: 'prepare' | 'claim'): Promise<boolean> {
   if (!client) return false;
   const verified = await client.auth.getUser();
   if (verified.error || !verified.data.user?.id) return false;
-  const claim = await client.schema('sagb').rpc('iam_claim_first_access');
+  const claim = await client.schema('sagb').rpc(step === 'prepare' ? 'iam_prepare_first_access' : 'iam_claim_first_access');
   if (claim.error || claim.data !== true) return false;
   const after = await client.auth.getUser();
   return !after.error && after.data.user?.id === verified.data.user.id;
@@ -34,12 +34,12 @@ function exchangeFirstAccessOnce(): Promise<boolean> {
       if (!client || !pending || !code || code.length > 2048 || params.has('error') || params.has('error_code')) return false;
       const result = await client.auth.exchangeCodeForSession(code);
       if (result.error || !result.data.session) return false;
-      return await claimFirstAccess();
+      return await firstAccessStep('prepare');
     } catch { return false; }
   })();
   return firstExchange;
 }
-type View = 'checking' | 'login' | 'denied' | 'admitted' | 'recovery' | 'expired' | 'configuration';
+type View = 'checking' | 'login' | 'denied' | 'admitted' | 'recovery' | 'first-password' | 'expired' | 'configuration';
 let recoveryExchange: Promise<boolean> | undefined;
 
 function exchangeRecoveryOnce(): Promise<boolean> {
@@ -65,7 +65,6 @@ export default function AccessPilotPage() {
   const [password, setPassword] = useState('');
   const [forgot, setForgot] = useState(false);
   const [register, setRegister] = useState(false);
-  const [otp, setOtp] = useState('');
   const [awaitingEmail, setAwaitingEmail] = useState(false);
   const [newPassword, setNewPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -94,7 +93,7 @@ export default function AccessPilotPage() {
       timer = setTimeout(() => { if (mounted) void check(); }, 0);
     };
     if (isFirstAccess) {
-      void exchangeFirstAccessOnce().then(ok => { if (mounted) { if (ok) window.location.replace('/'); else setView('expired'); } });
+      void exchangeFirstAccessOnce().then(ok => { if (mounted) { setView(ok ? 'first-password' : 'expired'); } });
       return () => { mounted = false; revision.invalidate(); };
     }
     if (isRecovery) {
@@ -140,6 +139,17 @@ export default function AccessPilotPage() {
     if (!client || busy) return;
     setBusy(true); setError(''); setNotice('');
     try {
+      if (view === 'first-password') {
+        if (password.length < 8) { setError('Use pelo menos 8 caracteres.'); return; }
+        const changed = await client.auth.updateUser({ password });
+        if (changed.error) throw changed.error;
+        const revoked = await client.auth.signOut({ scope: 'others' });
+        if (revoked.error) throw revoked.error;
+        if (!(await firstAccessStep('claim'))) { setError('Senha definida, mas o acesso ainda não foi liberado. Solicite um novo link de primeiro acesso.'); return; }
+        setPassword('');
+        window.location.replace('/');
+        return;
+      }
       if (view === 'admitted' && newPassword) {
         if (password.length < 8) { setError('Use pelo menos 8 caracteres.'); return; }
         const { error: failure } = await client.auth.updateUser({ password });
@@ -157,15 +167,10 @@ export default function AccessPilotPage() {
       }
       if (view !== 'login') return;
       if (register) {
-        if (awaitingEmail && otp.trim()) {
-          const result = await client.auth.verifyOtp({ email: email.trim(), token: otp.trim(), type: 'email' });
-          if (result.error || !result.data.session || !(await claimFirstAccess())) { setError('Não foi possível confirmar o primeiro acesso. Solicite um novo link ou use uma conta já habilitada.'); await client.auth.signOut({ scope: 'local' }); return; }
-          localStorage.removeItem(firstMarker); window.location.replace('/'); return;
-        }
         localStorage.setItem(firstMarker, '1');
         const { error: failure } = await client.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true, emailRedirectTo: window.location.origin + FIRST_ACCESS_PATH } });
         if (failure) { localStorage.removeItem(firstMarker); setError('Não foi possível solicitar o primeiro acesso. Tente novamente.'); return; }
-        setAwaitingEmail(true); setNotice('Se o endereço estiver apto, você receberá um link ou código. Confirme no mesmo navegador.');
+        setAwaitingEmail(true); setNotice('Confira seu e-mail. Abra o link mais recente no mesmo navegador usado para solicitar o acesso. Não é necessário digitar um código.');
       } else if (forgot) {
         sessionStorage.setItem(recoveryMarker, '1');
         const { error: failure } = await client.auth.resetPasswordForEmail(email.trim(), {
@@ -187,21 +192,21 @@ export default function AccessPilotPage() {
   return <main className="min-h-screen bg-white text-gray-900 flex items-center justify-center p-6 font-sans">
     <section className="w-full max-w-md rounded-2xl bg-white shadow-lg p-8 space-y-5">
       <header><div className="text-sm font-semibold text-teal-700">SagB · Identidade e Acesso</div>
-        <h1 className="text-2xl font-semibold mt-2">{view === 'admitted' ? 'Acesso autorizado' : view === 'recovery' ? 'Nova senha' : 'Bem-vindo ao SagB'}</h1>
+        <h1 className="text-2xl font-semibold mt-2">{view === 'admitted' ? 'Acesso autorizado' : (view === 'recovery' || view === 'first-password') ? 'Defina sua senha' : 'Bem-vindo ao SagB'}</h1>
         <p className="text-sm text-gray-500 mt-2">Ambiente candidato · Incubadora LOZE</p>
       </header>
       {view === 'configuration' && <p role="alert">Acesso ainda não configurado. Aguarde a liberação do ambiente pelo Hub.</p>}
       {view === 'checking' && <p role="status">Verificando sua sessão e autorização...</p>}
       {view === 'denied' && <><p role="alert">Acesso não autorizado ou ainda indisponível. Solicite a liberação do SagB ao administrador.</p><button type="button" disabled={busy} onClick={() => void logout()}>Sair / trocar de conta</button></>}
-      {view === 'expired' && <><p role="alert">Link de recuperação inválido, expirado ou aberto em outra aba. Solicite um novo link.</p><button type="button" onClick={() => void logout()} disabled={busy}>Voltar ao login</button></>}
+      {view === 'expired' && <><p role="alert">Não foi possível concluir a confirmação. Abra o link mais recente no mesmo navegador. Se o erro persistir, solicite um novo link.</p><button type="button" onClick={() => void logout()} disabled={busy}>Voltar ao login</button></>}
       {view === 'admitted' && <><p role="status">Sua identidade foi validada pelo módulo IAM. Os demais módulos aguardam integração segura ao novo banco.</p><button type="button" disabled={busy} onClick={() => { setNewPassword(!newPassword); setPassword(''); }}> {newPassword ? 'Cancelar' : 'Definir / alterar minha senha'}</button><button type="button" disabled={busy} onClick={() => void logout()}>Sair</button></>}
-      {(view === 'login' || view === 'recovery' || (view === 'admitted' && newPassword)) && <form onSubmit={submit} className="space-y-4">
+      {(view === 'login' || view === 'recovery' || view === 'first-password' || (view === 'admitted' && newPassword)) && <form onSubmit={submit} className="space-y-4">
         {view === 'login' && <label className="block text-sm">E-mail<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></label>}
-        {view === 'login' && register && awaitingEmail && <label className="block text-sm">Código recebido (se houver)<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" value={otp} onChange={e => setOtp(e.target.value)} autoComplete="one-time-code" /></label>}
-        {(view === 'recovery' || (view === 'admitted' && newPassword) || (!forgot && !register)) && <label className="block text-sm">{view !== 'login' ? 'Nova senha' : 'Senha'}<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="password" required minLength={view === 'login' ? 1 : 8} value={password} onChange={e => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} /></label>}
-        <button disabled={busy} className="w-full rounded-lg bg-teal-700 text-white p-3 font-medium" type="submit">{busy ? 'Aguarde...' : view !== 'login' ? 'Salvar nova senha' : register ? (awaitingEmail && otp.trim() ? 'Confirmar código' : awaitingEmail ? 'Reenviar link' : 'Criar minha conta') : forgot ? 'Enviar recuperação' : 'Entrar'}</button>
-        {view === 'login' && <div className="flex flex-wrap gap-4"><button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setRegister(!register); setForgot(false); setAwaitingEmail(false); setOtp(''); setPassword(''); setNotice(''); setError(''); }}>{register ? 'Voltar ao login' : 'Criar minha conta'}</button>{!register && <button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setForgot(!forgot); setPassword(''); setNotice(''); setError(''); }}>{forgot ? 'Voltar ao login' : 'Esqueci minha senha'}</button>}</div>}
+        {(view === 'recovery' || view === 'first-password' || (view === 'admitted' && newPassword) || (view === 'login' && !forgot && !register)) && <label className="block text-sm">{view !== 'login' ? 'Nova senha' : 'Senha'}<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="password" required minLength={view === 'login' ? 1 : 8} value={password} onChange={e => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} /></label>}
+        <button disabled={busy} className="w-full rounded-lg bg-teal-700 text-white p-3 font-medium" type="submit">{busy ? 'Aguarde...' : view !== 'login' ? 'Salvar nova senha' : register ? (awaitingEmail ? 'Reenviar link' : 'Criar minha conta') : forgot ? 'Enviar recuperação' : 'Entrar'}</button>
+        {view === 'login' && <div className="flex flex-wrap gap-4"><button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setRegister(!register); setForgot(false); setAwaitingEmail(false); setPassword(''); setNotice(''); setError(''); }}>{register ? 'Voltar ao login' : 'Criar minha conta'}</button>{!register && <button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setForgot(!forgot); setPassword(''); setNotice(''); setError(''); }}>{forgot ? 'Voltar ao login' : 'Esqueci minha senha'}</button>}</div>}
       </form>}
+      {view === 'first-password' && <button type="button" disabled={busy} onClick={() => void logout()}>Voltar ao login</button>}
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
       {notice && <p role="status" className="text-sm text-gray-600">{notice}</p>}
       <p className="text-xs text-gray-400">Cadastro com confirmação de e-mail. A entrada no SagB depende de autorização prévia.</p>

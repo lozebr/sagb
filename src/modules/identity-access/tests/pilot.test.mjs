@@ -28,6 +28,8 @@ test('network allowlist excludes legacy data, storage, functions and other produ
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/otp','POST'),true);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/verify','POST'),true);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_claim_first_access','POST'),true);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_prepare_first_access','POST'),true);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_prepare_first_access','GET'),false);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_claim_first_access','GET'),false);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/logout','POST'),true);
 });
