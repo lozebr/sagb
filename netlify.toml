@@ -60,7 +60,7 @@
 [[headers]]
   for = "/workspace.html"
   [headers.values]
-    Content-Security-Policy = "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; frame-ancestors 'self'; default-src 'none'; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; base-uri 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:"
+    Content-Security-Policy = "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; frame-ancestors 'self'; default-src 'none'; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; base-uri 'self'; script-src 'self' https://sagb.grupob.com.br https://sagbapp.netlify.app https://main--sagbapp.netlify.app https://deploy-preview-6--sagbapp.netlify.app 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' https://sagb.grupob.com.br https://sagbapp.netlify.app https://main--sagbapp.netlify.app https://deploy-preview-6--sagbapp.netlify.app 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:"
     Cache-Control = "no-store"
 
 [[headers]]

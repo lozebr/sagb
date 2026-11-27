@@ -1,11 +1,12 @@
 name: SagB Module Workspace UI
 on:
+  push:
+    branches: [develop]
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
 jobs:
   full-workspace:
-    if: github.event.pull_request.number == 6
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:

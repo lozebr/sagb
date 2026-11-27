@@ -163,7 +163,7 @@ export interface SagbModuleBoundary {
   note: string;
 }
 
-/** Snapshot documental de 30 entradas no moduleRegistry + 3 diretórios fora do registry.
+/** Snapshot documental de 31 entradas no moduleRegistry + 3 diretórios fora do registry.
  * A classificação não ordena exclusão nem prova ownership físico no Supabase. */
 export const sagbModuleBoundaries: readonly SagbModuleBoundary[] = [
   {
@@ -221,6 +221,14 @@ export const sagbModuleBoundaries: readonly SagbModuleBoundary[] = [
     "custody": "interno",
     "dataBoundary": "Banco operacional SagB",
     "note": "central_padroes_documents é fonte canônica declarada; preservar dados/migrations."
+  },
+  {
+    "id": "biblioteca-modulos",
+    "name": "Biblioteca de Módulos LOZE",
+    "registered": true,
+    "custody": "interno",
+    "dataBoundary": "Catálogo versionado e laboratórios locais, sem banco operacional",
+    "note": "Preserva os cores de referência; instalação operacional depende de homologação."
   },
   {
     "id": "monitoramento",

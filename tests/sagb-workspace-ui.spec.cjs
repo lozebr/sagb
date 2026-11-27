@@ -135,7 +135,7 @@ test('isolated workspace: native interface runs in opaque sandbox, history and a
    if(u.pathname==='/test-workspace-parent')return route.fulfill({contentType:'text/html',body:'<html><body style="margin:0"><iframe title="workspace" src="/workspace.html" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width:100vw;height:100vh;border:0"></iframe></body></html>'});
    const file=path.resolve(root,'.'+decodeURIComponent(u.pathname));
    if(!file.startsWith(root+path.sep))return route.abort();
-   if(fs.existsSync(file)&&fs.statSync(file).isFile())return route.fulfill({path:file,headers:{'Access-Control-Allow-Origin':'*'}});
+   if(fs.existsSync(file)&&fs.statSync(file).isFile())return route.fulfill({path:file,headers:{'Access-Control-Allow-Origin':'*',...(u.pathname==='/workspace.html'?{'Content-Security-Policy':"sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; frame-ancestors 'self'; default-src 'none'; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; base-uri 'self'; script-src 'self' https://sagb.grupob.com.br https://sagbapp.netlify.app https://main--sagbapp.netlify.app https://deploy-preview-6--sagbapp.netlify.app 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' https://sagb.grupob.com.br https://sagbapp.netlify.app https://main--sagbapp.netlify.app https://deploy-preview-6--sagbapp.netlify.app 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:"}:{})}});
    return route.fulfill({status:403,body:'Offline boundary'});
  });
  await page.goto(host+'/test-workspace-parent');
