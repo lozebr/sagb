@@ -17,6 +17,7 @@ const BaseModulesPage: React.FC = () => {
 
   return (
     <CentralPageShell title="Biblioteca de Módulos Base" subtitle="Primeira versão real do Gate Modular Pré-Dev: antes de construir, verificar ativos reutilizáveis, padrões aplicáveis e vínculo com a Central.">
+      <section className="cp-docs-panel cp-docs-roadmap-box"><strong>Catálogo histórico / Gate Pré-Dev</strong><p>A Biblioteca de Módulos LOZE reúne a prateleira atual. Os registros abaixo permanecem para consulta e reconciliação de legado.</p><button type="button" className="cp-docs-top-link primary" onClick={()=>window.dispatchEvent(new CustomEvent('sagb:navigate',{detail:'biblioteca-modulos'}))}>Abrir Biblioteca de Módulos LOZE</button></section>
       <section className="cp-docs-gate-hero">
         <div>
           <p className="cp-docs-kicker">Gate Modular Pré-Dev</p>

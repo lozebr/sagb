@@ -6,6 +6,7 @@ export type SagbNavigateDestination =
   | 'management'
   | 'nucleo_de_agentes'
   | 'central_padroes'
+  | 'biblioteca-modulos'
   | 'ecosystem'
   | 'cadastro-empresas'
   | 'nucleo-conversacional'

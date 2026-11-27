@@ -16,6 +16,7 @@ import { focoTotalManifest, focoTotalRoutes } from '../../modules/foco_total';
 import { nucleoConversacionalManifest } from '../../modules/nucleo-conversacional';
 import { manifest as nucleoDeAgentesManifest, routes as nucleoDeAgentesRoutes } from '../../modules/nucleo_de_agentes';
 import { centralPadroesManifest, centralPadroesRoutes } from '../../modules/central_padroes';
+import { bibliotecaModulosManifest, bibliotecaModulosRoutes } from '../../modules/biblioteca-modulos';
 import { monitoramentoManifest, monitoramentoRoutes } from '../../modules/monitoramento';
 import { nagiManifest, nagiRoutes } from '../../modules/nagi';
 import { nicManifest, nicRoutes } from '../../modules/nic';
@@ -64,6 +65,7 @@ export const moduleRegistry: PluggableModule[] = [
     manifest: centralPadroesManifest,
     routes: centralPadroesRoutes
   },
+  { manifest: bibliotecaModulosManifest, routes: bibliotecaModulosRoutes },
   {
     manifest: monitoramentoManifest,
     routes: monitoramentoRoutes

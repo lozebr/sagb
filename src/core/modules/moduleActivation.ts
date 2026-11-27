@@ -57,6 +57,22 @@ export function writeModuleToggles(next: ModuleToggleMap, workspaceId?: string |
   }
 }
 
+// Persist only the selected override, never materialize inherited defaults for a workspace.
+export function writeModuleToggle(moduleId:string, enabled:boolean, workspaceId?:string|null):boolean {
+  const scopeKey=getWorkspaceScopeKey(workspaceId);
+  try {
+    const raw=localStorage.getItem(STORAGE_KEY);
+    const parsed=raw?JSON.parse(raw) as Record<string,ModuleToggleMap>:{};
+    parsed[scopeKey]={...(parsed[scopeKey]||{}),[moduleId]:enabled};
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(parsed));
+    window.dispatchEvent(new CustomEvent('sagb:module-toggles-changed',{detail:{workspaceId:scopeKey}}));
+    return true;
+  } catch(error) {
+    console.warn('[moduleActivation] Falha ao salvar toggle:',error);
+    return false;
+  }
+}
+
 export function isModuleEnabled(moduleId: string, toggles: ModuleToggleMap): boolean {
   if (!(moduleId in toggles)) return true;
   return !!toggles[moduleId];

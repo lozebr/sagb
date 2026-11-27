@@ -33,7 +33,8 @@ import ConversationsView from './src/modules/nucleo-conversacional/pages/Convers
 import { setDbProvider, createSupabaseDbProvider } from './src/modules/nucleo-conversacional/services/ncDb';
 import Auth from './components/Auth'; // NOVA IMPORTAÇÃO
 import { getRegisteredModules, getModuleRoutes } from './src/core/modules/moduleRegistry';
-import { readModuleToggles, isModuleEnabled as isModuleEnabledByToggle } from './src/core/modules/moduleActivation';
+import { isModuleEnabled as isModuleEnabledByToggle } from './src/core/modules/moduleActivation';
+import { ModuleActivationContext, useModuleActivationState } from './src/core/modules/ModuleActivationContext';
 import SalaDevPage from './src/modules/sala-dev/pages/SalaDevPage';
 import { setNucleoDeAgentesRuntimeContext } from './src/modules/nucleo_de_agentes/store';
 import { setNideRuntimeContext } from './src/modules/nide/store';
@@ -196,7 +197,7 @@ const App: React.FC = () => {
     window.addEventListener('popstate', restoreBU);
     return () => window.removeEventListener('popstate', restoreBU);
   }, [historyEnabled,businessUnits]);
-  const [moduleToggles, setModuleToggles] = useState<Record<string, boolean>>({});
+
 
   const [activatedAgents, setActivatedAgents] = useState<Agent[]>([]);
   const [dbAgents, setDbAgents] = useState<Agent[]>([]);
@@ -317,20 +318,9 @@ const App: React.FC = () => {
     return null;
   }, [preferredWorkspaceId, memberWorkspaceIds]);
 
-  useEffect(() => {
-    const syncToggles = () => setModuleToggles(readModuleToggles(activeWorkspaceId));
-    syncToggles();
+  const moduleActivation = useModuleActivationState(activeWorkspaceId);
+  const moduleToggles = moduleActivation.toggles;
 
-    const onStorage = () => syncToggles();
-    const onCustom = () => syncToggles();
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('sagb:module-toggles-changed', onCustom as EventListener);
-    };
-  }, [activeWorkspaceId]);
 
   useEffect(() => {
     if (!activeTab) return;
@@ -2116,6 +2106,7 @@ const asDate = (v: any): Date | undefined => {
   const userName = authenticatedUserProfile?.name || authenticatedUserProfile?.nickname || 'Usuário';
 
   return (
+    <ModuleActivationContext.Provider value={moduleActivation}>
     <div className="h-screen bg-gray-50 dark:bg-sagb-bg font-nunito text-gray-900 dark:text-sagb-text transition-colors duration-300 overflow-hidden">
       <div className="flex h-full overflow-hidden">
         {showGlobalChrome && (
@@ -2169,6 +2160,7 @@ const asDate = (v: any): Date | undefined => {
         </main>
       </div>
     </div>
+    </ModuleActivationContext.Provider>
   );
 };
 
