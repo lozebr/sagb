@@ -26,3 +26,5 @@ test('production declares only a browser-public IAM key in its own context; lega
 });
 
 test('all password forms use accessible visibility controls',()=>{const p=read('src/modules/identity-access/components/PasswordField.tsx');assert.match(p,/Mostrar senha/);assert.match(p,/Ocultar senha/);assert.match(p,/CapsLock/);assert.match(p,/type=\{visible\?'text':'password'\}/);assert.equal((read('src/modules/identity-access/pages/AccessPilotPage.tsx').match(/<PasswordField /g)||[]).length,2);});
+
+test('workspace is built as an offline classic script and cannot spin forever',()=>{const build=read('tools/build-isolated-workspace.mjs'),template=read('workspace.html'),home=read('src/modules/identity-access/pages/AuthenticatedHome.tsx');assert.match(build,/formats:\['iife'\]/);assert.match(build,/envPrefix:'SAGB_WORKSPACE_UNUSED_'/);assert.match(template,/window\.__sagbOfflinePrepared = true/);assert.match(template,/window\.fetch = async/);assert.match(home,/setTimeout\(\(\)=>setFailed\(true\),20000\)/);assert.match(home,/Tentar novamente/);});

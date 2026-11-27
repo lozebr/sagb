@@ -31,6 +31,8 @@ function memoryStorage(): Storage {
 // Must run before importing ANY legacy module. Fail closed if isolation cannot be installed.
 export function isolatePublicDemo(): void {
   if (!isOfflineWorkspace) throw new Error('Offline workspace not enabled');
+  // The production iframe already has HTTP and meta CSP; its prelude ran before the classic bundle.
+  if (isIsolatedWorkspace && (window as any).__sagbOfflinePrepared === true) return;
   const policy = document.createElement('meta');
   policy.httpEquiv = 'Content-Security-Policy';
   policy.content = "default-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; base-uri 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:";

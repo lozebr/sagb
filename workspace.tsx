@@ -1,3 +1,4 @@
+import './src/styles/sagb-global.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {isIsolatedWorkspace,isolatePublicDemo} from './src/core/demo/publicDemo';
@@ -10,11 +11,15 @@ if(!isIsolatedWorkspace){
    isolatePublicDemo();
    const Entry=React.lazy(async()=>{
      const [{default:App},{ThemeProvider}]=await Promise.all([import('./App'),import('./src/core/context/ThemeContext')]);
-     window.parent.postMessage({type:'sagb:workspace-ready'},window.location.origin);
-     return {default:()=> <ThemeProvider><App/></ThemeProvider>};
+     function Ready(){
+       React.useEffect(()=>{window.parent.postMessage({type:'sagb:workspace-ready'},window.location.origin);},[]);
+       return <ThemeProvider><App/></ThemeProvider>;
+     }
+     return {default:Ready};
    });
    root.render(<React.StrictMode><React.Suspense fallback={<p>Carregando módulos...</p>}><Entry/></React.Suspense></React.StrictMode>);
  }catch{
+   window.parent.postMessage({type:'sagb:workspace-error',reason:'isolation'},window.location.origin);
    root.render(<p role="alert">Não foi possível isolar a área de trabalho. Nenhum módulo foi iniciado.</p>);
  }
 }

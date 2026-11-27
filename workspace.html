@@ -9,6 +9,33 @@
     <link rel="shortcut icon" type="image/png" href="https://static.wixstatic.com/media/64c3dc_866011d493924761b15d6162e82c4948~mv2.png" />
     <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/64c3dc_866011d493924761b15d6162e82c4948~mv2.png" />
     <title>SagB - GrupoB</title>
+    <script>
+      // Install the offline boundary before the IIFE evaluates any legacy imports.
+      window.__sagbStartWorkspace = function (src) {
+        const target = location.origin;
+        const notify = (reason) => { if (parent !== window) parent.postMessage({type:'sagb:workspace-error',reason},target); };
+        if (parent === window || window.origin !== 'null' || location.pathname !== '/workspace.html') {
+          document.getElementById('root').textContent = 'Abra o SagB pelo acesso autenticado.';
+          return;
+        }
+        try {
+          for (const name of ['localStorage','sessionStorage']) {
+            const map = new Map();
+            const storage = {get length(){return map.size},clear(){map.clear()},getItem(k){return map.get(String(k))??null},key(i){return [...map.keys()][i]??null},removeItem(k){map.delete(String(k))},setItem(k,v){map.set(String(k),String(v))}};
+            Object.defineProperty(window,name,{configurable:true,get:()=>storage});
+            if(window[name]!==storage)throw new Error('Storage isolation');
+          }
+          window.fetch = async () => { throw new Error('Workspace offline'); };
+          window.__sagbOfflinePrepared = true;
+          window.addEventListener('error',e=>{ if(e.target instanceof HTMLScriptElement || e.error)notify('script'); });
+          window.addEventListener('unhandledrejection',()=>notify('runtime'));
+          const script = document.createElement('script');
+          script.src=src; script.async=false;
+          script.onerror=()=>notify('asset');
+          document.body.appendChild(script);
+        } catch { notify('isolation'); document.getElementById('root').textContent='Não foi possível iniciar o ambiente isolado.'; }
+      };
+    </script>
     <!-- 🟢 [1] CARREGA O TAILWIND VIA CDN + PLUGIN TYPOGRAPHY -->
     <!-- 🟢 Use esta linha se quiser remover/adicionar plugins globais do Tailwind -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
