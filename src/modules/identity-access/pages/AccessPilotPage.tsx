@@ -1,3 +1,4 @@
+import AuthenticatedHome from './AuthenticatedHome';
 import AccessAdminPanel from './AccessAdminPanel';
 import React, { useEffect, useState } from 'react';
 import { verifySagBAdmission } from '../adapters/sagbAdmission.js';
@@ -195,24 +196,33 @@ export default function AccessPilotPage() {
     } finally { setBusy(false); }
   }
 
+  if (view === 'admitted' && client) return <AuthenticatedHome logout={logout} busy={busy} account={
+    <div className="max-w-3xl space-y-5">
+      <h1 className="text-xl font-semibold">Identidade e Acesso</h1>
+      <p className="text-sm text-slate-500">Sua identidade foi validada pelo SagB.</p>
+      <button type="button" className="rounded-lg border px-4 py-2 text-sm" disabled={busy} onClick={()=>{setNewPassword(!newPassword);setPassword('');}}>{newPassword?'Cancelar':'Alterar minha senha'}</button>
+      {newPassword && <form className="space-y-3" onSubmit={submit}><label className="block text-sm">Nova senha<input className="block w-full rounded-lg border p-3" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)}/></label><button type="submit" disabled={busy} className="rounded-lg bg-teal-700 px-4 py-2 text-white">Salvar senha</button></form>}
+      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+      {notice && <p role="status" className="text-sm text-slate-600">{notice}</p>}
+      <AccessAdminPanel client={client}/>
+    </div>}/>;
+
   return <main className="min-h-screen bg-white text-gray-900 flex items-center justify-center p-6 font-sans">
     <section className="w-full max-w-md rounded-2xl bg-white shadow-lg p-8 space-y-5">
       <header><div className="text-sm font-semibold text-teal-700">SagB · Identidade e Acesso</div>
-        <h1 className="text-2xl font-semibold mt-2">{view === 'admitted' ? 'Acesso autorizado' : (view === 'recovery' || view === 'first-password') ? 'Defina sua senha' : 'Bem-vindo ao SagB'}</h1>
-        <p className="text-sm text-gray-500 mt-2">Ambiente candidato · Incubadora LOZE</p>
+        <h1 className="text-2xl font-semibold mt-2">{(view === 'recovery' || view === 'first-password') ? 'Defina sua senha' : 'Bem-vindo ao SagB'}</h1>
+        <p className="text-sm text-gray-500 mt-2">Sistema Autônomo GrupoB</p>
       </header>
       {view === 'configuration' && <p role="alert">Acesso ainda não configurado. Aguarde a liberação do ambiente pelo Hub.</p>}
       {view === 'checking' && <p role="status">Verificando sua sessão e autorização...</p>}
       {view === 'denied' && <><p role="alert">Acesso não autorizado ou ainda indisponível. Solicite a liberação do SagB ao administrador.</p><button type="button" disabled={busy} onClick={() => void logout()}>Sair / trocar de conta</button></>}
       {view === 'expired' && <><p role="alert">Não foi possível concluir a confirmação. Abra o link mais recente no mesmo navegador. Se o erro persistir, solicite um novo link.</p><button type="button" onClick={() => void logout()} disabled={busy}>Voltar ao login</button></>}
-      {view === 'admitted' && <><p role="status">Sua identidade foi validada pelo módulo IAM. Os demais módulos aguardam integração segura ao novo banco.</p><div className="flex flex-wrap gap-3"><button type="button" disabled={busy} className="rounded-lg border border-gray-200 px-4 py-2 text-sm" onClick={() => { setNewPassword(!newPassword); setPassword(''); }}>{newPassword ? 'Cancelar' : 'Definir / alterar minha senha'}</button><button type="button" disabled={busy} className="rounded-lg border border-gray-200 px-4 py-2 text-sm" onClick={() => void logout()}>Sair</button></div></>}
-      {(view === 'login' || view === 'recovery' || view === 'first-password' || (view === 'admitted' && newPassword)) && <form onSubmit={submit} className="space-y-4">
+      {(view === 'login' || view === 'recovery' || view === 'first-password') && <form onSubmit={submit} className="space-y-4">
         {view === 'login' && <label className="block text-sm">E-mail<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></label>}
-        {(view === 'recovery' || view === 'first-password' || (view === 'admitted' && newPassword) || (view === 'login' && !forgot && !register)) && <label className="block text-sm">{view !== 'login' ? 'Nova senha' : 'Senha'}<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="password" required minLength={view === 'login' ? 1 : 8} value={password} onChange={e => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} /></label>}
+        {(view === 'recovery' || view === 'first-password' || (view === 'login' && !forgot && !register)) && <label className="block text-sm">{view !== 'login' ? 'Nova senha' : 'Senha'}<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="password" required minLength={view === 'login' ? 1 : 8} value={password} onChange={e => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} /></label>}
         <button disabled={busy} className="w-full rounded-lg bg-teal-700 text-white p-3 font-medium" type="submit">{busy ? 'Aguarde...' : view !== 'login' ? 'Salvar nova senha' : register ? (awaitingEmail ? 'Reenviar link' : 'Criar minha conta') : forgot ? 'Enviar recuperação' : 'Entrar'}</button>
         {view === 'login' && <div className="flex flex-wrap gap-4"><button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setRegister(!register); setForgot(false); setAwaitingEmail(false); setPassword(''); setNotice(''); setError(''); }}>{register ? 'Voltar ao login' : 'Criar minha conta'}</button>{!register && <button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setForgot(!forgot); setPassword(''); setNotice(''); setError(''); }}>{forgot ? 'Voltar ao login' : 'Esqueci minha senha'}</button>}</div>}
       </form>}
-      {view === 'admitted' && client && <AccessAdminPanel client={client}/>}
       {view === 'first-password' && <button type="button" disabled={busy} onClick={() => void logout()}>Voltar ao login</button>}
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
       {notice && <p role="status" className="text-sm text-gray-600">{notice}</p>}

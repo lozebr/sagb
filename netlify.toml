@@ -4,6 +4,9 @@
   command = "npm run build"
   publish = "dist"
 
+[context.production]
+  command = "node tools/verify-production-iam.mjs && npm run check"
+
 [functions]
   directory = "netlify/functions"
 

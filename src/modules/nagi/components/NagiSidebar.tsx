@@ -14,6 +14,7 @@ interface NavItem {
 
 interface NagiSidebarProps {
   activeSection: NagiSection;
+  availableSections?: readonly NagiSection[];
   onNavigate: (section: NagiSection) => void;
   onBack: () => void;
   badgeCounts: {
@@ -85,6 +86,7 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
   onNavigate,
   onBack,
   badgeCounts,
+  availableSections,
 }) => {
   const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
@@ -168,10 +170,14 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
       >
         {navItems.map((item) => {
           const isActive = activeSection === item.id;
+          const unavailable = availableSections !== undefined && !availableSections.includes(item.id);
           return (
             <button
               key={item.id}
               aria-label={item.label}
+              disabled={unavailable}
+              title={unavailable ? 'Aguardando integração segura dos dados' : item.label}
+              aria-current={isActive?'page':undefined}
               onClick={() => onNavigate(item.id)}
               style={{
                 display: 'flex',
@@ -187,7 +193,8 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
                 fontSize: 12,
                 fontWeight: isActive ? 700 : 500,
                 letterSpacing: '-0.01em',
-                cursor: 'pointer',
+                cursor: unavailable ? 'not-allowed' : 'pointer',
+                opacity: unavailable ? 0.5 : 1,
                 transition: 'all var(--nagi-transition-base)',
                 textAlign: 'left',
               }}

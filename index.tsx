@@ -6,7 +6,8 @@ import { shouldUseIdentityPilot } from './src/modules/identity-access/services/p
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Could not find root element to mount to');
 const root = ReactDOM.createRoot(rootElement);
-const usePilot = shouldUseIdentityPilot(import.meta.env.VITE_SAGB_IAM_PILOT, import.meta.env.VITE_SAGB_IAM_URL || import.meta.env.VITE_SUPABASE_URL);
+const officialHost = window.location.hostname === 'sagb.grupob.com.br' || window.location.hostname === 'sagbapp.netlify.app' || window.location.hostname === 'main--sagbapp.netlify.app';
+const usePilot = officialHost || shouldUseIdentityPilot(import.meta.env.VITE_SAGB_IAM_PILOT, import.meta.env.VITE_SAGB_IAM_URL || import.meta.env.VITE_SUPABASE_URL);
 
 // No static import of the legacy App or ThemeProvider in the candidate path.
 const Entry = React.lazy(async () => {

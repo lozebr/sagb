@@ -51,14 +51,5 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
-      - name: Deploy production to Netlify (main)
-        if: github.event_name != 'pull_request'
-        uses: nwtgck/actions-netlify@v3.0
-        with:
-          publish-dir: ./dist
-          production-deploy: true
-          deploy-message: "Production deploy from GitHub Actions"
-          netlify-config-path: ./netlify.toml
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      # Production is published exclusively by the native Netlify Git integration,
+      # whose production context validates IAM before replacing the current deploy.
