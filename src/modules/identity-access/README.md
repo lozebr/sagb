@@ -19,3 +19,5 @@ A tela usa Auth signInWithOtp (link ou código conforme configuração do Auth) 
 
 ## 27/11 — Administração candidata
 Role separada sagb-access-admin, permissão sagb.access.manage, só bootstrap individual privado após claim válido. Operações limitadas ao produto, exigem AAL2 em JWT e sessão existente, trilha privada; sem promoção de admins pela UI ou alteração global Auth. Autorizações novas por 7 dias; identidades preexistentes requerem fluxo revisado, revogação não apaga identidade global. TOTP usa Auth compartilhado e requer ação voluntária do titular. Listagem limitada a 100; paginação, administração adicional e E2E pendentes. SQL candidato validado negativamente em transação; instalação a confirmar. Redirect URLs bloqueiam primeiro acesso, não contornar.
+
+Instalação da extensão administrativa confirmada em 20261127124406; autorização inicial privada pendente de claim. Não confundir role com permissão financeira ou administrativa global. Teste de sessão real/MFA e Preview ainda pendentes.

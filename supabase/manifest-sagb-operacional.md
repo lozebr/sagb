@@ -86,3 +86,6 @@ Extensão SagB em revisão para autorização de uso único, sessão email OTP/m
 - Instalação confirmada: 20261126200133, tabela privada e RPC de claim; autorização individual pendente de consumo. Signed Auth e Preview ainda não validados. Fonte: supabase/source-migrations/sagb/20261126200133_sagb_iam_controlled_first_access.sql.
 
 - Incidente primeiro acesso: link confirmou e-mail sem sessão (redirect localhost). Migration 20261126201743 prepara senha após sessão OTP e exige alteração antes do claim; QA negativo/rollback, sem alteração Auth global. Redirect URLs e E2E pendentes. supabase/source-migrations/sagb/20261126201743_sagb_iam_first_access_password_setup.sql.
+
+## 27-11-2026 — administração de acesso
+Migration 20261127124406 aplicada, role sagb-access-admin e permission sagb.access.manage; bootstrap único privado pendente, zero admins atribuídos, audit privado, MFA/AAL2 e sessão real para ações. Fonte supabase/source-migrations/sagb/20261127124406_sagb_iam_access_administration.sql. QA negativo e rollback confirmados, signed Auth e redirect ainda bloqueados. Sem alteração de Auth global.
