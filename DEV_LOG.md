@@ -120,3 +120,7 @@ As telas abaixo foram aprovadas pelo Chairman e **NÃO DEVEM** ser alteradas em 
 - [ ] Refinar a persistência de memória dos agentes (além do localStorage).
 - [ ] Implementar busca global no Ecossistema.
 - [ ] Conectar n8n para automações externas (webhook).
+
+
+## 27-11-2026 — Direção confirma login em produção e solicita interface completa
+- Deploy b10ec838 READY e login real confirmado pela Direção. Causa dos quatro menus: AuthenticatedHome provisória, não ausência de commits em main. Reconciliada Biblioteca LOZE PR #8 (source 02ae938f704a870da5b4f13dd4caefdbe772f256): catálogo, vendor pinado, rotas, contexto único de toggles e testes, sem publicar preview standalone #9 nem importar alterações antigas de shell/Auth. Interface nativa atualizada com sidebars e histórico existentes. Workspace separado em documento sandbox de origem opaca, sem acesso à sessão IAM, sem conexão remota, sem gravação operacional; armazenamento temporário; conta/MFA/logout reais mantidos no documento pai. Acesso direto ao workspace não monta App. Limitação: dados e operações reais aguardam migração e autorização por domínio. Histórico em fragmentos na área isolada; QA real a confirmar. Login: mostrar/ocultar senha, acessibilidade, Caps Lock, força indicativa em nova senha, layout. Não alterado banco, Auth global, senha ou RLS. Rollback anterior 6b09c5bbccc0d3896dd0c7c8.

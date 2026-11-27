@@ -24,3 +24,5 @@ test('production declares only a browser-public IAM key in its own context; lega
  assert.doesNotMatch(toml,/VITE_SAGB_IAM_PUBLIC_KEY\s*=\s*"sb_secret_/);
  assert.match(read('vite.config.ts'),/productionIAM \? \{ envPrefix: 'VITE_SAGB_IAM_' \}/);
 });
+
+test('all password forms use accessible visibility controls',()=>{const p=read('src/modules/identity-access/components/PasswordField.tsx');assert.match(p,/Mostrar senha/);assert.match(p,/Ocultar senha/);assert.match(p,/CapsLock/);assert.match(p,/type=\{visible\?'text':'password'\}/);assert.equal((read('src/modules/identity-access/pages/AccessPilotPage.tsx').match(/<PasswordField /g)||[]).length,2);});

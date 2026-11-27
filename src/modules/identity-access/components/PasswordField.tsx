@@ -1,0 +1,11 @@
+import React,{useState,useEffect,useId} from 'react';
+export default function PasswordField({label,value,onChange,mode,busy=false}:{label:string;value:string;onChange:(s:string)=>void;mode:'current-password'|'new-password';busy?:boolean}){
+ const [visible,setVisible]=useState(false),[caps,setCaps]=useState(false);
+ const id=useId();
+ useEffect(()=>{if(!value)setVisible(false);},[value]);
+ const strength=[value.length>=8,value.length>=12,/[a-z]/.test(value)&&/[A-Z]/.test(value),/\d/.test(value),/[^A-Za-z0-9]/.test(value)].filter(Boolean).length;
+ return <div><label htmlFor={id} className="block text-sm font-medium">{label}</label><div className="mt-1 relative">
+  <input id={id} className="block w-full rounded-lg border border-gray-200 p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-teal-500" type={visible?'text':'password'} required minLength={mode==='current-password'?1:8} value={value} onChange={e=>onChange(e.target.value)} autoComplete={mode} disabled={busy} onKeyDown={e=>setCaps(e.getModifierState('CapsLock'))} onKeyUp={e=>setCaps(e.getModifierState('CapsLock'))} onBlur={()=>setCaps(false)}/>
+  <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-teal-700 rounded focus-visible:outline focus-visible:outline-2" aria-label={visible?'Ocultar senha':'Mostrar senha'} aria-pressed={visible} title={visible?'Ocultar senha':'Mostrar senha'} onClick={()=>setVisible(v=>!v)} disabled={busy}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{visible&&<path d="M3 3l18 18"/>}</svg></button>
+ </div>{caps&&<p role="status" className="text-xs text-amber-700 mt-1">Caps Lock ativado</p>}{mode==='new-password'&&value&&<div className="mt-2"><div className="flex gap-1" aria-hidden="true">{[1,2,3,4,5].map(n=><span key={n} className={'h-1 flex-1 rounded '+(n<=strength?(strength>=4?'bg-teal-600':'bg-amber-500'):'bg-gray-200')}/>)}</div><p className="text-xs text-gray-500 mt-1">Força estimada: {strength>=4?'boa':strength>=2?'média':'baixa'}. Prefira 12 ou mais caracteres.</p></div>}</div>;
+}

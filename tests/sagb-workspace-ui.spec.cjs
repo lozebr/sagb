@@ -125,3 +125,32 @@ test('Managed NIC tabs remain internal history entries and original navigation c
  await page.goForward();
  await expect(side.getByRole('button',{name:'Histórico',exact:true})).toHaveClass(/bg-slate-900/);
 });
+
+
+test('isolated workspace: native interface runs in opaque sandbox, history and account remain separated',async({page})=>{
+ const host=origin;const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',async route=>{
+   const u=new URL(route.request().url());
+   if(u.origin!==host){if(['cdn.tailwindcss.com','fonts.googleapis.com','fonts.gstatic.com'].includes(u.hostname))return route.continue();return route.abort();}
+   if(u.pathname==='/test-workspace-parent')return route.fulfill({contentType:'text/html',body:'<html><body style="margin:0"><iframe title="workspace" src="/workspace.html" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width:100vw;height:100vh;border:0"></iframe></body></html>'});
+   const file=path.resolve(root,'.'+decodeURIComponent(u.pathname));
+   if(!file.startsWith(root+path.sep))return route.abort();
+   if(fs.existsSync(file)&&fs.statSync(file).isFile())return route.fulfill({path:file,headers:{'Access-Control-Allow-Origin':'*'}});
+   return route.fulfill({status:403,body:'Offline boundary'});
+ });
+ await page.goto(host+'/test-workspace-parent');
+ const frame=page.frameLocator('iframe');
+ const nav=frame.locator('[data-sagb-global-sidebar]');
+ await expect(nav).toBeVisible({timeout:30000});
+ const child=page.frames().find(f=>f.url().includes('/workspace.html'));
+ expect(await child.evaluate(()=>window.origin)).toBe('null');
+ expect(await child.evaluate(()=>fetch('/api/probe').then(()=>false,()=>true))).toBe(true);
+ await nav.getByRole('button',{name:'Abrir NAGI',exact:true}).click();
+ await expect(frame.locator('.nagi-sidebar')).toBeVisible();
+ await page.goBack();
+ await expect(nav).toBeVisible();
+ await page.goForward();
+ await expect(frame.locator('.nagi-sidebar')).toBeVisible();
+ await frame.locator('.nagi-sidebar').getByRole('button',{name:/Voltar ao SagB/i}).click();
+ await expect(nav.getByRole('button',{name:'Abrir Biblioteca de Módulos LOZE',exact:true})).toBeVisible();
+});
