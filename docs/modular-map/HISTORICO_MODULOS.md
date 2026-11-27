@@ -234,3 +234,4 @@ Documento de rastreabilidade macro por modulo.
 - Tipo: correcao / ui
 - Arquivos/tabelas afetados: `src/modules/identity-access/pages/AccessPilotPage.tsx`, `src/modules/identity-access/pages/AccessAdminPanel.tsx`, `src/modules/identity-access/CHANGELOG.md`, Registro Vivo. Nenhuma migration, DDL ou alteração por SQL.
 - Status: em andamento — MFA/AAL2, testes de administração e Home autenticada pendentes.
+- Complemento 27/11: cadastro TOTP com nome único por tentativa após 422 (fator não verificado de tentativa interrompida); mensagens de erro MFA específicas. Arquivo: `src/modules/identity-access/pages/AccessAdminPanel.tsx`.

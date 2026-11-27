@@ -26,14 +26,15 @@ export default function AccessAdminPanel({ client }: { client: Client }) {
     const existing=factors.data.totp.find(f=>f.status==='verified');
     if(existing){setFactor(existing.id);return;}
     if(factors.data.all.some(f=>f.status==='verified')){setMessage('Use o fator já cadastrado por um fluxo aprovado.');return;}
-    const enrollment=await client.auth.mfa.enroll({factorType:'totp',friendlyName:'SagB'});
-    if(enrollment.error)throw enrollment.error;
+    // Unique name per attempt: an abandoned unverified factor (expires server-side) must not block a new enrollment.
+    const enrollment=await client.auth.mfa.enroll({factorType:'totp',friendlyName:'SagB '+new Date().toISOString().slice(0,19)});
+    if(enrollment.error){setMessage('Não foi possível iniciar o autenticador. Aguarde alguns minutos e tente novamente.');return;}
     setFactor(enrollment.data.id);setQr(enrollment.data.totp.qr_code);setSecret(enrollment.data.totp.secret);
   }
   async function verifyMfa() {
     if(!factor || !/^\d{6}$/.test(code))return;
     const result=await client.auth.mfa.challengeAndVerify({factorId:factor,code});
-    if(result.error)throw result.error;
+    if(result.error){setCode('');setMessage('Código não aceito. Confira o horário do celular e digite o código atual do autenticador.');return;}
     setCode('');setFactor('');setQr('');setSecret('');await refresh();
   }
   async function action(kind:'authorize'|'cancel'|'revoke',target:string) {

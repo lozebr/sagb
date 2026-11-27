@@ -16,3 +16,4 @@
 ## 27/11/2026 — correção pós primeiro acesso real
 - Revalidação periódica/visibilidade/refresh de token passa a ser silenciosa quando já admitido: o painel administrativo não é mais desmontado (estado perdido) após "Verificar minhas permissões". Negação ou logout continuam substituindo a tela imediatamente.
 - Botões de sessão e MFA com estilo visível. Sem mudança de banco, Auth ou allowlist de rede.
+- MFA: nome único por tentativa de cadastro TOTP (fator não verificado abandonado não bloqueia nova tentativa, 422 observado) e mensagens claras para falha de cadastro/código.
