@@ -29,11 +29,22 @@ export function tabUrl(tab:string,routes:SagbRoutes):string {
 export function entryState(previous:unknown,entry:SagbEntry):Record<string,unknown> {
   return {...(previous && typeof previous==='object' ? previous : {}),[KEY]:entry};
 }
+export function browserWorkspaceUrl(path:string):string {
+  return typeof window!=='undefined' && window.origin==='null' && window.location.pathname==='/workspace.html'
+    ? '#sagb='+encodeURIComponent(path) : path;
+}
+export function browserWorkspacePath():{pathname:string;search:string;hash:string}{
+  if(typeof window!=='undefined'&&window.origin==='null'&&window.location.pathname==='/workspace.html'&&window.location.hash.startsWith('#sagb=')){
+    try{const v=decodeURIComponent(window.location.hash.slice(6));if(v.startsWith('/')&&!v.startsWith('//')){const u=new URL(v,'https://sagb.invalid');return {pathname:u.pathname,search:u.search,hash:u.hash};}}catch{}
+  }
+  return {pathname:window.location.pathname,search:window.location.search,hash:window.location.hash};
+}
 export function pushSection(tab:string,key:string,value:unknown,path?:string):void {
   const entry=readEntry(window.history.state);
   if(!entry || entry.tab!==canonicalTab(tab))return;
   if(JSON.stringify(entry.sections[key])===JSON.stringify(value))return;
-  const url=path||window.location.pathname+window.location.search+window.location.hash;
+  const current=browserWorkspacePath();
+  const url=path||current.pathname+current.search+current.hash;
   if(!url.startsWith('/')||url.startsWith('//'))return;
-  window.history.pushState(entryState(window.history.state,{...entry,sections:{...entry.sections,[key]:value}}),'',url);
+  window.history.pushState(entryState(window.history.state,{...entry,sections:{...entry.sections,[key]:value}}),'',browserWorkspaceUrl(url));
 }

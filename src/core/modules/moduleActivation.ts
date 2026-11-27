@@ -1,4 +1,4 @@
-import { isPublicDemo } from '../demo/publicDemo';
+import { isOfflineWorkspace } from '../demo/publicDemo';
 import { getRegisteredModules } from './moduleRegistry';
 import { ModuleManifest } from './module.types';
 
@@ -18,7 +18,7 @@ export function getModuleManifests(): ModuleManifest[] {
 
 export function getDefaultModuleToggles(): ModuleToggleMap {
   return getModuleManifests().reduce((acc, manifest) => {
-    acc[manifest.id] = isPublicDemo || manifest.initialStatus === 'active';
+    acc[manifest.id] = isOfflineWorkspace || manifest.initialStatus === 'active';
     return acc;
   }, {} as ModuleToggleMap);
 }

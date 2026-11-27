@@ -62,6 +62,7 @@ export default defineConfig(({ mode }) => {
       // Não altera lógica de aplicação; apenas direciona os assets gerados para pasta limpa.
       assetsDir: 'assets_build',
       rollupOptions: {
+        input: { main: 'index.html', workspace: 'workspace.html' },
         output: {
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined

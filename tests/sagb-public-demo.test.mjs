@@ -16,6 +16,6 @@ test('demo isolates before legacy import and blocks remote writes', () => {
   assert.match(demo,/connect-src 'none'/);
   assert.match(demo,/form-action 'none'/);
   assert.match(demo,/window\.fetch = async/);
-  assert.match(db,/if \(isPublicDemo\) \{\s*if \(\(options.method \|\| 'GET'\).toUpperCase\(\) === 'GET'\) return \[\];/);
+  assert.match(db,/if \(isOfflineWorkspace\) \{\s*if \(\(options.method \|\| 'GET'\).toUpperCase\(\) === 'GET'\) return \[\];/);
   assert.match(read('vite.config.ts'),/envPrefix: 'SAGB_DEMO_UNUSED_'/);
 });

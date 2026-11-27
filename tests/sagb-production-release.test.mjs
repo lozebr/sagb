@@ -7,9 +7,13 @@ test('official hostname cannot mount legacy runtime without verified IAM',()=>{
  assert.match(entry,/officialHost \|\| shouldUseIdentityPilot/);
  assert.match(iam,/if \(view === 'admitted' && client\) return <AuthenticatedHome/);
  assert.doesNotMatch(home,/import\(['"][^'"]*App['"]\)/);
- assert.match(home,/useSagbTabHistory/);
- assert.match(home,/availableSections=\{\['links'\]\}/);
- assert.match(home,/Integração pendente/);
+ assert.match(home,/sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"/);
+ assert.doesNotMatch(home,/allow-same-origin/);
+ assert.match(read('workspace.tsx'),/if\(!isIsolatedWorkspace\)/);
+ assert.match(read('workspace.tsx'),/isolatePublicDemo\(\)/);
+ assert.match(read('src/core/demo/publicDemo.ts'),/window\.origin === 'null'/);
+ assert.match(home,/sem sincronização operacional/);
+ assert.match(read('netlify.toml'),/connect-src 'none'/);
  assert.match(read('netlify.toml'),/verify-production-iam\.mjs && npm run check/);
  assert.doesNotMatch(read('.github/workflows/netlify-deploy.yml'),/production-deploy:\s*true/);
 });

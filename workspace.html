@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; base-uri 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="https://static.wixstatic.com/media/64c3dc_866011d493924761b15d6162e82c4948~mv2.png" />
+    <link rel="shortcut icon" type="image/png" href="https://static.wixstatic.com/media/64c3dc_866011d493924761b15d6162e82c4948~mv2.png" />
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/64c3dc_866011d493924761b15d6162e82c4948~mv2.png" />
+    <title>SagB - GrupoB</title>
+    <!-- 🟢 [1] CARREGA O TAILWIND VIA CDN + PLUGIN TYPOGRAPHY -->
+    <!-- 🟢 Use esta linha se quiser remover/adicionar plugins globais do Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+    <!-- 🟢 [2] OTIMIZAÇÃO DE FONTES (PRECONNECT) -->
+    <!-- 🟢 Mantém o carregamento da fonte mais rápido -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- 🟢 [3] FONTE GLOBAL BAIXADA DO GOOGLE FONTS -->
+    <!-- 🟢 Aqui você troca a família (ex.: Inter, Rubik, Poppins...) e os pesos disponíveis -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+      // 🟢 [4] CONFIGURAÇÃO GLOBAL DO TAILWIND (INLINE)
+      // 🟢 Tudo aqui impacta o sistema inteiro
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              // 🟢 [4.1] FONTE PADRÃO — RUBIK (Robust Clean)
+              sans: ['Rubik', 'sans-serif'],
+              // 🟢 [4.2] Aliases mantidos apontando para Rubik
+              rubik: ['Rubik', 'sans-serif'],
+            },
+            colors: {
+              // [4.4] SAGB OFFICIAL TOKENS (CSS VARIABLES)
+              sagb: {
+                bg: 'var(--sagb-bg)',
+                surface: 'var(--sagb-surface)',
+                line: 'var(--sagb-line)',
+                text: 'var(--sagb-text)',
+                muted: 'var(--sagb-muted)',
+                primary: 'var(--sagb-primary)',
+                blue: 'var(--sagb-blue)',
+                red: 'var(--sagb-red)',
+                amber: 'var(--sagb-amber)',
+              }
+            },
+            boxShadow: {
+              soft: '0 12px 30px rgba(48,56,66,.07)',
+              DEFAULT: '0 4px 12px rgba(48,56,66,.05)',
+              md: '0 8px 20px rgba(48,56,66,.06)',
+              lg: '0 12px 30px rgba(48,56,66,.07)',
+              xl: '0 20px 40px rgba(48,56,66,.08)',
+              none: 'none',
+            },
+            borderRadius: {
+              sm: '10px',
+              md: '14px',
+              lg: '18px',
+              xl: '22px',
+            }
+          },
+        },
+      }
+    </script>
+    <link rel="stylesheet" href="/src/styles/sagb-global.css" />
+</head>
+  <!-- 🟢 [10] CLASSES BASE DO BODY VIA TAILWIND -->
+  <!-- 🟢 h-screen/overflow-hidden/bg/text controlam o layout base da aplicação -->
+  <body class="h-screen overflow-hidden transition-colors duration-300" style="background-color: var(--sagb-bg); color: var(--sagb-text);">
+    <div id="root"></div>
+  <script type="module" src="/workspace.tsx"></script>
+  <script>
+    // Script de diagnóstico para verificar carregamento do Tailwind
+    window.addEventListener('load', function() {
+      console.log('Página carregada - verificando Tailwind...');
+      
+      // Verifica se o Tailwind está carregado
+      setTimeout(function() {
+        const testElement = document.createElement('div');
+        testElement.className = 'hidden';
+        document.body.appendChild(testElement);
+        
+        const computedStyle = window.getComputedStyle(testElement);
+        const displayValue = computedStyle.display;
+        
+        console.log('Teste Tailwind:', {
+          displayValue: displayValue,
+          tailwindLoaded: displayValue === 'none',
+          bodyClasses: document.body.className,
+          rootElement: document.getElementById('root') ? 'present' : 'missing'
+        });
+        
+        document.body.removeChild(testElement);
+        
+        // Verifica se há erros no console
+        if (typeof tailwind === 'undefined') {
+          console.error('Tailwind não carregado via CDN!');
+          // Aplica estilos de fallback
+          document.body.classList.add('auth-fallback');
+        } else {
+          console.log('Tailwind carregado com sucesso');
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback, Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { isPublicDemo, demoIdentity, demoProfile } from './src/core/demo/publicDemo';
+import { isOfflineWorkspace, isIsolatedWorkspace, demoIdentity, demoProfile } from './src/core/demo/publicDemo';
 import { SendIcon, MicIcon, StopCircleIcon, PaperclipIcon, XIcon, FileTextIcon } from './components/Icon';
 import Sidebar from './components/Sidebar';
 import { useSagbTabHistory } from './src/core/navigation/useSagbHistory';
@@ -167,11 +167,11 @@ const App: React.FC = () => {
     }
   }
 
-  const [user, setUser] = useState<User | null>(isPublicDemo ? demoIdentity as User : null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(isPublicDemo ? demoProfile as UserProfile : null);
-  const [isInitializing, setIsInitializing] = useState(!isPublicDemo);
+  const [user, setUser] = useState<User | null>(isOfflineWorkspace ? demoIdentity as User : null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(isOfflineWorkspace ? demoProfile as UserProfile : null);
+  const [isInitializing, setIsInitializing] = useState(!isOfflineWorkspace);
   const [isPasswordRecoveryActive, setIsPasswordRecoveryActive] = useState(() =>
-    !isPublicDemo && typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password'
+    !isOfflineWorkspace && typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password'
   );
 
   // State for Business Units (now dynamic)
@@ -413,7 +413,7 @@ const App: React.FC = () => {
 
   // --- VERIFICAÇÃO DE LOGIN SUPABASE ---
   useEffect(() => {
-    if (isPublicDemo) return;
+    if (isOfflineWorkspace) return;
     // A verificação de sessão ocorre sem expor identidades ou tokens no console.
 
 // Helpers locais para migração Firebase -> Supabase
@@ -604,7 +604,8 @@ const asDate = (v: any): Date | undefined => {
   }, [user]);
 
   const handleLogout = async () => {
-    if (isPublicDemo) { setActiveTab('home'); return; }
+    if (isIsolatedWorkspace) { window.parent.postMessage({type:'sagb:workspace-logout'}, window.location.origin); return; }
+    if (isOfflineWorkspace) { setActiveTab('home'); return; }
     try {
       await signOut(auth);
       setActiveTab('home');
@@ -2126,6 +2127,7 @@ const asDate = (v: any): Date | undefined => {
             <header className="shrink-0 h-14 bg-white/95 dark:bg-sagb-panel/95 backdrop-blur border-b border-gray-100 dark:border-white/10 z-[60] px-4 md:px-6 flex items-center justify-between">
               <div className="text-[10px] font-black text-gray-400 uppercase tracking-wider">SagB v{version}</div>
               <div className="flex items-center gap-2 md:gap-3">
+                {isIsolatedWorkspace && <button type="button" onClick={()=>window.parent.postMessage({type:"sagb:workspace-account"},window.location.origin)} className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold">Minha conta</button>}
                 <button
                   onClick={handleOpenGlobalSettings}
                   className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/5"

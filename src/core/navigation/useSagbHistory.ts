@@ -1,12 +1,12 @@
 import {useState,useRef,useCallback,useEffect,useLayoutEffect} from 'react';
 import type {Dispatch,SetStateAction} from 'react';
-import {canonicalTab,knownTab,readEntry,routeEntry,tabUrl,entryState,pushSection} from './sagbHistory';
+import {canonicalTab,knownTab,readEntry,routeEntry,tabUrl,entryState,pushSection,browserWorkspacePath,browserWorkspaceUrl} from './sagbHistory';
 import type {SagbRoutes} from './sagbHistory';
 
 export function useSagbTabHistory<T extends string>(routes:SagbRoutes,enabled:boolean) {
   const routesRef=useRef(routes); routesRef.current=routes;
   const enabledRef=useRef(enabled);enabledRef.current=enabled;
-  const current=()=>routeEntry(window.history.state,window.location.pathname,window.location.search,routesRef.current);
+  const current=()=>{const path=browserWorkspacePath();return routeEntry(window.history.state,path.pathname,path.search,routesRef.current);};
   const [tab,rawSet]=useState<T>(()=>current().tab as T);
   const tabRef=useRef(tab);
   const update=useCallback((next:T,replace=false)=>{
@@ -19,7 +19,7 @@ export function useSagbTabHistory<T extends string>(routes:SagbRoutes,enabled:bo
     const sections:Record<string,unknown>={};
     if(['missions','metodologias','mentorias'].includes(next))sections.nideDomain=next==='missions'?'missoes':next;
     const payload=entryState(window.history.state,{tab:target,sections});
-    const url=tabUrl(target,routesRef.current);
+    const url=browserWorkspaceUrl(tabUrl(target,routesRef.current));
     if(replace)window.history.replaceState(payload,'',url);
     else window.history.pushState(payload,'',url);
   },[]);

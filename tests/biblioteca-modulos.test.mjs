@@ -23,7 +23,7 @@ test('native registration once and no database usage in lab',()=>{const s=readFi
 
 test('module activation: defaults, isolated workspace overrides, inherited global, reload, order',async()=>{
  const path='src/core/modules/moduleActivation.ts';
- const src=readFileSync(path,'utf8').replace("import { isPublicDemo } from '../demo/publicDemo';",'const isPublicDemo=false;').replace("import { getRegisteredModules } from './moduleRegistry';","const getRegisteredModules=()=>[{manifest:{id:'biblioteca-modulos',initialStatus:'active'}},{manifest:{id:'other',initialStatus:'active'}}];");
+ const src=readFileSync(path,'utf8').replace("import { isOfflineWorkspace } from '../demo/publicDemo';",'const isOfflineWorkspace=false;').replace("import { getRegisteredModules } from './moduleRegistry';","const getRegisteredModules=()=>[{manifest:{id:'biblioteca-modulos',initialStatus:'active'}},{manifest:{id:'other',initialStatus:'active'}}];");
  const target=join(dir,'activation.mjs');
  writeFileSync(target,ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText);
  const storage=new Map(),events=[];
