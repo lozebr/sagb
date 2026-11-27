@@ -103,13 +103,13 @@ test('Browser Back / Forward / reload preserve NAGI and Central de Padrões navi
  await menu.getByRole('button',{name:/Voltar ao SagB/i}).click();
  const cp=(await openModule(page,{id:'central_padroes',label:'Central de Padrões'})).shell;
  const cpMenu=cp.locator('.cp-docs-sidebar');
- await cpMenu.getByRole('button',{name:'Configurações',exact:true}).click();
- await expect(cpMenu.getByRole('button',{name:'Configurações',exact:true})).toHaveClass(/active/);
+ await cpMenu.locator('.cp-docs-sidebar-foot').getByRole('button',{name:/Configurações/i}).click();
+ await expect(cpMenu.locator('.cp-docs-sidebar-foot').getByRole('button',{name:/Configurações/i})).toHaveClass(/active/);
  await page.goBack();
  await expect(cp).toBeVisible();
- await expect(cpMenu.getByRole('button',{name:'Configurações',exact:true})).not.toHaveClass(/active/);
+ await expect(cpMenu.locator('.cp-docs-sidebar-foot').getByRole('button',{name:/Configurações/i})).not.toHaveClass(/active/);
  await page.goForward();
- await expect(cpMenu.getByRole('button',{name:'Configurações',exact:true})).toHaveClass(/active/);
+ await expect(cpMenu.locator('.cp-docs-sidebar-foot').getByRole('button',{name:/Configurações/i})).toHaveClass(/active/);
  await page.goBack();
  await page.goBack();
  await expect(page.locator('[data-sagb-global-sidebar]')).toBeVisible();
