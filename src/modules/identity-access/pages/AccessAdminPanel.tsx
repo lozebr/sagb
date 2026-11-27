@@ -39,7 +39,9 @@ export default function AccessAdminPanel({ client }: { client: Client }) {
   }
   async function action(kind:'authorize'|'cancel'|'revoke',target:string) {
     const result=await client.schema('sagb').rpc('iam_access_admin_action',{p_action:kind,...(kind==='revoke'?{p_membership:target}:{p_email:target})});
-    if(result.error||result.data?.ok!==true)throw Error('action');
+    if(result.error)throw Error('action');
+    // Server refused without error: keep the directory and explain the expected reasons.
+    if(result.data?.ok!==true){setMessage(kind==='authorize'?'Autorização não registrada: este e-mail já usou o primeiro acesso, é administrador ou possui um fluxo em andamento. Use o e-mail de uma pessoa nova.':kind==='cancel'?'Cancelamento não registrado: a autorização já foi usada, expirou ou é protegida.':'Revogação não registrada: administradores e o próprio acesso não podem ser revogados por aqui.');return;}
     setEmail('');await refresh();setMessage('Operação registrada.');
   }
   return <section className="border-t pt-4 space-y-3">
