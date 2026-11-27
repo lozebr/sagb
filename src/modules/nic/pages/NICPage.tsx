@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useMemo } from 'react';
 import {
   BackIcon,
@@ -158,7 +159,7 @@ const NICPage: React.FC<NICPageProps> = ({ onBack }) => {
         </header>
 
         {/* ========== NAVEGAÇÃO ========== */}
-        <div className="flex items-center gap-2 bg-white border border-slate-200 p-1.5 rounded-2xl w-fit shadow-sm">
+        <ModuleSidebarContent><div className="flex items-center gap-2 bg-white border border-slate-200 p-1.5 rounded-2xl w-fit shadow-sm">
           {([
             { key: 'overview' as TabKey, label: 'Visão Geral' },
             { key: 'catalog' as TabKey, label: 'Nomes' },
@@ -177,7 +178,7 @@ const NICPage: React.FC<NICPageProps> = ({ onBack }) => {
               {tab.label}
             </button>
           ))}
-        </div>
+        </div></ModuleSidebarContent>
 
         {/* ============================================================
          *  ABA: VISÃO GERAL

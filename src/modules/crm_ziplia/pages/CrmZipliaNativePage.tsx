@@ -308,7 +308,7 @@ export const CrmZipliaNativePage: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 bg-slate-50 dark:bg-sagb-bg text-gray-900 dark:text-sagb-text overflow-hidden">
       <div className="h-full w-full flex">
-        <aside className="w-72 bg-white dark:bg-sagb-card border-r border-slate-200 dark:border-sagb-border flex flex-col p-5">
+        <aside data-sagb-native-sidebar className="w-72 bg-white dark:bg-sagb-card border-r border-slate-200 dark:border-sagb-border flex flex-col p-5">
           <div className="mb-6">
             <p className="text-[10px] uppercase tracking-[0.25em] font-black text-gray-400">Ziplia CRM</p>
             <h1 className="text-2xl font-black tracking-tight">Performance AI</h1>

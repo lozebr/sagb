@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useEffect, useCallback } from 'react';
 import { integrationHub } from '../services/integrationService';
 import { Integration, ConnectionConfig, HubWhatsAppQrStatus, HubChannelView, ChannelMethodKey, HubChannel } from '../types/integration.types';
@@ -302,7 +303,7 @@ export function HubIntegracaoPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700">
+        <ModuleSidebarContent><div className="flex gap-1 border-b border-gray-200 dark:border-gray-700">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -317,7 +318,7 @@ export function HubIntegracaoPage() {
               {tab.label}
             </button>
           ))}
-        </div>
+        </div></ModuleSidebarContent>
 
         {/* Tab Content */}
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-100 dark:border-gray-700">

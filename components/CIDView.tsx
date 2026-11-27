@@ -543,7 +543,7 @@ const CIDView: React.FC<CIDViewProps> = ({ workspaceId, ownerUserId, userProfile
       {/* ═══ BODY ═══ */}
       <div className="flex-1 flex overflow-hidden">
         {/* ═══ SIDEBAR ═══ */}
-        <aside className={`${sidebarCollapsed?'w-0 overflow-hidden':'w-52'} shrink-0 border-r border-gray-200 bg-white flex flex-col transition-all duration-200`}>
+        <aside data-sagb-native-sidebar className={`${sidebarCollapsed?'w-0 overflow-hidden':'w-52'} shrink-0 border-r border-gray-200 bg-white flex flex-col transition-all duration-200`}>
           <nav className="flex-1 overflow-auto py-2 px-2 space-y-3">
             {(['acervo','origem','local-roots','tipo'] as const).map((group) => (
               <div key={group}>

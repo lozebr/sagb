@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { isPublicDemo, demoIdentity, demoProfile } from './src/core/demo/publicDemo';
 import { SendIcon, MicIcon, StopCircleIcon, PaperclipIcon, XIcon, FileTextIcon } from './components/Icon';
 import Sidebar from './components/Sidebar';
+import { ModuleWorkspace } from './src/core/navigation/ModuleWorkspace';
 import { getModuleShellPolicy } from './src/core/navigation/moduleShellPolicy';
 import SystemicVision from './components/SystemicVision'; // RESTAURADO
 import AgentFactory from './components/AgentFactory';
@@ -29,7 +30,7 @@ import UnitView from './components/UnitView';
 import ConversationsView from './src/modules/nucleo-conversacional/pages/ConversationsView';
 import { setDbProvider, createSupabaseDbProvider } from './src/modules/nucleo-conversacional/services/ncDb';
 import Auth from './components/Auth'; // NOVA IMPORTAÇÃO
-import { getModuleRoutes } from './src/core/modules/moduleRegistry';
+import { getRegisteredModules, getModuleRoutes } from './src/core/modules/moduleRegistry';
 import { readModuleToggles, isModuleEnabled as isModuleEnabledByToggle } from './src/core/modules/moduleActivation';
 import SalaDevPage from './src/modules/sala-dev/pages/SalaDevPage';
 import { setNucleoDeAgentesRuntimeContext } from './src/modules/nucleo_de_agentes/store';
@@ -1743,7 +1744,8 @@ const asDate = (v: any): Date | undefined => {
 
   const resolvedActiveTab = tabAliases[activeTab] || activeTab;
   const effectiveShellTab = isModuleEnabledByToggle(resolvedActiveTab, moduleToggles) ? resolvedActiveTab : 'home';
-  const { showGlobalChrome, showFallbackExit } = getModuleShellPolicy(effectiveShellTab);
+  const { showGlobalChrome, showFallbackExit, useNativeSidebar, hasInternalTabs } = getModuleShellPolicy(effectiveShellTab);
+  const moduleTitle = getRegisteredModules().find(m => m.manifest.id === effectiveShellTab)?.manifest.displayName || ({ecosystem:'Ecossistema Master',management:'Gestão de Tarefas',governance:'Governança','intelligence-flow':'Fluxo de Inteligência','conversations':'Conversas','programmers-room':'Sala Dev'} as Record<string,string>)[effectiveShellTab] || effectiveShellTab;
 
   const renderContent = () => {
     // SAFEGUARD: Early return if activeBU is undefined/null
@@ -2113,7 +2115,7 @@ const asDate = (v: any): Date | undefined => {
             userProfile={authenticatedUserProfile}
           />
         )}
-        <main className="flex-1 flex flex-col overflow-hidden relative bg-white dark:bg-sagb-bg transition-colors duration-300">
+        <main className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden relative bg-white dark:bg-sagb-bg transition-colors duration-300">
           {showGlobalChrome && (
             <header className="shrink-0 h-14 bg-white/95 dark:bg-sagb-panel/95 backdrop-blur border-b border-gray-100 dark:border-white/10 z-[60] px-4 md:px-6 flex items-center justify-between">
               <div className="text-[10px] font-black text-gray-400 uppercase tracking-wider">SagB v{version}</div>
@@ -2141,14 +2143,13 @@ const asDate = (v: any): Date | undefined => {
               <div className="w-10 h-10 border-4 border-gray-100 dark:border-white/10 border-t-sagb-blue rounded-full animate-spin"></div>
             </div>
           }>
-            {showFallbackExit ? (
-              <div className="flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden" data-sagb-module-shell>
-                <div className="flex flex-col flex-1 min-h-0 min-w-0 overflow-auto">{renderContent()}</div>
-                <footer className="shrink-0 px-3 py-2 bg-white dark:bg-sagb-panel" data-sagb-module-exit>
-                  <button type="button" onClick={handleReturnToHub} className="text-xs font-semibold text-gray-600 dark:text-sagb-muted hover:text-sagb-blue focus-visible:outline focus-visible:outline-2">← Voltar ao SagB</button>
-                </footer>
-              </div>
-            ) : renderContent()}
+            {showGlobalChrome ? renderContent() : (
+              <ModuleWorkspace key={effectiveShellTab} tab={effectiveShellTab} title={moduleTitle}
+                nativeSidebar={useNativeSidebar} hasInternalTabs={hasInternalTabs}
+                fallbackExit={showFallbackExit} onBack={handleReturnToHub}>
+                {renderContent()}
+              </ModuleWorkspace>
+            )}
           </Suspense>
         </main>
       </div>

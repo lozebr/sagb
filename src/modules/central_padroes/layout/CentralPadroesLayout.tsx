@@ -72,6 +72,7 @@ export const CentralPadroesLayout: React.FC = () => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [seedStatus, setSeedStatus] = useState<string>('');
   const [menuQuery, setMenuQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [registerMenuOpen, setRegisterMenuOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     Central: true,
@@ -204,7 +205,8 @@ export const CentralPadroesLayout: React.FC = () => {
   return (
     <div className="cp-docs-root h-full overflow-hidden" data-mode={theme}>
       <div className="cp-docs-app h-full">
-        <aside className="cp-docs-sidebar">
+        {mobileMenuOpen && <button type="button" className="cp-docs-menu-backdrop" aria-label="Fechar menu da Central" onClick={() => setMobileMenuOpen(false)} />}
+        <aside id="cp-docs-sidebar" data-sagb-native-sidebar className={`cp-docs-sidebar ${mobileMenuOpen ? 'is-open' : ''}`}>
           <div className="cp-docs-brand-row">
             <div className="cp-docs-brand"><span className="cp-docs-brand-dot">CD</span><span>Central de Documentos e Padrões</span></div>
             <button className="cp-docs-icon-btn" type="button" title="Alternar modo" onClick={toggleTheme}>{theme === 'dark' ? '◑' : '◐'}</button>
@@ -233,7 +235,7 @@ export const CentralPadroesLayout: React.FC = () => {
                     index === section.rows.length - 1 ? 'is-last' : ''
                   ].filter(Boolean).join(' ');
                   return (
-                    <button key={row.id} type="button" onClick={() => setCurrentView(row.id as CentralPadroesView)} className={className} title={row.label}>
+                    <button key={row.id} type="button" onClick={() => { setCurrentView(row.id as CentralPadroesView); setMobileMenuOpen(false); }} className={className} title={row.label}>
                       <span>{row.icon}</span>
                       <span className="cp-docs-tree-text">{row.label}</span>
                     </button>
@@ -251,6 +253,7 @@ export const CentralPadroesLayout: React.FC = () => {
 
         <main className="cp-docs-main">
           <header className="cp-docs-topbar">
+            <button className="cp-docs-menu-toggle" type="button" aria-label="Abrir menu da Central de Padrões" aria-expanded={mobileMenuOpen} aria-controls="cp-docs-sidebar" onClick={() => setMobileMenuOpen(v => !v)}>☰</button>
             <div className="cp-docs-crumbs"><span>GrupoB</span><span className="sep">›</span><span>Central de Documentos e Padrões</span><span className="sep">›</span><strong>{currentLabel}</strong></div>
             <div className="cp-docs-top-actions">
               <button className="cp-docs-top-link" type="button" onClick={() => setCurrentView('search')}>Buscar</button>

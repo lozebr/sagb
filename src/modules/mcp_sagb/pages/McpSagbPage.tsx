@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   AlertCircleIcon,
@@ -250,7 +251,7 @@ const McpSagbPage: React.FC = () => {
       </section>
 
       {/* ═══ Navegação Interna ═══ */}
-      <div className="mt-8 flex items-center gap-1 border-b border-sagb-line">
+      <ModuleSidebarContent><div className="mt-8 flex items-center gap-1 border-b border-sagb-line">
         {(['tools', 'scripts', 'configs'] as const).map((tab) => (
           <button
             key={tab}
@@ -266,7 +267,7 @@ const McpSagbPage: React.FC = () => {
             {tab === 'configs' && 'Configurações'}
           </button>
         ))}
-      </div>
+      </div></ModuleSidebarContent>
 
       {/* ═══ Conteúdo das Abas ═══ */}
       <div className="mt-6">
@@ -508,16 +509,7 @@ const McpSagbPage: React.FC = () => {
       </section>
 
       {/* ═══ Botão Voltar ao SagB ═══ */}
-      <button
-        onClick={handleBack}
-        className="fixed bottom-8 left-8 w-14 h-14 bg-sagb-text text-sagb-bg rounded-2xl shadow-2xl flex items-center justify-center group hover:scale-110 active:scale-95 transition-all z-[100]"
-        title="Voltar ao SagB" aria-label="Voltar ao SagB"
-      >
-        <BackIcon className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
-        <span className="absolute left-full ml-4 px-3 py-1.5 bg-sagb-text text-sagb-bg text-[10px] font-bold rounded-lg opacity-0 whitespace-nowrap pointer-events-none group-hover:opacity-100 transition-all">
-          VOLTAR AO SAGB
-        </span>
-      </button>
+
 
       {/* ═══ Footer ═══ */}
       <footer className="mt-10 h-10 border-t border-sagb-line pt-3 flex items-center justify-between text-[10px] font-bold text-sagb-muted uppercase tracking-widest">

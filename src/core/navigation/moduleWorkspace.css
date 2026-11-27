@@ -1,0 +1,27 @@
+/* Scoped to the module workspace. Never hide a module's aside or nav globally. */
+.sagb-module-workspace { display:flex; flex:1 1 0; width:100%; min-width:0; min-height:0; height:100%; overflow:hidden; position:relative; }
+.sagb-module-main { display:flex; flex-direction:column; flex:1 1 0; min-width:0; min-height:0; height:100%; overflow:hidden; }
+.sagb-module-content { display:flex; flex-direction:column; flex:1 1 0; min-width:0; min-height:0; overflow:auto; }
+.sagb-module-content > * { flex-shrink:0; min-width:0; }
+.sagb-module-sidebar { display:flex; flex-direction:column; width:216px; flex:0 0 216px; min-height:0; overflow:hidden; background:var(--sagb-surface,#fff); color:var(--sagb-text,#303842); border-right:1px solid var(--sagb-line,#eee); padding:14px 10px; box-sizing:border-box; }
+.sagb-module-title { font-size:14px; font-weight:600; padding:8px 10px 18px; }
+.sagb-module-sidebar nav { flex:1; min-height:0; overflow:auto; }
+.sagb-module-nav-controls > * { display:flex!important; flex-direction:column!important; align-items:stretch!important; gap:4px!important; width:100%!important; max-width:none!important; margin:0!important; padding:0!important; border:0!important; background:transparent!important; box-shadow:none!important; }
+.sagb-module-nav-controls button { text-align:left!important; justify-content:flex-start!important; white-space:normal!important; min-height:36px; width:100%; border-radius:8px!important; box-sizing:border-box; }
+.sagb-module-current { display:block; padding:10px; font-size:12px; background:var(--sagb-primary-soft,#eef5fa); border-radius:8px; }
+.sagb-module-sidebar footer,.sagb-module-native-exit { flex-shrink:0; padding:10px 4px 0; }
+.sagb-module-sidebar footer button,.sagb-module-native-exit button { display:block; background:transparent; border:0; color:var(--sagb-text,#303842); text-align:left; font-size:12px; cursor:pointer; padding:10px; border-radius:6px; }
+.sagb-module-sidebar footer button:focus-visible,.sagb-module-native-exit button:focus-visible { outline:2px solid var(--sagb-primary,#2FA99C); }
+.sagb-module-mobile-menu,.sagb-module-backdrop { display:none; }
+.sagb-module-native-exit { padding:0 8px; background:var(--sagb-surface,#fff); }
+@media(max-width:760px) {
+  .sagb-module-workspace.is-managed { padding-top:42px; box-sizing:border-box; }
+  .sagb-module-mobile-menu { display:block; position:absolute; top:0; left:0; right:0; height:42px; background:var(--sagb-surface,#fff); color:var(--sagb-text,#303842); text-align:left; padding:8px 12px; border:0; border-bottom:1px solid var(--sagb-line,#eee); z-index:10; }
+  .sagb-module-sidebar { position:absolute; top:42px; bottom:0; left:0; z-index:30; width:min(280px,85vw); transform:translateX(-105%); visibility:hidden; transition:transform .18s ease; }
+  .sagb-module-sidebar.is-open { transform:none; visibility:visible; }
+  .sagb-module-backdrop { display:block; position:absolute; inset:42px 0 0; z-index:20; background:#0005; border:0; }
+}
+
+.sagb-module-nav-controls button { transform:none!important; }
+.sagb-module-nav-controls button:not([class*="text-white"]):not([class*="text-blue-600"]):not([class*="text-sagb-blue"]):not([class*="text-slate-950"]) { color:var(--sagb-text,#303842); }
+.sagb-module-content [id^="sim-"] { scroll-margin-top:110px; }

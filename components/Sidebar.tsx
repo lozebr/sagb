@@ -313,7 +313,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Sidebar Principal */}
-      <aside className={`
+      <aside data-sagb-global-sidebar className={`
         fixed inset-y-0 left-0 z-[50] transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         md:relative md:translate-x-0 md:flex

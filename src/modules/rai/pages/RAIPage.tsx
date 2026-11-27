@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React from 'react';
 import RAIHero from '../components/RAIHero';
 import RAIStatsStrip from '../components/RAIStatsStrip';
@@ -91,7 +92,7 @@ const RAIPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <ModuleSidebarContent><div className="flex flex-wrap items-center gap-2 mb-4">
             {([
               { id: 'selecionar', label: '1. Selecionar Agente' },
               { id: 'missao', label: '2. Definir Missão' },
@@ -106,7 +107,7 @@ const RAIPage: React.FC = () => {
                 {s.label}
               </button>
             ))}
-          </div>
+          </div></ModuleSidebarContent>
 
           <div className="mb-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 px-3 py-2">
             <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">{stepHint}</p>

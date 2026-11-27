@@ -1,0 +1,32 @@
+name: SagB Module Workspace UI
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+jobs:
+  full-workspace:
+    if: github.event.pull_request.number == 6
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Build isolated demo without real credentials
+        env:
+          SAGB_DEMO_BUILD: 'true'
+        run: npm run build
+      - name: Install pinned browser test tools
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Check each module and its navigation
+        run: npx playwright test tests/sagb-workspace-ui.spec.cjs --reporter=line --workers=2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sagb-workspace-ui-evidence
+          path: test-results/

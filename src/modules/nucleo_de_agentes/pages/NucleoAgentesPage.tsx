@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Agent, GovernanceCulture, ComplianceRule, VaultItem, KnowledgeNode } from '../../../types';
 import { db } from '../../../../services/supabase';
@@ -199,7 +200,7 @@ const NucleoAgentesPage: React.FC = () => {
       />
 
       {/* Abas de navegação interna */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0B0F19] px-4">
+      <ModuleSidebarContent><div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0B0F19] px-4">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -213,7 +214,7 @@ const NucleoAgentesPage: React.FC = () => {
             {tab.label}
           </button>
         ))}
-      </div>
+      </div></ModuleSidebarContent>
 
       {/* Conteúdo da aba ativa */}
       <div className="flex-1 overflow-hidden">

@@ -121,7 +121,7 @@ export const AgendaInteligenteLayout: React.FC = () => {
   return (
     <div className="flex flex-1 min-h-0 overflow-hidden" style={{ borderRadius: 'var(--sagb-radius-xl)', border: '1px solid var(--sagb-line)', backgroundColor: 'var(--sagb-surface)', boxShadow: 'var(--sagb-shadow)' }}>
       {/* Shell Sidebar Módulo */}
-      <aside className="flex w-64 shrink-0 flex-col" style={{ borderRight: '1px solid var(--sagb-line)', backgroundColor: 'var(--sagb-surface-soft)' }}>
+      <aside data-sagb-native-sidebar className="flex w-64 shrink-0 flex-col" style={{ borderRight: '1px solid var(--sagb-line)', backgroundColor: 'var(--sagb-surface-soft)' }}>
         <div className="h-16 shrink-0 px-5" style={{ borderBottom: '1px solid var(--sagb-line)' }}>
           <div className="flex h-full items-center gap-3">
             <div className="grid h-8 w-8 place-items-center rounded-[10px] text-[10px] font-semibold text-white" style={{ background: 'linear-gradient(135deg, var(--sagb-primary), var(--sagb-blue))' }}>

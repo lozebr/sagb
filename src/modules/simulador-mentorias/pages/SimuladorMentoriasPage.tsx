@@ -38,7 +38,7 @@ export const SimuladorMentoriasPage: React.FC = () => {
     <div className="min-h-full bg-[radial-gradient(circle_at_8%_8%,rgba(156,0,168,0.10),transparent_30%),linear-gradient(135deg,#FFFFFF_0%,#F5F6F8_34%,#FDF6FE_100%)] text-[#202833] font-[Rubik,system-ui,sans-serif]">
       <div className="mx-auto max-w-[1540px] p-4 lg:p-5">
         <div className="grid gap-4 lg:grid-cols-[248px_minmax(0,1fr)]">
-          <aside className="rounded-[28px] bg-white/80 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.055)] backdrop-blur-xl lg:sticky lg:top-4 lg:min-h-[calc(100vh-40px)]">
+          <aside data-sagb-native-sidebar className="rounded-[28px] bg-white/80 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.055)] backdrop-blur-xl lg:sticky lg:top-4 lg:min-h-[calc(100vh-40px)]">
             <div className="flex items-center gap-3 pb-4">
               <div className="grid h-11 w-11 place-items-center rounded-[16px] bg-gradient-to-br from-[#9C00A8] to-[#B82BC5] text-sm font-medium text-white shadow-[0_14px_30px_rgba(156,0,168,0.22)]">SM</div>
               <div>
@@ -54,6 +54,7 @@ export const SimuladorMentoriasPage: React.FC = () => {
                   <button
                     key={item}
                     type="button"
+                    onClick={() => document.getElementById(['sim-visao','sim-premissas','sim-cenarios','sim-realizado','sim-alertas'][index])?.scrollIntoView({block:'start',behavior:'smooth'})}
                     className={`flex items-center gap-2.5 rounded-[15px] px-3 py-2.5 text-left text-[12px] transition-all ${
                       index === 0
                         ? 'bg-gradient-to-br from-[#9C00A8] to-[#B82BC5] text-white shadow-[0_14px_28px_rgba(156,0,168,0.18)]'
@@ -71,6 +72,7 @@ export const SimuladorMentoriasPage: React.FC = () => {
               <div className="text-[12px] font-medium">MVP determinístico</div>
               <div className="mt-2 text-[11px] font-light leading-5 text-[#66717D]">Motor puro, UI sem fórmulas e cenários conservador, provável e otimista calculados localmente.</div>
             </div>
+            <button type="button" className="mt-6 w-full rounded-lg px-3 py-3 text-left text-xs font-medium" onClick={() => window.dispatchEvent(new CustomEvent('sagb:navigate',{detail:'home'}))}>← Voltar ao SagB</button>
           </aside>
 
           <main className="min-w-0">
@@ -91,7 +93,7 @@ export const SimuladorMentoriasPage: React.FC = () => {
               </div>
             </header>
 
-            <section className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <section id="sim-visao" className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h1 className="m-0 text-[28px] font-medium tracking-[-0.04em] text-[#202833]">Visão executiva</h1>
                 <p className="mt-1 text-[13px] font-light text-[#66717D]">Receita, custos, lucro, margem, ROI, aquisição e alertas conforme documento técnico.</p>
@@ -117,7 +119,7 @@ export const SimuladorMentoriasPage: React.FC = () => {
               <SimulationKpiCard label="Break-even" value={`${activeResult.breakEvenPaidParticipants}`} foot="pagantes necessários" icon="◎" tone={activeResult.breakEvenPaidParticipants <= activeScenario.capacity ? 'info' : 'danger'} />
             </section>
 
-            <section className="mt-4 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+            <section id="sim-premissas" className="mt-4 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
               <article className="rounded-[22px] bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.055)]">
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
@@ -166,13 +168,13 @@ export const SimuladorMentoriasPage: React.FC = () => {
               </article>
             </section>
 
-            <section className="mt-4">
+            <section id="sim-cenarios" className="mt-4">
               <ScenarioComparison scenarios={defaultMentorshipSimulation.scenarios} results={results} activeScenarioId={activeScenarioId} onSelectScenario={setActiveScenarioId} />
             </section>
 
             <section className="mt-4 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-              <AlertPanel alerts={activeResult.alerts} />
-              <PlanActualVariance rows={varianceRows} />
+              <div id="sim-alertas"><AlertPanel alerts={activeResult.alerts} /></div>
+              <div id="sim-realizado"><PlanActualVariance rows={varianceRows} /></div>
             </section>
           </main>
         </div>

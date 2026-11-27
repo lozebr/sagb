@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { BackIcon, MicIcon, StopCircleIcon, CloudUploadIcon, FileTextIcon, DownloadIcon, PlayIcon, PauseIcon } from '../../../../components/Icon';
 import {
@@ -1329,7 +1330,7 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl self-start">
+            <ModuleSidebarContent><div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl self-start">
               <button 
                 onClick={() => setActiveTab('live')}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'live' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -1342,7 +1343,7 @@ useEffect(() => {
               >
                 Processar Arquivo
               </button>
-            </div>
+            </div></ModuleSidebarContent>
           </div>
         </header>
 

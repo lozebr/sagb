@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BibliotecaPanel } from '../components/biblioteca/BibliotecaPanel';
 import { EstudioPanel } from '../components/estudio/EstudioPanel';
@@ -56,7 +57,7 @@ export const TelasAvancadasPage: React.FC = () => {
           <button onClick={() => setShowForm(true)} className="px-5 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+ Nova Tela</button>
         </header>
 
-        <CentralTabs activeTab={store.activeTab} onChange={store.setActiveTab} />
+        <ModuleSidebarContent><CentralTabs activeTab={store.activeTab} onChange={store.setActiveTab} /></ModuleSidebarContent>
 
         {store.activeTab === 'biblioteca' && (
           <BibliotecaPanel

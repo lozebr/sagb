@@ -112,7 +112,7 @@ export const NideShell: React.FC<NideShellProps> = ({ onBackToSagB }) => {
       <NideFullscreenLayout>
         <div className="flex h-full">
           {/* Sidebar interna de domínios */}
-          <aside className="w-56 shrink-0 border-r border-slate-200 dark:border-white/5 p-3 flex flex-col min-h-0">
+          <aside data-sagb-native-sidebar className="w-56 shrink-0 border-r border-slate-200 dark:border-white/5 p-3 flex flex-col min-h-0">
             <div className="flex-1 min-h-0 overflow-y-auto">
               <NideDomainNav onSelectDomain={handleSelectDomain} selectedDomainId={selectedDomain?.manifest.id} />
             </div>

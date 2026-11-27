@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useEffect } from 'react';
 import { AgentList, AgentForm, AgentStats, SquadROI, SquadTopology, AgentSupervisionModal } from '../components';
 import { Agente, AgenteDraft } from '../types';
@@ -76,7 +77,7 @@ const AgentesComerciaisPage: React.FC = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="max-w-7xl mx-auto mt-10 flex gap-1">
+        <ModuleSidebarContent><div className="max-w-7xl mx-auto mt-10 flex gap-1">
           {[
             { id: 'membros', label: 'Squad Membros' },
             { id: 'topologia', label: 'Topologia do Funil' },
@@ -90,7 +91,7 @@ const AgentesComerciaisPage: React.FC = () => {
               {tab.label.toUpperCase()}
             </button>
           ))}
-        </div>
+        </div></ModuleSidebarContent>
       </div>
 
       {/* Content Area */}

@@ -97,11 +97,12 @@ const NagiSidebar: React.FC<NagiSidebarProps> = ({
 
   return (
     <aside
-      className="nagi-sidebar"
+      className="nagi-sidebar" data-sagb-native-sidebar
       style={{
         width: 220,
         minWidth: 220,
-        height: '100dvh',
+        height: '100%',
+        flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'var(--nagi-surface)',

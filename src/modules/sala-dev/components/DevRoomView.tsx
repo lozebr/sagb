@@ -1,3 +1,4 @@
+import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState } from 'react';
 import { BackIcon, PlusIcon } from '../../../../components/Icon';
 import { useSalaDevRun } from '../hooks/useSalaDevRun';
@@ -71,8 +72,10 @@ const DevRoomView: React.FC<DevRoomViewProps> = ({ onBack, agents: officialAgent
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <ModuleSidebarContent><div className="flex flex-col gap-2">
+          {!pipelineStarted && <span aria-current="page" className="text-sm text-slate-500 px-3 py-2">Entrada de projeto</span>}
           {pipelineStarted && (
-            <div className="mr-2 flex rounded-xl border border-slate-700 bg-slate-900 p-1">
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => setActiveWorkspaceMode('pipeline')}
                 className={`rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-colors ${
@@ -113,6 +116,7 @@ const DevRoomView: React.FC<DevRoomViewProps> = ({ onBack, agents: officialAgent
               Novo Projeto
             </button>
           )}
+          </div></ModuleSidebarContent>
         </div>
       </header>
 

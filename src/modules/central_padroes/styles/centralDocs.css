@@ -1316,7 +1316,10 @@
 @media (max-width: 760px) {
   .cp-docs-root { --cp-top-h: 44px; }
   .cp-docs-app { grid-template-columns: 1fr; }
-  .cp-docs-sidebar { display: none; }
+  .cp-docs-sidebar { display:grid; position:fixed; inset:0 auto 0 0; width:min(306px,85vw); z-index:110; transform:translateX(-105%); visibility:hidden; transition:transform .18s ease; }
+  .cp-docs-sidebar.is-open { transform:none; visibility:visible; }
+  .cp-docs-menu-backdrop { display:block; position:fixed; inset:0; background:#0005; border:0; z-index:109; }
+  .cp-docs-menu-toggle { display:block; background:transparent; color:var(--cp-text); border:0; font-size:20px; cursor:pointer; flex-shrink:0; }
   .cp-docs-topbar { padding: 0 12px; }
   .cp-docs-crumbs span:not(:last-child),
   .cp-docs-crumbs .sep { display: none; }
@@ -3457,3 +3460,5 @@
   .cp-docs-origin-grid { grid-template-columns: repeat(2, 1fr); }
   .cp-docs-actions-grid { grid-template-columns: 1fr; }
 }
+
+@media(min-width:761px) { .cp-docs-menu-toggle,.cp-docs-menu-backdrop { display:none; } }

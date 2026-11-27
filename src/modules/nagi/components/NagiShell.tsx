@@ -80,8 +80,11 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
     <div
       style={{
         display: 'flex',
-        width: '100vw',
+        width: '100%',
         height: '100dvh',
+        maxHeight: '100%',
+        minHeight: 0,
+        minWidth: 0,
         overflow: 'hidden',
         backgroundColor: 'var(--nagi-bg)',
       }}
@@ -98,7 +101,9 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
       <div
         style={{
           flex: 1,
-          height: '100dvh',
+          height: '100%',
+          minWidth: 0,
+          minHeight: 0,
           overflowY: 'auto',
           overflowX: 'hidden',
         }}

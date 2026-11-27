@@ -18,7 +18,7 @@ interface MonitoramentoSidebarProps {
 }
 
 export const MonitoramentoSidebar: React.FC<MonitoramentoSidebarProps> = ({ activeSection, onSelect, onBackToHub }) => (
-  <aside className="h-full min-h-0 border-r border-slate-200/80 dark:border-white/10 bg-[#F7FAFE] dark:bg-[#091525] text-slate-950 dark:text-white px-3 py-4 flex flex-col">
+  <aside data-sagb-native-sidebar className="h-full min-h-0 border-r border-slate-200/80 dark:border-white/10 bg-[#F7FAFE] dark:bg-[#091525] text-slate-950 dark:text-white px-3 py-4 flex flex-col">
     <div className="mb-4 px-2">
       <span className="text-[8px] font-black uppercase tracking-[0.28em] text-blue-500">SagB · LIS V4</span>
       <h2 className="mt-1.5 text-base font-black tracking-tight">Monitoramento</h2>
