@@ -34,7 +34,8 @@ export function isPilotRequestAllowed(url: string, method: string): boolean {
       '/auth/v1/verify': ['POST'],
       '/auth/v1/logout': ['POST'],
     };
+    if (verb === 'POST' && (target.pathname === '/auth/v1/factors' || /^\/auth\/v1\/factors\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/(challenge|verify)$/i.test(target.pathname))) return true;
     return (authPaths[target.pathname] || []).includes(verb) ||
-      (['/rest/v1/rpc/iam_has_permission','/rest/v1/rpc/iam_claim_first_access','/rest/v1/rpc/iam_prepare_first_access'].includes(target.pathname) && verb === 'POST');
+      (['/rest/v1/rpc/iam_has_permission','/rest/v1/rpc/iam_claim_first_access','/rest/v1/rpc/iam_prepare_first_access','/rest/v1/rpc/iam_access_admin_status','/rest/v1/rpc/iam_access_admin_action'].includes(target.pathname) && verb === 'POST');
   } catch { return false; }
 }

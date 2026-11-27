@@ -1,0 +1,106 @@
+-- SagB consumer-only access administration, additive. No Auth configuration changes.
+alter table sagb_private.first_access_authorizations add column bootstrap_admin boolean not null default false;
+create unique index sagb_one_pending_bootstrap_admin on sagb_private.first_access_authorizations ((bootstrap_admin)) where bootstrap_admin and consumed_at is null;
+insert into sagb.iam_permissions(code,description) values ('sagb.access.manage','Gerenciar autorizações de entrada SagB, com MFA');
+insert into sagb.iam_roles(slug,name,description,system) values ('sagb-access-admin','Administrador de acesso SagB','Somente administração de acesso ao produto; não concede permissões de negócio',true);
+insert into sagb.iam_role_permissions(role_id,permission_id) select r.id,p.id from sagb.iam_roles r cross join sagb.iam_permissions p where r.slug='sagb-access-admin' and p.code='sagb.access.manage';
+create table sagb_private.access_admin_audit (
+ id uuid primary key default gen_random_uuid(),
+ actor uuid not null references sagb.iam_principals(id),
+ action text not null check(action in ('authorize','cancel','revoke')),
+ target text not null,
+ created_at timestamptz not null default now()
+);
+alter table sagb_private.access_admin_audit enable row level security;
+revoke all on sagb_private.access_admin_audit from public,anon,authenticated;
+create or replace function sagb_private.iam_first_access_step(p_stage text) returns boolean
+language plpgsql security definer set search_path=pg_catalog as $$
+declare subject uuid := auth.uid(); mail text; session_ref text := auth.jwt()->>'session_id'; pid uuid; mid uuid; rid uuid; admin_rid uuid; fingerprint text; has_password boolean;
+begin
+ if p_stage not in ('prepare','claim') or p_stage is null or subject is null or coalesce(auth.jwt()->>'is_anonymous','false')='true' or session_ref is null then return false; end if;
+ -- Require a recent verified email session; OTP signup can generate a random password.
+ select lower(btrim(u.email)), encode(sha256(convert_to(coalesce(u.encrypted_password,''),'UTF8')),'hex'), coalesce(u.encrypted_password,'')<>'' into mail,fingerprint,has_password from auth.users u
+ where u.id=subject and u.email_confirmed_at is not null and u.deleted_at is null
+ and (u.banned_until is null or u.banned_until<now()) and not coalesce(u.is_anonymous,false)
+ and coalesce(u.phone,'')=''
+ and lower(btrim(u.email))=lower(btrim(auth.jwt()->>'email'))
+ and exists(select 1 from auth.identities i where i.user_id=u.id and i.provider='email' and lower(i.email)=lower(u.email))
+ and not exists(select 1 from auth.identities i where i.user_id=u.id and i.provider<>'email')
+ and exists(select 1 from auth.sessions s join auth.mfa_amr_claims a on a.session_id=s.id
+ where s.user_id=u.id and s.id::text=session_ref and (s.not_after is null or s.not_after>now())
+ and a.authentication_method in ('otp','magiclink') and a.created_at>now()-interval '15 minutes');
+ if mail is null then return false; end if;
+ perform 1 from sagb_private.first_access_authorizations f where f.email=mail and f.expires_at>now() and f.consumed_at is null
+ and exists(select 1 from auth.users u where u.id=subject and u.created_at>=f.created_at)
+ and (f.prepared_subject is null or f.prepared_subject=subject) for update;
+ if not found then return false; end if;
+ if exists(select 1 from sagb.iam_principals p where p.provider='supabase' and p.provider_subject=subject::text) then return false; end if;
+ if p_stage='prepare' then
+  update sagb_private.first_access_authorizations set prepared_subject=subject,prepared_session=session_ref,prepared_fingerprint=fingerprint where email=mail;
+  return true;
+ end if;
+ if not has_password or not exists(select 1 from sagb_private.first_access_authorizations f where f.email=mail and f.prepared_subject=subject and f.prepared_session=session_ref and f.prepared_fingerprint is distinct from fingerprint and f.prepared_fingerprint is not null) then return false; end if;
+ if exists(select 1 from auth.sessions s where s.user_id=subject and s.id::text<>session_ref and (s.not_after is null or s.not_after>now())) then return false; end if;
+ select id into rid from sagb.iam_roles where slug='sagb-entry' and status='active';
+ if rid is null or (select count(*) from sagb.iam_role_permissions where role_id=rid)<>1
+ or not exists(select 1 from sagb.iam_role_permissions rp join sagb.iam_permissions p on p.id=rp.permission_id where rp.role_id=rid and p.code='sagb.access.enter') then return false; end if;
+ insert into sagb.iam_principals(principal_type,provider,provider_subject) values ('human','supabase',subject::text) returning id into pid;
+ insert into sagb.iam_memberships(principal_id,scope_type,scope_id) values (pid,'product','sagb') returning id into mid;
+ insert into sagb.iam_membership_roles(membership_id,role_id) values(mid,rid);
+ -- Only an operator-set, private, one-time bootstrap authorization can assign the initial admin role.
+ if exists(select 1 from sagb_private.first_access_authorizations f where f.email=mail and f.bootstrap_admin) then
+  select r.id into admin_rid from sagb.iam_roles r where r.slug='sagb-access-admin' and r.status='active'
+   and (select count(*) from sagb.iam_role_permissions rp where rp.role_id=r.id)=1
+   and exists(select 1 from sagb.iam_role_permissions rp join sagb.iam_permissions p on p.id=rp.permission_id where rp.role_id=r.id and p.code='sagb.access.manage');
+  if admin_rid is null then raise exception 'Invalid admin role configuration'; end if;
+  if exists(select 1 from sagb.iam_membership_roles mr where mr.role_id=admin_rid) then raise exception 'Bootstrap already completed'; end if;
+  insert into sagb.iam_membership_roles(membership_id,role_id) values(mid,admin_rid);
+ end if;
+ update sagb_private.first_access_authorizations set bootstrap_admin=false,consumed_subject=subject,consumed_at=now(),prepared_fingerprint=null,prepared_session=null,prepared_subject=null where email=mail;
+ return true;
+end; $$;
+
+
+create function sagb_private.iam_access_admin_status() returns jsonb
+language sql stable security definer set search_path=pg_catalog as $$
+ select jsonb_build_object('admin',coalesce(sagb_private.iam_has_permission('sagb.access.manage','product','sagb','aal1') and exists(
+ select 1 from auth.sessions s join auth.users u on u.id=s.user_id where s.user_id=auth.uid() and s.id::text=auth.jwt()->>'session_id' and (s.not_after is null or s.not_after>now()) and u.deleted_at is null and u.email_confirmed_at is not null and (u.banned_until is null or u.banned_until<now())),false),
+ 'elevated',coalesce(sagb_private.iam_has_permission('sagb.access.manage','product','sagb','aal2') and exists(
+ select 1 from auth.sessions s join auth.users u on u.id=s.user_id where s.user_id=auth.uid() and s.id::text=auth.jwt()->>'session_id' and s.aal::text='aal2' and (s.not_after is null or s.not_after>now()) and u.deleted_at is null and u.email_confirmed_at is not null and (u.banned_until is null or u.banned_until<now())),false));
+$$;
+create function sagb_private.iam_access_admin_action(p_action text,p_email text default null,p_membership uuid default null) returns jsonb
+language plpgsql security definer set search_path=pg_catalog as $$
+declare mail text := lower(btrim(p_email)); actor_id uuid := sagb_private.iam_current_principal_id(); changed int;
+begin
+ if actor_id is null or not coalesce((sagb_private.iam_access_admin_status()->>'elevated')::boolean,false) then return jsonb_build_object('ok',false); end if;
+ if p_action='list' then
+  return jsonb_build_object('ok',true,'pending',coalesce((select jsonb_agg(to_jsonb(a)) from (select email,expires_at from sagb_private.first_access_authorizations where consumed_at is null and expires_at>now() order by created_at desc limit 100) a),'[]'::jsonb),
+   'members',coalesce((select jsonb_agg(to_jsonb(b)) from (select m.id as membership_id,u.email,m.status,exists(select 1 from sagb.iam_membership_roles mr join sagb.iam_roles r on r.id=mr.role_id where mr.membership_id=m.id and r.slug='sagb-access-admin') as admin from sagb.iam_memberships m join sagb.iam_principals p on p.id=m.principal_id join auth.users u on u.id::text=p.provider_subject and p.provider='supabase' where m.scope_type='product' and m.scope_id='sagb' order by m.created_at desc limit 100) b),'[]'::jsonb));
+ end if;
+ if p_action in ('authorize','cancel') and (mail is null or length(mail)>254 or mail !~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$') then return jsonb_build_object('ok',false); end if;
+ -- Serialize writes and recheck actor under lock. Admin can never elevate a target or modify an admin.
+ perform pg_advisory_xact_lock(hashtextextended('sagb.access.manage',0));
+ if not coalesce((sagb_private.iam_access_admin_status()->>'elevated')::boolean,false) then return jsonb_build_object('ok',false); end if;
+ if p_action='authorize' then
+  insert into sagb_private.first_access_authorizations(email,expires_at) values(mail,now()+interval '7 days')
+  on conflict(email) do update set expires_at=excluded.expires_at where sagb_private.first_access_authorizations.consumed_at is null and not sagb_private.first_access_authorizations.bootstrap_admin and sagb_private.first_access_authorizations.prepared_subject is null;
+  get diagnostics changed=row_count;
+ elsif p_action='cancel' then
+  update sagb_private.first_access_authorizations set expires_at=now() where email=mail and consumed_at is null and not bootstrap_admin and expires_at>now();
+  get diagnostics changed=row_count;
+ elsif p_action='revoke' then
+  update sagb.iam_memberships m set status='revoked',updated_at=now() where m.id=p_membership and m.scope_type='product' and m.scope_id='sagb' and m.status='active' and m.principal_id<>actor_id and exists(select 1 from sagb.iam_membership_roles mr join sagb.iam_roles r on r.id=mr.role_id where mr.membership_id=m.id and r.slug='sagb-entry') and not exists(select 1 from sagb.iam_membership_roles mr join sagb.iam_roles r on r.id=mr.role_id where mr.membership_id=m.id and r.slug<>'sagb-entry');
+  get diagnostics changed=row_count;
+ else return jsonb_build_object('ok',false);
+ end if;
+ if changed<>1 then return jsonb_build_object('ok',false); end if;
+ insert into sagb_private.access_admin_audit(actor,action,target) values(actor_id,p_action,case when p_action='revoke' then p_membership::text else mail end);
+ return jsonb_build_object('ok',true);
+end; $$;
+revoke all on function sagb_private.iam_access_admin_status(),sagb_private.iam_access_admin_action(text,text,uuid) from public,anon;
+grant execute on function sagb_private.iam_access_admin_status(),sagb_private.iam_access_admin_action(text,text,uuid) to authenticated;
+create function sagb.iam_access_admin_status() returns jsonb language sql stable security invoker set search_path=pg_catalog as $$ select sagb_private.iam_access_admin_status(); $$;
+create function sagb.iam_access_admin_action(p_action text,p_email text default null,p_membership uuid default null) returns jsonb language sql security invoker set search_path=pg_catalog as $$ select sagb_private.iam_access_admin_action(p_action,p_email,p_membership); $$;
+revoke all on function sagb.iam_access_admin_status(),sagb.iam_access_admin_action(text,text,uuid) from public,anon;
+grant execute on function sagb.iam_access_admin_status(),sagb.iam_access_admin_action(text,text,uuid) to authenticated;
+notify pgrst, 'reload schema';

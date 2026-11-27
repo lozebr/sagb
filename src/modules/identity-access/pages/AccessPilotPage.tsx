@@ -1,3 +1,4 @@
+import AccessAdminPanel from './AccessAdminPanel';
 import React, { useEffect, useState } from 'react';
 import { verifySagBAdmission } from '../adapters/sagbAdmission.js';
 import { createPilotClient } from '../services/pilotClient.js';
@@ -206,6 +207,7 @@ export default function AccessPilotPage() {
         <button disabled={busy} className="w-full rounded-lg bg-teal-700 text-white p-3 font-medium" type="submit">{busy ? 'Aguarde...' : view !== 'login' ? 'Salvar nova senha' : register ? (awaitingEmail ? 'Reenviar link' : 'Criar minha conta') : forgot ? 'Enviar recuperação' : 'Entrar'}</button>
         {view === 'login' && <div className="flex flex-wrap gap-4"><button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setRegister(!register); setForgot(false); setAwaitingEmail(false); setPassword(''); setNotice(''); setError(''); }}>{register ? 'Voltar ao login' : 'Criar minha conta'}</button>{!register && <button type="button" disabled={busy} className="text-sm text-teal-700" onClick={() => { setForgot(!forgot); setPassword(''); setNotice(''); setError(''); }}>{forgot ? 'Voltar ao login' : 'Esqueci minha senha'}</button>}</div>}
       </form>}
+      {view === 'admitted' && client && <AccessAdminPanel client={client}/>}
       {view === 'first-password' && <button type="button" disabled={busy} onClick={() => void logout()}>Voltar ao login</button>}
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
       {notice && <p role="status" className="text-sm text-gray-600">{notice}</p>}

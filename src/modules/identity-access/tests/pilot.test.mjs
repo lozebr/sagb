@@ -30,6 +30,11 @@ test('network allowlist excludes legacy data, storage, functions and other produ
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_claim_first_access','POST'),true);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_prepare_first_access','POST'),true);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_prepare_first_access','GET'),false);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_access_admin_action','POST'),true);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_access_admin_status','POST'),true);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/factors','POST'),true);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/factors/12345678-1234-1234-1234-123456789abc/verify','POST'),true);
+  assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/factors/12345678-1234-1234-1234-123456789abc','DELETE'),false);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/rest/v1/rpc/iam_claim_first_access','GET'),false);
   assert.equal(isPilotRequestAllowed(TARGET_ORIGIN+'/auth/v1/logout','POST'),true);
 });
