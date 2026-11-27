@@ -1,0 +1,63 @@
+{
+  "repository": "lozebr/loze-adm",
+  "commit": "f8ed7a678a8424e130c1e6845d916ece992602a4",
+  "version": "0.1.1",
+  "scope": "core and presets only; immutable consumer snapshot; no migrations or operational adapters",
+  "files": [
+    {
+      "source": "modules/entity-registry-core/core/catalog.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/core/catalog.ts",
+      "blob": "8ad7816486640ec0e7d2628add344f59cec7c70f"
+    },
+    {
+      "source": "modules/entity-registry-core/core/entity-core.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/core/entity-core.ts",
+      "blob": "16bda05a86bd1108a2deb5c7e21a961ee8fbc528"
+    },
+    {
+      "source": "modules/entity-registry-core/core/index.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/core/index.ts",
+      "blob": "c2181ac1bd69db8a70e37955f8d171c0a9f7e85c"
+    },
+    {
+      "source": "modules/entity-registry-core/core/preset-engine.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/core/preset-engine.ts",
+      "blob": "e2e72d14a0048bb8ac8aaf1997c7ea5a3adeaeaf"
+    },
+    {
+      "source": "modules/entity-registry-core/core/rules-engine.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/core/rules-engine.ts",
+      "blob": "f9c5c75368e401eafbf8d396db457c7ea8327a64"
+    },
+    {
+      "source": "modules/entity-registry-core/core/types.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/core/types.ts",
+      "blob": "2bc4d5afc5cde2a99af0c71431337919dafe6f47"
+    },
+    {
+      "source": "modules/entity-registry-core/presets/ai-agent.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/presets/ai-agent.ts",
+      "blob": "ebaf0e306d969f337f5d1c087527581a14f3d962"
+    },
+    {
+      "source": "modules/entity-registry-core/presets/index.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/presets/index.ts",
+      "blob": "e1dd7839e29a103a1fce34c1bb88859f07fed6c5"
+    },
+    {
+      "source": "modules/entity-registry-core/presets/supplier.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/entity-registry-core/presets/supplier.ts",
+      "blob": "ebccbec5a9bffbefb0eeddf6cd84fbec02dbe92e"
+    },
+    {
+      "source": "modules/identity-access-core/core/index.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/identity-access-core/core/index.ts",
+      "blob": "ebe43de72b3a6c5cfb4e937a9985b9fea2b2fc37"
+    },
+    {
+      "source": "modules/identity-access-core/core/types.ts",
+      "destination": "src/modules/biblioteca-modulos/vendor/identity-access-core/core/types.ts",
+      "blob": "6aa6c0a67cf5806e54a9da87473b860d042fabfd"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+name: Biblioteca LOZE — QA da entrada isolada (Netlify nativo publica)
+on:
+  push:
+    branches: [work/loze-biblioteca-modulos-20261126]
+permissions:
+  contents: read
+jobs:
+  preview-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: node --test tests/biblioteca-modulos.test.mjs
+      - name: Compile standalone preview without Auth or secrets
+        env:
+          CONTEXT: deploy-preview
+          REVIEW_ID: '9'
+          HEAD: work/loze-biblioteca-modulos-20261126
+        run: |
+          node tools/build-library-preview.mjs
+          test -f dist/biblioteca-preview/index.html
+          grep -q 'noindex,nofollow,noarchive' dist/biblioteca-preview/index.html
+      - name: Production context must not retain demo
+        env:
+          CONTEXT: production
+          REVIEW_ID: '9'
+          HEAD: work/loze-biblioteca-modulos-20261126
+        run: |
+          node tools/build-library-preview.mjs
+          test ! -e dist/biblioteca-preview

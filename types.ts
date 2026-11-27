@@ -74,6 +74,7 @@ export type TabId =
   | 'gestao-financeira'
   | 'crm-ziplia'
   | 'central_padroes'
+  | 'biblioteca-modulos'
   | 'nucleo_de_agentes'
   | 'telas-avancadas'
   | 'agentes_comerciais'

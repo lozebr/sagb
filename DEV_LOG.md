@@ -120,3 +120,15 @@ As telas abaixo foram aprovadas pelo Chairman e **NÃO DEVEM** ser alteradas em 
 - [ ] Refinar a persistência de memória dos agentes (além do localStorage).
 - [ ] Implementar busca global no Ecossistema.
 - [ ] Conectar n8n para automações externas (webhook).
+
+
+## 26/11/2026 — Biblioteca de Módulos LOZE (MVP em branch isolada)
+Área plugável nativa: catálogo oficial pinado, demos locais de Registry/IAM, link do legado, testes. Sem alteração de DB, main ou produção. Fonte LOZE ADM f8ed7a678a8424e130c1e6845d916ece992602a4.
+
+
+## 26/11/2026 — Preview visual isolado da Biblioteca
+Solicitação da Direção após mensagem de Supabase não configurado. Entry independente do App, restrita ao build deploy-preview #9/branch de trabalho. Sem alteração de Auth, permissões, DB, produção. Guard de dependências e build QA. A URL é acessível sem login, apenas dados de demonstração.
+
+
+## 26/11/2026 — Ativação plugável da Biblioteca LOZE
+Estado de ativação único por workspace ativo no App, Sidebar e Configurações; override pontual local, testes de escopo/ordem/guards. Sem alteração de Auth, DB ou produção.

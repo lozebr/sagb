@@ -8,7 +8,7 @@
     "tunnel": "lt --port 8000 --subdomain sagb-exec",
     "start": "concurrently \"npm run dev\" \"npm run tunnel\"",
     "whisper:local": "python tools/local_whisper_server.py",
-    "build": "vite build --emptyOutDir false",
+    "build": "vite build --emptyOutDir false && node tools/build-library-preview.mjs",
     "preview": "vite preview",
     "test": "node --test tests/*.test.mjs",
     "check": "npm run test && npm run build",
