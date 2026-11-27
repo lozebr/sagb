@@ -227,3 +227,10 @@ Documento de rastreabilidade macro por modulo.
 - NAGI: URL de demonstração sozinha não habilita abertura; status validado + fonte oficial necessária.
 - Arquivos: `components/Auth.tsx`, `services/supabase.ts`, `src/modules/nagi/components/PublishedLinksSection.tsx`, `tests/sagb-access-nagi-etapa1.test.mjs`, documentação.
 - Banco/Auth remoto e outros módulos inalterados. `develop` somente, PR #6 Draft.
+
+### 2026-11-27 — IAM SagB: primeiro acesso real concluído e correção do painel administrativo
+- Modulo: identity-access (candidato IAM, incubadora txyuwaffzgsjndqsralg)
+- Mudanca: causa raiz do bloqueio confirmada (allowlist Auth sem callbacks do Preview; redirect resolvido para o Site URL localhost). Callbacks exatos `/auth/first-access` e `/auth/reset-password` do deploy-preview-6 adicionados pela Direção no painel; Site URL e demais entradas preservados. Primeiro acesso real concluído (PKCE magiclink → prepare → senha → revogação de outras sessões → claim): 1 principal, membership product/sagb ativa, roles sagb-entry + sagb-access-admin (bootstrap único consumido). Correção de UI: revalidação silenciosa mantém o painel administrativo montado; botões estilizados.
+- Tipo: correcao / ui
+- Arquivos/tabelas afetados: `src/modules/identity-access/pages/AccessPilotPage.tsx`, `src/modules/identity-access/pages/AccessAdminPanel.tsx`, `src/modules/identity-access/CHANGELOG.md`, Registro Vivo. Nenhuma migration, DDL ou alteração por SQL.
+- Status: em andamento — MFA/AAL2, testes de administração e Home autenticada pendentes.

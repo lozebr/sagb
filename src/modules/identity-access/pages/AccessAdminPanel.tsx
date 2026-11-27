@@ -47,10 +47,10 @@ export default function AccessAdminPanel({ client }: { client: Client }) {
     {status && !status.admin && <p className="text-sm">Sem perfil administrativo.</p>}
     {status?.admin && !status.elevated && <div className="space-y-2">
       <p className="text-sm">Confirme o segundo fator antes de administrar usuários. A autenticação é compartilhada pela incubadora; configurar MFA protege sua identidade Supabase.</p>
-      {!factor && <button type="button" disabled={busy} onClick={()=>void run(startMfa)}>Configurar ou verificar autenticador</button>}
+      {!factor && <button type="button" disabled={busy} className="rounded-lg bg-teal-700 text-white px-4 py-2 text-sm" onClick={()=>void run(startMfa)}>Configurar ou verificar autenticador</button>}
       {factor && <>{qr && qr.startsWith('data:image/svg+xml') && <img alt="QR do autenticador" src={qr} className="w-40 h-40"/>}{secret && <p className="text-xs break-all">Chave do autenticador (guarde em local seguro): {secret}</p>}
       <label className="block text-sm">Código do autenticador<input autoComplete="one-time-code" inputMode="numeric" value={code} onChange={e=>setCode(e.target.value)} className="block border rounded p-2"/></label>
-      <button type="button" disabled={busy||!/^\d{6}$/.test(code)} onClick={()=>void run(verifyMfa)}>Confirmar segundo fator</button></>}
+      <button type="button" disabled={busy||!/^\d{6}$/.test(code)} className="rounded-lg bg-teal-700 text-white px-4 py-2 text-sm disabled:opacity-50" onClick={()=>void run(verifyMfa)}>Confirmar segundo fator</button></>}
     </div>}
     {status?.elevated && directory && <div className="space-y-3">
       <p className="text-sm">Autorize novos usuários por 7 dias. Eles solicitam o link no SagB; não recebem privilégios administrativos. Identidades já existentes exigem provisionamento revisado.</p>

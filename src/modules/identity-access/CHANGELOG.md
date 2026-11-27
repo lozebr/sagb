@@ -12,3 +12,7 @@
 
 ## 27/11/2026 — administração de acesso candidata
 - Role administrativa SagB, bootstrap individual após confirmação, AAL2, autorização/cancelamento/revogação limitada, trilha, UI e testes de allowlist. SQL negativo/rollback verificados; instalação e QA autenticado pendentes.
+
+## 27/11/2026 — correção pós primeiro acesso real
+- Revalidação periódica/visibilidade/refresh de token passa a ser silenciosa quando já admitido: o painel administrativo não é mais desmontado (estado perdido) após "Verificar minhas permissões". Negação ou logout continuam substituindo a tela imediatamente.
+- Botões de sessão e MFA com estilo visível. Sem mudança de banco, Auth ou allowlist de rede.

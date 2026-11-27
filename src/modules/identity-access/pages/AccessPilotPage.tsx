@@ -77,19 +77,24 @@ export default function AccessPilotPage() {
     if (!client) return;
     let mounted = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    // Silent revalidation keeps an admitted screen (and the admin panel state) mounted;
+    // a denial or sign-out still replaces it as soon as the server answers.
+    let admitted = false;
     const check = async () => {
       const ticket = revision.begin();
-      if (mounted) setView('checking');
+      if (mounted && !admitted) setView('checking');
       const decision = await verifySagBAdmission({
         auth: { getUser: () => client.auth.getUser() },
         schema: (name) => ({ rpc: (fn, args) => client.schema(name).rpc(fn, args) })
       }, url);
       if (!mounted || !revision.isCurrent(ticket)) return;
+      admitted = decision.allowed;
       setView(decision.allowed ? 'admitted' : decision.reason === 'unauthenticated' ? 'login' : 'denied');
     };
-    const schedule = () => {
+    const schedule = (silent = false) => {
       revision.invalidate();
-      if (mounted) setView('checking');
+      if (!silent) admitted = false;
+      if (mounted && !admitted) setView('checking');
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => { if (mounted) void check(); }, 0);
     };
@@ -104,15 +109,15 @@ export default function AccessPilotPage() {
     // No awaited Supabase operations inside onAuthStateChange.
     const { data: { subscription } } = client.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
-        revision.invalidate();
+        revision.invalidate(); admitted = false;
         if (timer) clearTimeout(timer);
         if (mounted) setView('login');
-      } else schedule();
+      } else schedule(event === 'TOKEN_REFRESHED' || event === 'MFA_CHALLENGE_VERIFIED' || event === 'INITIAL_SESSION');
     });
     schedule();
     // Revalidate membership even if the Auth session has not changed.
-    const interval = setInterval(schedule, 60_000);
-    const visibility = () => { if (document.visibilityState === 'visible') schedule(); };
+    const interval = setInterval(() => schedule(true), 60_000);
+    const visibility = () => { if (document.visibilityState === 'visible') schedule(true); };
     document.addEventListener('visibilitychange', visibility);
     return () => {
       mounted = false; revision.invalidate(); subscription.unsubscribe();
@@ -200,7 +205,7 @@ export default function AccessPilotPage() {
       {view === 'checking' && <p role="status">Verificando sua sessão e autorização...</p>}
       {view === 'denied' && <><p role="alert">Acesso não autorizado ou ainda indisponível. Solicite a liberação do SagB ao administrador.</p><button type="button" disabled={busy} onClick={() => void logout()}>Sair / trocar de conta</button></>}
       {view === 'expired' && <><p role="alert">Não foi possível concluir a confirmação. Abra o link mais recente no mesmo navegador. Se o erro persistir, solicite um novo link.</p><button type="button" onClick={() => void logout()} disabled={busy}>Voltar ao login</button></>}
-      {view === 'admitted' && <><p role="status">Sua identidade foi validada pelo módulo IAM. Os demais módulos aguardam integração segura ao novo banco.</p><button type="button" disabled={busy} onClick={() => { setNewPassword(!newPassword); setPassword(''); }}> {newPassword ? 'Cancelar' : 'Definir / alterar minha senha'}</button><button type="button" disabled={busy} onClick={() => void logout()}>Sair</button></>}
+      {view === 'admitted' && <><p role="status">Sua identidade foi validada pelo módulo IAM. Os demais módulos aguardam integração segura ao novo banco.</p><div className="flex flex-wrap gap-3"><button type="button" disabled={busy} className="rounded-lg border border-gray-200 px-4 py-2 text-sm" onClick={() => { setNewPassword(!newPassword); setPassword(''); }}>{newPassword ? 'Cancelar' : 'Definir / alterar minha senha'}</button><button type="button" disabled={busy} className="rounded-lg border border-gray-200 px-4 py-2 text-sm" onClick={() => void logout()}>Sair</button></div></>}
       {(view === 'login' || view === 'recovery' || view === 'first-password' || (view === 'admitted' && newPassword)) && <form onSubmit={submit} className="space-y-4">
         {view === 'login' && <label className="block text-sm">E-mail<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></label>}
         {(view === 'recovery' || view === 'first-password' || (view === 'admitted' && newPassword) || (view === 'login' && !forgot && !register)) && <label className="block text-sm">{view !== 'login' ? 'Nova senha' : 'Senha'}<input className="block w-full mt-1 rounded-lg border border-gray-200 p-3" type="password" required minLength={view === 'login' ? 1 : 8} value={password} onChange={e => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} /></label>}
