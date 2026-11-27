@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -77,7 +78,7 @@ const McpSagbPage: React.FC = () => {
   const [tools, setTools] = useState<McpTool[]>([]);
   const [scripts] = useState<McpScript[]>(getScripts);
   const [configs, setConfigs] = useState<McpConfig[]>(getConfigs);
-  const [activeTab, setActiveTab] = useState<'tools' | 'scripts' | 'configs'>('tools');
+  const [activeTab, setActiveTab] = useSagbSection<'tools' | 'scripts' | 'configs'>('mcp_sagb','mcpView','tools');
   const [outputLog, setOutputLog] = useState<string[]>([]);
   const [runningToolId, setRunningToolId] = useState<string | null>(null);
   const [serverState, setServerState] = useState<McpServerState>(getServerState);

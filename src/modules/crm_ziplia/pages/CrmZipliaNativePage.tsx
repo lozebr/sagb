@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import React, { useEffect, useMemo, useState } from 'react';
 import { crmZipliaService } from '../services/crmZipliaService';
 import { CrmLead, CrmStageConfig } from '../types';
@@ -18,7 +19,7 @@ const formatMoney = (value: number) => {
 const normalizePhone = (value?: string) => (value || '').replace(/\D/g, '');
 
 export const CrmZipliaNativePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'pipeline' | 'whatsapp' | 'daily' | 'dashboard-colab' | 'dashboard-gestor' | 'inbox' | 'integrations' | 'simulator' | 'differences' | 'settings'>('pipeline');
+  const [activeTab, setActiveTab] = useSagbSection<'pipeline' | 'whatsapp' | 'daily' | 'dashboard-colab' | 'dashboard-gestor' | 'inbox' | 'integrations' | 'simulator' | 'differences' | 'settings'>('crm-ziplia','crmView','pipeline');
   const [viewVariant, setViewVariant] = useState<'classic' | 'modern' | 'lines'>('classic');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

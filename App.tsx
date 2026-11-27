@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import { isPublicDemo, demoIdentity, demoProfile } from './src/core/demo/publicDemo';
 import { SendIcon, MicIcon, StopCircleIcon, PaperclipIcon, XIcon, FileTextIcon } from './components/Icon';
 import Sidebar from './components/Sidebar';
+import { useSagbTabHistory } from './src/core/navigation/useSagbHistory';
+import { readEntry, entryState } from './src/core/navigation/sagbHistory';
 import { ModuleWorkspace } from './src/core/navigation/ModuleWorkspace';
 import { getModuleShellPolicy } from './src/core/navigation/moduleShellPolicy';
 import SystemicVision from './components/SystemicVision'; // RESTAURADO
@@ -146,6 +148,10 @@ const getTierRank = (tier?: string | null) => {
   return 99;
 };
 
+const SAGB_ROUTE_PATHS: Record<string,string> = Object.assign(
+  Object.fromEntries(['home','ecosystem','team','conversations','management','programmers-room','redir','vault','quadro_de_elite','governance','missions','nagi','nic','rai','mentorias','simulador-mentorias','cid','quality','intelligence-flow','continuous-memory','studio','karaoke','methodology','metodologias','hub-integracao','hub','alignment','market','sales','expansion','3forb-home','audacus-home','startyb-home','requests','unit-room','chat-room','ventures','cadastro-empresas','monitoramento','agenda','configuracoes-sistema','foco-total','gestao-financeira','crm-ziplia','central_padroes','nucleo_de_agentes','telas-avancadas','agentes_comerciais','_orquestracao-principal','sala-dev','videos-ia','nide'].map(tab=>[tab,'/'])),
+  Object.fromEntries(getRegisteredModules().map(m=>[m.manifest.id,m.manifest.baseRoute]))
+);
 const App: React.FC = () => {
   const version = metadata.version;
   const { theme, setTheme } = useTheme();
@@ -170,13 +176,26 @@ const App: React.FC = () => {
   // State for Business Units (now dynamic)
   const [businessUnits, setBusinessUnits] = useState<BusinessUnit[]>(INITIAL_BUSINESS_UNITS);
 
-  const [activeTab, setActiveTab] = useState<TabId>(() => {
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/nagi')) {
-      return 'nagi';
-    }
-    return 'home';
-  }); // DEFAULT: HOME
   const [activeBU, setActiveBU] = useState<BusinessUnit>(INITIAL_BUSINESS_UNITS[0]);
+  const historyEnabled = Boolean(user) && !isPasswordRecoveryActive;
+  const [activeTab, setActiveTab, replaceActiveTab] = useSagbTabHistory<TabId>(SAGB_ROUTE_PATHS, historyEnabled);
+  useEffect(() => {
+    if (!historyEnabled) return;
+    const entry = readEntry(window.history.state);
+    if (entry && entry.tab === activeTab && entry.buId !== activeBU.id) {
+      window.history.replaceState(entryState(window.history.state,{...entry,buId:activeBU.id}), '', window.location.href);
+    }
+  }, [historyEnabled, activeTab, activeBU.id]);
+  useEffect(() => {
+    if (!historyEnabled) return;
+    const restoreBU = () => {
+      const id=readEntry(window.history.state)?.buId;
+      const bu=businessUnits.find(b=>b.id===id);
+      if (bu) setActiveBU(bu);
+    };
+    window.addEventListener('popstate', restoreBU);
+    return () => window.removeEventListener('popstate', restoreBU);
+  }, [historyEnabled,businessUnits]);
   const [moduleToggles, setModuleToggles] = useState<Record<string, boolean>>({});
 
   const [activatedAgents, setActivatedAgents] = useState<Agent[]>([]);
@@ -317,7 +336,7 @@ const App: React.FC = () => {
     if (!activeTab) return;
     const enabled = isModuleEnabledByToggle(activeTab, moduleToggles);
     if (!enabled) {
-      setActiveTab('home');
+      replaceActiveTab('home');
     }
   }, [activeTab, moduleToggles]);
 
@@ -874,9 +893,6 @@ const asDate = (v: any): Date | undefined => {
     const handleNavigate = (e: CustomEvent) => {
       const destination = typeof e.detail === 'string' ? e.detail : e.detail?.route;
       if (typeof destination !== 'string') return;
-      if (destination === 'home') {
-        window.history.replaceState(null, '', '/');
-      }
       setActiveTab(destination as TabId);
     };
     window.addEventListener('sagb:navigate', handleNavigate as EventListener);
@@ -913,8 +929,7 @@ const asDate = (v: any): Date | undefined => {
     setIsTransitioning(true);
     setTimeout(() => {
       setActiveBU(businessUnits[0]); // Volta para GrupoB
-      window.history.replaceState(null, '', '/');
-      setActiveTab('home'); // Volta para Início (Dashboard)
+      setActiveTab('home'); // Registra retorno à Home no histórico
       setIsTransitioning(false);
     }, 300);
   };

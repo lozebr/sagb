@@ -38,10 +38,10 @@ async function openModule(page,m){
  const nav=page.locator('[data-sagb-global-sidebar]');
  const label=m.id==='nucleo-conversacional'?'Conversas':m.label;
  const button=nav.getByRole('button',{name:'Abrir '+label,exact:true});
- if(await button.count()){await button.click();}
- else if(m.id==='configuracoes-sistema'){await page.getByRole('button',{name:'Configurações',exact:true}).click();}
+ await expect(nav).toBeVisible();
+ if(m.id==='configuracoes-sistema'){await page.getByRole('button',{name:'Configurações',exact:true}).click();}
  else if(aliases[m.id]){await page.evaluate(id=>window.dispatchEvent(new CustomEvent('sagb:navigate',{detail:id})),m.id);}
- else {throw new Error('Module not available in Home menu: '+m.id);}
+ else {await button.click();}
  const id=aliases[m.id]||m.id;
  const shell=page.locator('[data-sagb-module-shell][data-module-id="'+id+'"]');
  await expect(shell).toBeVisible();
@@ -77,4 +77,51 @@ test('NAGI native navigation and Central de Padrões drawer at mobile width',asy
  await expect(cp.shell.locator('.cp-docs-sidebar')).toBeVisible();
  await cp.shell.locator('.cp-docs-sidebar').getByRole('button',{name:/Voltar ao SagB/i}).click();
  await expect(page.getByRole('button',{name:'Toggle Menu'})).toBeVisible();
+});
+
+test('Browser Back / Forward / reload preserve NAGI and Central de Padrões navigation',async({page})=>{
+ await start(page);
+ const nagi=(await openModule(page,{id:'nagi',label:'NAGI'})).shell;
+ const menu=nagi.locator('.nagi-sidebar');
+ await menu.getByRole('button',{name:'Documentos',exact:true}).click();
+ await menu.getByRole('button',{name:'Aplicativos',exact:true}).click();
+ await expect(nagi.getByRole('heading',{name:'Aplicativos',exact:true})).toBeVisible();
+ await page.goBack();
+ await expect(nagi).toBeVisible();
+ await expect(page).toHaveURL(/\/nagi$/);
+ await page.goForward();
+ await expect(nagi.getByRole('heading',{name:'Aplicativos',exact:true})).toBeVisible();
+ await page.reload();
+ await expect(nagi.getByRole('heading',{name:'Aplicativos',exact:true})).toBeVisible();
+ await page.goBack();
+ await page.goBack();
+ await expect(nagi).toBeVisible();
+ await page.goBack();
+ await expect(page.locator('[data-sagb-global-sidebar]')).toBeVisible();
+ await page.goForward();
+ await expect(nagi).toBeVisible();
+ await menu.getByRole('button',{name:/Voltar ao SagB/i}).click();
+ const cp=(await openModule(page,{id:'central_padroes',label:'Central de Padrões'})).shell;
+ const cpMenu=cp.locator('.cp-docs-sidebar');
+ await cpMenu.getByRole('button',{name:'Configurações',exact:true}).click();
+ await expect(cpMenu.getByRole('button',{name:'Configurações',exact:true})).toHaveClass(/active/);
+ await page.goBack();
+ await expect(cp).toBeVisible();
+ await expect(cpMenu.getByRole('button',{name:'Configurações',exact:true})).not.toHaveClass(/active/);
+ await page.goForward();
+ await expect(cpMenu.getByRole('button',{name:'Configurações',exact:true})).toHaveClass(/active/);
+ await page.goBack();
+ await page.goBack();
+ await expect(page.locator('[data-sagb-global-sidebar]')).toBeVisible();
+});
+test('Managed NIC tabs remain internal history entries and original navigation controls',async({page})=>{
+ await start(page);
+ const {shell}=await openModule(page,{id:'nic',label:'NIC'});
+ const side=shell.locator('[data-sagb-module-sidebar]');
+ await side.getByRole('button',{name:'Nomes',exact:true}).click();
+ await side.getByRole('button',{name:'Histórico',exact:true}).click();
+ await page.goBack();
+ await expect(side.getByRole('button',{name:'Nomes',exact:true})).toHaveClass(/bg-slate-900/);
+ await page.goForward();
+ await expect(side.getByRole('button',{name:'Histórico',exact:true})).toHaveClass(/bg-slate-900/);
 });

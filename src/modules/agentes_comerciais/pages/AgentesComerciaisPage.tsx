@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useEffect } from 'react';
 import { AgentList, AgentForm, AgentStats, SquadROI, SquadTopology, AgentSupervisionModal } from '../components';
@@ -5,7 +6,7 @@ import { Agente, AgenteDraft } from '../types';
 import { agenteService } from '../services';
 
 const AgentesComerciaisPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'membros' | 'topologia' | 'roi'>('membros');
+  const [activeTab, setActiveTab] = useSagbSection<'membros' | 'topologia' | 'roi'>('agentes_comerciais','commercialView','membros');
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);

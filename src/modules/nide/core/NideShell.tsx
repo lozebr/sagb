@@ -1,9 +1,11 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import React, { useState, lazy, Suspense } from 'react';
 import { NideProvider } from './NideProvider';
 import { NideFullscreenLayout } from '../layout/NideFullscreenLayout';
 import { NideDomainNav } from '../shell/NideDomainNav';
 import { MissionsCorePage } from './missions/MissionsCorePage';
 import { NideDomain } from '../registry/domain.types';
+import { getDomainById } from '../registry/domainActivation';
 
 /**
  * Lazy import dos domínios reais (Metodologias, Mentorias) para não impactar
@@ -34,14 +36,15 @@ interface NideShellProps {
  * Domínios ativos são lazy loaded para otimizar o bundle inicial.
  */
 export const NideShell: React.FC<NideShellProps> = ({ onBackToSagB }) => {
-  const [selectedDomain, setSelectedDomain] = useState<NideDomain | null>(null);
-  const [domainKey, setDomainKey] = useState(0);
+  const [domainId,setDomainId]=useSagbSection<string>('nide','nideDomain','missoes',id=>id==='missoes'?'/nide':'/nide/'+encodeURIComponent(id));
+  const candidate=getDomainById(domainId);
+  const selectedDomain=candidate?.activation.isActive&&!candidate.manifest.isPlanned?candidate:null;
+  const domainKey=selectedDomain?.manifest.id||'missoes';
 
   const handleSelectDomain = (domain: NideDomain) => {
     if (!domain.manifest.isPlanned) {
       if (selectedDomain?.manifest.id !== domain.manifest.id) {
-        setSelectedDomain(domain);
-        setDomainKey(k => k + 1);
+        setDomainId(domain.manifest.id);
       }
     }
   };

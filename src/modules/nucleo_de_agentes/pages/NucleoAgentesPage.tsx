@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Agent, GovernanceCulture, ComplianceRule, VaultItem, KnowledgeNode } from '../../../types';
@@ -18,7 +19,7 @@ const normalizeStatus = (status: any) => {
 };
 
 const NucleoAgentesPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabView>('identidades');
+  const [activeTab, setActiveTab] = useSagbSection<TabView>('nucleo_de_agentes','agentView','identidades');
 
   // ── Dados do runtime context (injetados pelo host App.tsx) ──
   const runtime = getNucleoDeAgentesRuntimeContext();
@@ -240,7 +241,7 @@ const NucleoAgentesPage: React.FC = () => {
           )
         ) : (
           <BaseDosAgentesView
-            onBack={() => window.history.back()}
+            onBack={() => setActiveTab('identidades')}
             agents={agents}
             onUpdateAgent={handleUpdateAgent}
             businessUnits={[]}

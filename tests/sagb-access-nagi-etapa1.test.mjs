@@ -36,6 +36,7 @@ function makeRuntime(fetchFn, { configured = true } = {}) {
   const boundary = authSource.indexOf('// Mantém "db"');
   assert.ok(boundary > 0, 'A fronteira do shim Auth deve existir');
   const isolated = authSource.slice(0, boundary)
+    .replace("import { isPublicDemo } from '../src/core/demo/publicDemo';", "const isPublicDemo = false;")
     .replaceAll('import.meta.env.VITE_SUPABASE_URL', JSON.stringify(configured ? 'https://sagb-test.supabase.co' : ''))
     .replaceAll('import.meta.env.VITE_SUPABASE_ANON_KEY', JSON.stringify(configured ? 'sb_publishable_test' : ''))
     .replace(/\bexport\s+(?=(const|type|interface|class|function)\b)/g, '');

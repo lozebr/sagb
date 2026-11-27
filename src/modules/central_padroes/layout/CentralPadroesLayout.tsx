@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import React, { useMemo, useState } from 'react';
 import { useTheme } from '../../../core/context/ThemeContext';
 import DashboardPage from '../pages/DashboardPage';
@@ -68,8 +69,10 @@ type CentralPadroesView =
 
 export const CentralPadroesLayout: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const [currentView, setCurrentView] = useState<CentralPadroesView>('dashboard');
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [route, setRoute] = useSagbSection<{view:CentralPadroesView;documentId:string|null}>('central_padroes','centralView',{view:'dashboard',documentId:null});
+  const {view:currentView,documentId:selectedDocumentId}=route;
+  const setCurrentView=(view:CentralPadroesView)=>setRoute(prev=>({...prev,view}));
+  const openDocumentView=(view:CentralPadroesView,documentId:string)=>setRoute({view,documentId});
   const [seedStatus, setSeedStatus] = useState<string>('');
   const [menuQuery, setMenuQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -101,8 +104,7 @@ export const CentralPadroesLayout: React.FC = () => {
 
   const renderCurrentView = () => {
     const openDocument = (documentId: string) => {
-      setSelectedDocumentId(documentId);
-      setCurrentView('documento-detalhe');
+      openDocumentView('documento-detalhe',documentId);
     };
 
     switch (currentView) {
@@ -119,9 +121,9 @@ export const CentralPadroesLayout: React.FC = () => {
       case 'documents':
         return <DocumentsPage onOpenDocument={openDocument} />;
       case 'documento-detalhe':
-        return <DocumentoDetalhePage documentId={selectedDocumentId} onBack={() => setCurrentView('documents')} onEdit={(documentId) => { setSelectedDocumentId(documentId); setCurrentView('documento-editor'); }} onSendToCuradoria={() => setCurrentView('curadoria')} />;
+        return <DocumentoDetalhePage documentId={selectedDocumentId} onBack={() => setCurrentView('documents')} onEdit={(documentId) => { openDocumentView('documento-editor',documentId); }} onSendToCuradoria={() => setCurrentView('curadoria')} />;
       case 'documento-editor':
-        return <DocumentoEditorPage documentId={selectedDocumentId} onBack={() => setCurrentView('documento-detalhe')} onSaved={(documentId) => { setSelectedDocumentId(documentId); setCurrentView('documento-detalhe'); }} />;
+        return <DocumentoEditorPage documentId={selectedDocumentId} onBack={() => setCurrentView('documento-detalhe')} onSaved={(documentId) => { openDocumentView('documento-detalhe',documentId); }} />;
       case 'base-modules':
         return <BaseModulesPage />;
       case 'modules':

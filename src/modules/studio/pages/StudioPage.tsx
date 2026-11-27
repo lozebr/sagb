@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { BackIcon, MicIcon, StopCircleIcon, CloudUploadIcon, FileTextIcon, DownloadIcon, PlayIcon, PauseIcon } from '../../../../components/Icon';
@@ -118,7 +119,7 @@ const StudioView: React.FC<StudioViewProps> = ({
   const [chunks, setChunks] = useState<StudioChunk[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   
-  const [activeTab, setActiveTab] = useState<'live' | 'upload'>('live');
+  const [activeTab, setActiveTab] = useSagbSection<'live' | 'upload'>('studio','studioView','live');
   const [isRecording, setIsRecording] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [feedback, setFeedback] = useState('');

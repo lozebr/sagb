@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import React, { useState, useEffect } from 'react';
 import { AgendaInteligenteHomePage } from '../pages/home/AgendaInteligenteHomePage';
 import { AgendaInteligenteTasksPage } from '../pages/tasks/AgendaInteligenteTasksPage';
@@ -19,7 +20,7 @@ type TaskZeiView = 'home' | 'tasks' | 'inbox' | 'meetings' | 'monitor' | 'projec
 
 export const AgendaInteligenteLayout: React.FC = () => {
   // A aba inicial com destaque é Tarefas
-  const [currentView, setCurrentView] = useState<TaskZeiView>('tasks');
+  const [currentView, setCurrentView] = useSagbSection<TaskZeiView>('agenda','agendaView','tasks');
 
   // Inicia o Event Bridge listener para receber mensagens do Hub de Integrações
   useEffect(() => {

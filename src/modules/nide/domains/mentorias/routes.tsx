@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../../core/navigation/useSagbHistory';
 import React, { useState } from 'react';
 import { MentoriasDashboardPage } from './pages/MentoriasDashboardPage';
 import { MentoriasLibraryPage } from './pages/MentoriasLibraryPage';
@@ -15,13 +16,9 @@ type ViewType = 'dashboard' | 'library' | 'detail';
  * Mantém sua sidebar interna própria (Dashboard + Biblioteca).
  */
 export const MentoriasDomainContainer: React.FC = () => {
-  const [view, setView] = useState<ViewType>('dashboard');
-  const [selectedId, setSelectedId] = useState<string | undefined>();
-
-  const handleNavigate = (newView: ViewType, id?: string) => {
-    setView(newView);
-    setSelectedId(id);
-  };
+  const [route,setRoute]=useSagbSection<{view:ViewType;id?:string}>('nide','mentoriasView',{view:'dashboard'});
+  const {view,id:selectedId}=route;
+  const handleNavigate = (newView:ViewType,id?:string)=>setRoute({view:newView,id});
 
   const itensSidebar: { id: ViewType; label: string; icone: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icone: '🏠' },

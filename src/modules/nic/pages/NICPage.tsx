@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useMemo } from 'react';
 import {
@@ -57,7 +58,7 @@ interface NICPageProps {
 }
 
 const NICPage: React.FC<NICPageProps> = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [activeTab, setActiveTab] = useSagbSection<TabKey>('nic','nicView','overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<NamingStatus | 'todos'>('todos');
   const [selectedName, setSelectedName] = useState<NamingItem | null>(null);

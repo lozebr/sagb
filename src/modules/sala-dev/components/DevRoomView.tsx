@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState } from 'react';
 import { BackIcon, PlusIcon } from '../../../../components/Icon';
@@ -19,8 +20,8 @@ interface DevRoomViewProps {
 
 const DevRoomView: React.FC<DevRoomViewProps> = ({ onBack, agents: officialAgents = [] }) => {
   const [showIntegrationPanel, setShowIntegrationPanel] = useState(false);
-  const [activeLeftTab, setActiveLeftTab] = useState<'command' | 'chat'>('command');
-  const [activeWorkspaceMode, setActiveWorkspaceMode] = useState<'pipeline' | 'studio'>('pipeline');
+  const [activeLeftTab, setActiveLeftTab] = useSagbSection<'command' | 'chat'>('sala-dev','salaLeft','command');
+  const [activeWorkspaceMode, setActiveWorkspaceMode] = useSagbSection<'pipeline' | 'studio'>('sala-dev','salaMode','pipeline');
   const {
     run,
     agents,

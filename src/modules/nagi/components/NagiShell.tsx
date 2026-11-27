@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TabId } from '../../../../types';
 import NagiSidebar from './NagiSidebar';
@@ -32,7 +33,7 @@ const resolveInitialSection = (initialSection?: NagiSection): NagiSection => {
 };
 
 const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection }) => {
-  const [activeSection, setActiveSection] = useState<NagiSection>(() => resolveInitialSection(initialSection));
+  const [activeSection, setActiveSection] = useSagbSection<NagiSection>('nagi','nagiSection',() => resolveInitialSection(initialSection), section=>section==='links'?'/nagi/links':'/nagi');
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [catalogItems, setCatalogItems] = useState<NagiItem[]>([]);
@@ -54,14 +55,9 @@ const NagiShell: React.FC<NagiShellProps> = ({ onBack, onOpenTab, initialSection
   const handleNavigate = useCallback((section: string) => {
     if (section === 'dashboard' || section === 'documentos' || section === 'ideias' || section === 'catalogo' || section === 'links' || section === 'governanca') {
       setActiveSection(section);
-      if (typeof window !== 'undefined') {
-        const nextPath = section === 'links' ? '/nagi/links' : '/';
-        if (window.location.pathname !== nextPath) {
-          window.history.pushState({ nagiSection: section }, '', nextPath);
-        }
-      }
+      // History is recorded by useSagbSection, including Back and Forward.
     }
-  }, []);
+  }, [setActiveSection]);
 
   const handleOpenTab = useCallback((tab: string) => {
     if (onOpenTab) onOpenTab(tab as TabId);

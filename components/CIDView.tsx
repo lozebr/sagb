@@ -1,3 +1,4 @@
+import { useSagbSection } from '../src/core/navigation/useSagbHistory';
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { BackIcon, CloudUploadIcon, SearchIcon } from './Icon';
 import { CidAsset, CidAssetFile, CidChunk, CidOutput, CidProcessingJob, UserProfile, Venture } from '../types';
@@ -178,8 +179,8 @@ const CIDView: React.FC<CIDViewProps> = ({ workspaceId, ownerUserId, userProfile
   const scopedWorkspaceId = workspaceId?.trim() || userProfile?.workspaceId?.trim() || '';
 
   // View state
-  const [viewMode, setViewMode] = useState<CidViewMode>('dashboard');
-  const [sidebarFilter, setSidebarFilter] = useState<SidebarGroup>('all');
+  const [viewMode, setViewMode] = useSagbSection<CidViewMode>('cid','cidView','dashboard');
+  const [sidebarFilter, setSidebarFilter] = useSagbSection<SidebarGroup>('cid','cidGroup','all');
   const [localRootName, setLocalRootName] = useState<string | null>(null);
   const [showUploadDrawer, setShowUploadDrawer] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

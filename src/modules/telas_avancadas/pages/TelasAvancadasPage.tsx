@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BibliotecaPanel } from '../components/biblioteca/BibliotecaPanel';
@@ -13,6 +14,10 @@ import { TelaAvancada } from '../types/telasAvancadas.types';
 
 export const TelasAvancadasPage: React.FC = () => {
   const store = useTelasAvancadasStore();
+  const [historyTab,setHistoryTab]=useSagbSection<typeof store.activeTab>('telas-avancadas','telasView','biblioteca');
+  // Restore history in the existing store, without creating a second entry.
+  useEffect(() => { store.setActiveTab(historyTab); }, [historyTab]);
+  const navigateTab=(tab:typeof store.activeTab)=>{setHistoryTab(tab);store.setActiveTab(tab);};
   const [showForm, setShowForm] = useState(false);
   const [showSuperTela, setShowSuperTela] = useState(false);
   const [viewerTela, setViewerTela] = useState<TelaAvancada | null>(null);
@@ -57,7 +62,7 @@ export const TelasAvancadasPage: React.FC = () => {
           <button onClick={() => setShowForm(true)} className="px-5 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all">+ Nova Tela</button>
         </header>
 
-        <ModuleSidebarContent><CentralTabs activeTab={store.activeTab} onChange={store.setActiveTab} /></ModuleSidebarContent>
+        <ModuleSidebarContent><CentralTabs activeTab={store.activeTab} onChange={navigateTab} /></ModuleSidebarContent>
 
         {store.activeTab === 'biblioteca' && (
           <BibliotecaPanel

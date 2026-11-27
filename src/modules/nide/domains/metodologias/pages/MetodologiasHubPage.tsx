@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../../../core/navigation/useSagbHistory';
 import React from 'react';
 import {
   atualizarAtivoCanonicoPersistido,
@@ -145,7 +146,8 @@ const lerRotaHash = (): RotaInterna => {
 
 const navegarHash = (rota: RotaInterna) => {
   if (window.location.hash !== `#${rota}`) {
-    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${rota}`);
+    // URL managed by useSagbSection; retain standalone hash navigation only.
+    if(!window.history.state?.sagbNavigationV1) window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}#${rota}`);
   }
 };
 
@@ -299,7 +301,7 @@ const MetodologiasHubPage: React.FC<MetodologiasHubPageProps> = ({ onBackToSagB 
   const taxonomiaOficial = React.useMemo(() => getTaxonomiaOficialAtivos(), []);
   const perguntasEstruturacao = React.useMemo(() => getPerguntasEstruturacaoAssistida(), []);
 
-  const [rotaInterna, setRotaInterna] = React.useState<RotaInterna>(() => lerRotaHash());
+  const [rotaInterna, setRotaInterna] = useSagbSection<RotaInterna>('nide','metodologiasView',()=>lerRotaHash(),rota=>'/nide/metodologias#'+rota);
   const [entradasBrutasLocal, setEntradasBrutasLocal] = React.useState<EntradaMetodologicaBruta[]>(() => entradasBrutasBase);
   const [entradaSelecionadaId, setEntradaSelecionadaId] = React.useState<string>(() => entradasBrutasBase[0]?.id ?? '');
   const [modoConversao, setModoConversao] = React.useState<'preview' | 'ativo_em_estruturacao' | 'ativo_base_gerado'>('preview');

@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React from 'react';
 import RAIHero from '../components/RAIHero';
@@ -14,7 +15,7 @@ import { raiSupabaseService } from '../services/raiSupabaseService';
 import { auth } from '../../../../services/supabase';
 
 const RAIPage: React.FC = () => {
-  const [step, setStep] = React.useState<'selecionar' | 'missao' | 'executar' | 'revisar'>('selecionar');
+  const [step, setStep] = useSagbSection<'selecionar' | 'missao' | 'executar' | 'revisar'>('rai','raiStep','selecionar');
   const [runningAgentId, setRunningAgentId] = React.useState<string | null>(null);
   const [selectedAgentId, setSelectedAgentId] = React.useState<string>('');
   const [missionText, setMissionText] = React.useState<string>('');

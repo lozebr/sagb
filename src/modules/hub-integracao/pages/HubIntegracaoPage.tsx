@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import { ModuleSidebarContent } from '../../../core/navigation/ModuleWorkspace';
 import React, { useState, useEffect, useCallback } from 'react';
 import { integrationHub } from '../services/integrationService';
@@ -15,7 +16,7 @@ export function HubIntegracaoPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('catalog');
+  const [activeTab, setActiveTab] = useSagbSection<ActiveTab>('hub-integracao','hubView','catalog');
   const [channels, setChannels] = useState<HubChannelView[]>([]);
 
   // Modals

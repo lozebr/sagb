@@ -1,3 +1,4 @@
+import { useSagbSection } from '../../../core/navigation/useSagbHistory';
 import React, { useEffect, useMemo, useState } from 'react';
 import { MonitoramentoInternalMenu, MonitoramentoInternalSection, MonitoramentoSidebar } from '../components';
 import { monitoramentoSubmodulos } from '../services';
@@ -16,31 +17,17 @@ const getSlugFromPath = () => {
 
 const MonitoramentoPage: React.FC<MonitoramentoPageProps> = ({ onBackToHub }) => {
   const firstSlug = monitoramentoSubmodulos[0]?.slug || 'infraestrutura';
-  const pathSlug = getSlugFromPath();
-  const initialSlug = monitoramentoSubmodulos.some((submodulo) => submodulo.slug === pathSlug)
-    ? pathSlug
-    : firstSlug;
-  const [activeSlug, setActiveSlug] = useState(initialSlug);
-  const [activeSection, setActiveSection] = useState<MonitoramentoInternalSection>(pathSlug ? 'submodulos' : 'inicio');
+  const [route,setRoute]=useSagbSection<{slug:string;section:MonitoramentoInternalSection}>('monitoramento','monitorView',()=>({slug:monitoramentoSubmodulos.some(s=>s.slug===getSlugFromPath())?getSlugFromPath():firstSlug,section:getSlugFromPath()?'submodulos':'inicio'}),r=>r.section==='submodulos'?'/monitoramento/'+encodeURIComponent(r.slug):'/monitoramento');
+  const {slug:activeSlug,section:activeSection}=route;
+  const setActiveSection=(section:MonitoramentoInternalSection)=>setRoute(prev=>({...prev,section}));
 
   const activeSubmodulo = useMemo(
     () => monitoramentoSubmodulos.find((submodulo) => submodulo.slug === activeSlug) || monitoramentoSubmodulos[0],
     [activeSlug]
   );
 
-  useEffect(() => {
-    const currentPathSlug = getSlugFromPath();
-    if (currentPathSlug && monitoramentoSubmodulos.some((submodulo) => submodulo.slug === currentPathSlug)) {
-      setActiveSlug(currentPathSlug);
-    }
-  }, []);
-
   const handleSelectSubmodulo = (slug: string) => {
-    setActiveSlug(slug);
-
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `/monitoramento/${slug}`);
-    }
+    if(monitoramentoSubmodulos.some(s=>s.slug===slug))setRoute({slug,section:'submodulos'});
   };
 
   const handleBackToHub = onBackToHub || (() => {

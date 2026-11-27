@@ -6,8 +6,8 @@
 .sagb-module-sidebar { display:flex; flex-direction:column; width:216px; flex:0 0 216px; min-height:0; overflow:hidden; background:var(--sagb-surface,#fff); color:var(--sagb-text,#303842); border-right:1px solid var(--sagb-line,#eee); padding:14px 10px; box-sizing:border-box; }
 .sagb-module-title { font-size:14px; font-weight:600; padding:8px 10px 18px; }
 .sagb-module-sidebar nav { flex:1; min-height:0; overflow:auto; }
-.sagb-module-nav-controls > * { display:flex!important; flex-direction:column!important; align-items:stretch!important; gap:4px!important; width:100%!important; max-width:none!important; margin:0!important; padding:0!important; border:0!important; background:transparent!important; box-shadow:none!important; }
-.sagb-module-nav-controls button { text-align:left!important; justify-content:flex-start!important; white-space:normal!important; min-height:36px; width:100%; border-radius:8px!important; box-sizing:border-box; }
+.sagb-module-nav-controls > * { display:flex!important; flex-direction:column!important; align-items:stretch!important; gap:4px!important; width:100%!important; max-width:none!important; margin:0!important; box-sizing:border-box; }
+.sagb-module-nav-controls button { text-align:left!important; justify-content:flex-start!important; white-space:normal!important; min-height:36px; width:100%; box-sizing:border-box; }
 .sagb-module-current { display:block; padding:10px; font-size:12px; background:var(--sagb-primary-soft,#eef5fa); border-radius:8px; }
 .sagb-module-sidebar footer,.sagb-module-native-exit { flex-shrink:0; padding:10px 4px 0; }
 .sagb-module-sidebar footer button,.sagb-module-native-exit button { display:block; background:transparent; border:0; color:var(--sagb-text,#303842); text-align:left; font-size:12px; cursor:pointer; padding:10px; border-radius:6px; }
@@ -22,6 +22,4 @@
   .sagb-module-backdrop { display:block; position:absolute; inset:42px 0 0; z-index:20; background:#0005; border:0; }
 }
 
-.sagb-module-nav-controls button { transform:none!important; }
-.sagb-module-nav-controls button:not([class*="text-white"]):not([class*="text-blue-600"]):not([class*="text-sagb-blue"]):not([class*="text-slate-950"]) { color:var(--sagb-text,#303842); }
 .sagb-module-content [id^="sim-"] { scroll-margin-top:110px; }
