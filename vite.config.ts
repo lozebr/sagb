@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
   // Restrict demo bundles to the authorized PR and strip VITE_* values from them.
   const publicDemo = (process.env.CONTEXT === 'deploy-preview' && process.env.REVIEW_ID === '6') || process.env.SAGB_DEMO_BUILD === 'true'
+  const productionIAM = process.env.CONTEXT === 'production' && process.env.VITE_SAGB_IAM_PILOT === 'true'
   const envPortRaw = process.env.PORT || env.VITE_DEV_SERVER_PORT
   const resolvedPort = Number(envPortRaw || 7000)
 
@@ -19,7 +20,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: basePath,
-    ...(publicDemo ? { envPrefix: 'SAGB_DEMO_UNUSED_', define: { 'import.meta.env.VITE_SAGB_PUBLIC_DEMO': JSON.stringify('true') } } : {}),
+    ...(publicDemo ? { envPrefix: 'SAGB_DEMO_UNUSED_', define: { 'import.meta.env.VITE_SAGB_PUBLIC_DEMO': JSON.stringify('true') } } : productionIAM ? { envPrefix: 'VITE_SAGB_IAM_' } : {}),
     plugins: [
       react(),
       // Plugin de bridge local para acesso ao filesystem Z:\

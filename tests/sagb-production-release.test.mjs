@@ -13,3 +13,10 @@ test('official hostname cannot mount legacy runtime without verified IAM',()=>{
  assert.match(read('netlify.toml'),/verify-production-iam\.mjs && npm run check/);
  assert.doesNotMatch(read('.github/workflows/netlify-deploy.yml'),/production-deploy:\s*true/);
 });
+
+test('production declares only a browser-public IAM key in its own context; legacy values remain outside the bundle',()=>{
+ const toml=read('netlify.toml');
+ assert.match(toml,/\[context\.production\.environment\]\s+VITE_SAGB_IAM_URL = "https:\/\/txyuwaffzgsjndqsralg\.supabase\.co"\s+VITE_SAGB_IAM_PUBLIC_KEY = "sb_publishable_[A-Za-z0-9_-]+"\s+VITE_SAGB_IAM_PILOT = "true"/);
+ assert.doesNotMatch(toml,/VITE_SAGB_IAM_PUBLIC_KEY\s*=\s*"sb_secret_/);
+ assert.match(read('vite.config.ts'),/productionIAM \? \{ envPrefix: 'VITE_SAGB_IAM_' \}/);
+});

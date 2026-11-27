@@ -7,6 +7,14 @@
 [context.production]
   command = "node tools/verify-production-iam.mjs && npm run check"
 
+# Browser-public IAM configuration only. Publishable key is intentionally public,
+# not a service-role key, personal credential, or secret. Production context only;
+# do not overwrite legacy variables or shared functions' runtime configuration.
+[context.production.environment]
+  VITE_SAGB_IAM_URL = "https://txyuwaffzgsjndqsralg.supabase.co"
+  VITE_SAGB_IAM_PUBLIC_KEY = "sb_publishable_Z5UTEBtg0T7ZKqvDVYygLA_uSIuvvrN"
+  VITE_SAGB_IAM_PILOT = "true"
+
 [functions]
   directory = "netlify/functions"
 
