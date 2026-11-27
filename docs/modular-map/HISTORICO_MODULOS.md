@@ -236,3 +236,8 @@ Documento de rastreabilidade macro por modulo.
 - Status: em andamento — MFA/AAL2, testes de administração e Home autenticada pendentes.
 - Complemento 27/11: cadastro TOTP com nome único por tentativa após 422 (fator não verificado de tentativa interrompida); mensagens de erro MFA específicas. Arquivo: `src/modules/identity-access/pages/AccessAdminPanel.tsx`.
 - Complemento 27/11: MFA TOTP real verificado (sessão AAL2); recusa de autorizar e-mail já admitido/administrador confirmada sem auditoria; mensagens específicas sem limpar a lista. Arquivo: `src/modules/identity-access/pages/AccessAdminPanel.tsx`.
+
+
+## 27-11-2026 — Direção: demonstração temporária sem login
+- Autorização explícita de abrir PR #6 sem senha temporariamente, mantendo IAM intacto. Consulta Dathex ref hfcpisvogbdlbsxnkjdv recusada por falta de permissão; escolhido caminho 2, sem reativar banco nem alterar variáveis compartilhadas. Baseline bbdb4c8ce1e01a271e0c33b81718d243b518398d.
+- Modo somente no build PR #6 e hostname exato deploy-preview-6--sagbapp.netlify.app; identidade fictícia sem credencial, perfil member, módulos habilitados por padrão, storage volátil separado, CSP connect-src none/form-action none, fetch bloqueado antes de importar App, shim GET vazio, escrita rejeitada, sem polling shim. Vite demo não injeta VITE_*; backup workflow define flag apenas PR #6. IAM, main, Supabase e SMTP/redirects intactos. Não constitui homologação das operações de módulos, que permanecem sem dados reais. Reverter este commit em develop ou retirar condição do build demo e reconstruir Preview; não remover IAM. Testes de contrato adicionados; CI/build/validação visual ainda pendentes no momento deste registro. Nenhum deploy manual.

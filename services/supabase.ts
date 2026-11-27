@@ -9,8 +9,10 @@
  * - Normalizar (snake_case <-> camelCase) nos pontos críticos (ventures, users, tasks, topics, agents).
  */
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+import { isPublicDemo } from '../src/core/demo/publicDemo';
+
+const supabaseUrl = isPublicDemo ? '' : (import.meta.env.VITE_SUPABASE_URL || '');
+const supabaseAnonKey = isPublicDemo ? '' : (import.meta.env.VITE_SUPABASE_ANON_KEY || '');
 
 export const supabaseConfig = {
   url: supabaseUrl,
@@ -169,6 +171,10 @@ export const restFetch = async (
   options: { method?: string; query?: URLSearchParams; body?: any; headers?: Record<string, string> } = {},
   accessToken?: string
 ) => {
+  if (isPublicDemo) {
+    if ((options.method || 'GET').toUpperCase() === 'GET') return [];
+    throw new Error('Demonstração: gravação remota desativada.');
+  }
   const session = await validStoredSession();
   const token = accessToken || session?.access_token;
   const queryString = options.query ? `?${options.query.toString()}` : '';
@@ -2968,6 +2974,11 @@ const getBasePollingMs = (ref: AnyRef) => {
  * Faz polling adaptativo para reduzir custo de rede sem quebrar a experiência.
  */
 export const onSnapshot = (ref: AnyRef, callback: (snapshot: any) => void, onError?: (error: any) => void) => {
+  if (isPublicDemo) {
+    let active = true;
+    queueMicrotask(() => { if (active) callback(ref.kind === 'doc' ? buildDocSnapshot(null, ref.table) : buildCollectionSnapshot([], ref.table)); });
+    return () => { active = false; };
+  }
   let active = true;
   let inFlight = false;
   let timer: ReturnType<typeof setInterval> | null = null;

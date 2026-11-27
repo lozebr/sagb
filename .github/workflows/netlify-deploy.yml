@@ -31,6 +31,7 @@ jobs:
 
       - name: Build app
         env:
+          SAGB_DEMO_BUILD: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 6 }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build

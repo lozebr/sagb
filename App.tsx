@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback, Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { isPublicDemo, demoIdentity, demoProfile } from './src/core/demo/publicDemo';
 import { SendIcon, MicIcon, StopCircleIcon, PaperclipIcon, XIcon, FileTextIcon } from './components/Icon';
 import Sidebar from './components/Sidebar';
 import { getModuleShellPolicy } from './src/core/navigation/moduleShellPolicy';
@@ -158,11 +159,11 @@ const App: React.FC = () => {
     }
   }
 
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [user, setUser] = useState<User | null>(isPublicDemo ? demoIdentity as User : null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(isPublicDemo ? demoProfile as UserProfile : null);
+  const [isInitializing, setIsInitializing] = useState(!isPublicDemo);
   const [isPasswordRecoveryActive, setIsPasswordRecoveryActive] = useState(() =>
-    typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password'
+    !isPublicDemo && typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password'
   );
 
   // State for Business Units (now dynamic)
@@ -402,6 +403,7 @@ const App: React.FC = () => {
 
   // --- VERIFICAÇÃO DE LOGIN SUPABASE ---
   useEffect(() => {
+    if (isPublicDemo) return;
     // A verificação de sessão ocorre sem expor identidades ou tokens no console.
 
 // Helpers locais para migração Firebase -> Supabase
@@ -592,6 +594,7 @@ const asDate = (v: any): Date | undefined => {
   }, [user]);
 
   const handleLogout = async () => {
+    if (isPublicDemo) { setActiveTab('home'); return; }
     try {
       await signOut(auth);
       setActiveTab('home');

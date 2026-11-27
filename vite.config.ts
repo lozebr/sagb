@@ -5,6 +5,8 @@ import { localBridgePlugin } from './vite-plugin-local-bridge'
 export default defineConfig(({ mode }) => {
   // Carrega somente variáveis VITE_ do .env conforme o modo
   const env = loadEnv(mode, process.cwd(), 'VITE_')
+  // Restrict demo bundles to the authorized PR and strip VITE_* values from them.
+  const publicDemo = (process.env.CONTEXT === 'deploy-preview' && process.env.REVIEW_ID === '6') || process.env.SAGB_DEMO_BUILD === 'true'
   const envPortRaw = process.env.PORT || env.VITE_DEV_SERVER_PORT
   const resolvedPort = Number(envPortRaw || 7000)
 
@@ -17,6 +19,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: basePath,
+    ...(publicDemo ? { envPrefix: 'SAGB_DEMO_UNUSED_', define: { 'import.meta.env.VITE_SAGB_PUBLIC_DEMO': JSON.stringify('true') } } : {}),
     plugins: [
       react(),
       // Plugin de bridge local para acesso ao filesystem Z:\
