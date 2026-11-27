@@ -147,10 +147,12 @@ test('isolated workspace: native interface runs in opaque sandbox, history and a
  expect(await child.evaluate(()=>fetch('/api/probe').then(()=>false,()=>true))).toBe(true);
  await nav.getByRole('button',{name:'Abrir NAGI',exact:true}).click();
  await expect(frame.locator('.nagi-sidebar')).toBeVisible();
- await page.goBack();
- await expect(nav).toBeVisible();
- await page.goForward();
- await expect(frame.locator('.nagi-sidebar')).toBeVisible();
+ // Joint session history changes the child document, not the top-level load event.
+ // Initiate the real browser history traversal without waiting for a nonexistent load.
+ await page.evaluate(()=>window.history.back());
+ await expect(nav).toBeVisible({timeout:10000});
+ await page.evaluate(()=>window.history.forward());
+ await expect(frame.locator('.nagi-sidebar')).toBeVisible({timeout:10000});
  await frame.locator('.nagi-sidebar').getByRole('button',{name:/Voltar ao SagB/i}).click();
  await expect(nav.getByRole('button',{name:'Abrir Biblioteca de Módulos LOZE',exact:true})).toBeVisible();
 });
